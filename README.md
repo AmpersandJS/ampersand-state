@@ -1,6 +1,11 @@
 # statey
 
-**note, this is in early development, beware** also, if it looks like [HumanModel](http://github.com/henrikjoreteg/human-model), it's because it's very similar. The plan is to make this the base object for HumanModel that doesn't include any assumptions about REST or how you're going to use it. Thus making it useful for non-REST-API use-cases as well.
+**note, this was abstracted out of human-model and is not super well tested as a standalone yet** 
+
+So, if it looks like [HumanModel](http://github.com/henrikjoreteg/human-model), it's because it's largely pulled from there. 
+
+The plan is to make this the base object for HumanModel that doesn't include any assumptions about REST or how you're going to use it. Thus making it useful for anytime you want something to model state, that events changes and lets you define and listen to derived properties.
+
 
 ## In pursuit of the ultimate observable JS object.
 
@@ -160,7 +165,7 @@ With the model above, the descrition will only be run through that linkifier met
 
 ## Derived properties are intelligently triggered
 
-Just because an underlying property has changed, doesn't mean the derived property has. 
+Just because an underlying property has changed, *doesn't mean the derived property has*. 
 
 Cached derived properties will *only* trigger a `change` if the resulting calculated value has changed.
 
@@ -207,6 +212,9 @@ Say you want to calculate a value whenever it's accessed. Sure, you can create a
 
 If you say `cache: false` then it will fire a `change` event anytime any of the `deps` changes and it will be re-calculated each time its accessed.
 
+## Changelog
+
+- 0.0.1 - initial publish
 
 ## Credits
 

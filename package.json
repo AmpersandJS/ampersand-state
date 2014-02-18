@@ -10,6 +10,9 @@
     "backbone-events-standalone": "~0.2.1",
     "underscore": "~1.6.0"
   },
+  "devDependencies": {
+    "nodeunit": "~0.8.5"
+  },
   "homepage": "https://github.com/henrikjoreteg/statey",
   "keywords": [
     "model",
@@ -23,6 +26,6 @@
     "url": "git://github.com/henrikjoreteg/statey"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodeunit test/"
   }
 }

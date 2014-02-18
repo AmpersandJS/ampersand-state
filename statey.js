@@ -11,10 +11,10 @@ function StateyBase(attrs, options) {
   attrs || (attrs = {});
   options || (options = {});
   this.cid = _.uniqueId('model');
-  // set the collection if passed in
+  // set collection/registry if passed in
   this.collection = options.collection;
-  if (options.parse) attrs = this.parse(attrs, options) || {};
   this.registry = options.registry;
+  if (options.parse) attrs = this.parse(attrs, options) || {};
   options._attrs = attrs;
   this._namespace = options.namespace;
   this._initted = false;
@@ -23,15 +23,12 @@ function StateyBase(attrs, options) {
   this._cache = {};
   this._previousAttributes = {};
   this._events = {};
-
   this.set(attrs, _.extend({silent: true, initial: true}, options));
   this._changed = {};
   this.initialize.apply(this, arguments);
-  if (attrs[this.idAttribute]) this.registry.store(this);
+  if (attrs[this.idAttribute] && this.registry) this.registry.store(this);
   this._initted = true;
-  if (this.seal) {
-    Object.seal(this);
-  }
+  if (this.seal) Object.seal(this);
 };
 
 var accessors = {
@@ -40,21 +37,11 @@ var accessors = {
       return this._getAttributes(true);
     }
   },
-  json: {
-    get: function () {
-      return JSON.stringify(this.serialize());
-    }
-  },
   derived: {
     get: function () {
       var res = {};
       for (var item in this._derived) res[item] = this._derived[item].fn.apply(this);
       return res;
-    }
-  },
-  toTemplate: {
-    get: function () {
-      return _.extend(this._getAttributes(true), this.derived);
     }
   }
 };
@@ -79,19 +66,9 @@ var prototypeMixins = {
     return resp;
   },
 
-  // serialize does nothing by default
+  // serialize gets props in raw form
   serialize: function () {
     return this._getAttributes(false, true);
-  },
-
-  // Remove model from the registry and unbind events
-  remove: function () {
-    if (this.registry && this.getId()) {
-      this.registry.remove(this.type, this.getId(), this._namespace);
-    }
-    this.trigger('remove', this);
-    this.off();
-    return this;
   },
 
   set: function (key, value, options) {
@@ -314,16 +291,6 @@ var prototypeMixins = {
     return new this.constructor(this._getAttributes(true));
   },
 
-  // Check if the model is currently in a valid state.
-  isValid: function (options) {
-    return this._validate({}, _.extend(options || {}, { validate: true }));
-  },
-
-  // return escaped property
-  escape: function (attr) {
-    return _.escape(this[attr]);
-  },
-
   unset: function (attr, options) {
     var def = this._definition[attr];
     var type = def.type;
@@ -348,15 +315,9 @@ var prototypeMixins = {
     return this;
   },
 
-  // Run validation against the next complete set of model attributes,
-  // returning `true` if all is well. Otherwise, fire an `"invalid"` event.
-  _validate: function (attrs, options) {
-    if (!options.validate || !this.validate) return true;
-    attrs = _.extend({}, this.attributes, attrs);
-    var error = this.validationError = this.validate(attrs, options) || null;
-    if (!error) return true;
-    this.trigger('invalid', this, error, _.extend(options || {}, {validationError: error}));
-    return false;
+  previous: function (attr) {
+    if (attr == null || !Object.keys(this._previousAttributes).length) return null;
+    return this._previousAttributes[attr];
   },
 
   // Get default values for a certain type
@@ -370,53 +331,15 @@ var prototypeMixins = {
     }
   },
 
-  // convenience methods for manipulating array properties
-  addListVal: function (prop, value, prepend) {
-    var list = _.clone(this[prop]) || [];
-    if (!_(list).contains(value)) {
-      list[prepend ? 'unshift' : 'push'](value);
-      this[prop] = list;
-    }
-    return this;
-  },
-
-  previous: function (attr) {
-    if (attr == null || !Object.keys(this._previousAttributes).length) return null;
-    return this._previousAttributes[attr];
-  },
-
-  removeListVal: function (prop, value) {
-    var list = _.clone(this[prop]) || [];
-    if (_(list).contains(value)) {
-      this[prop] = _(list).without(value);
-    }
-    return this;
-  },
-
-  hasListVal: function (prop, value) {
-    return _.contains(this[prop] || [], value);
-  },
-
-  // -----------------------------------------------------------------------
-
-  _initCollections: function () {
-    var coll;
-    if (!this._collections) return;
-    for (coll in this._collections) {
-      this[coll] = new this._collections[coll]();
-      this[coll].parent = this;
-    }
-  },
-
-  // Check that all required attributes are present
-  _verifyRequired: function () {
-    var attrs = this._getAttributes(true); // should include session
-    for (var def in this._definition) {
-      if (this._definition[def].required && typeof attrs[def] === 'undefined') {
-        return false;
-      }
-    }
-    return true;
+  // Run validation against the next complete set of model attributes,
+  // returning `true` if all is well. Otherwise, fire an `"invalid"` event.
+  _validate: function (attrs, options) {
+    if (!options.validate || !this.validate) return true;
+    attrs = _.extend({}, this.attributes, attrs);
+    var error = this.validationError = this.validate(attrs, options) || null;
+    if (!error) return true;
+    this.trigger('invalid', this, error, _.extend(options || {}, {validationError: error}));
+    return false;
   },
 
   _createPropertyDefinition: function (name, desc, isSession) {
@@ -493,6 +416,15 @@ var prototypeMixins = {
       }
     } else {
       return this._derived[name].fn.apply(this);
+    }
+  },
+
+  _initCollections: function () {
+    var coll;
+    if (!this._collections) return;
+    for (coll in this._collections) {
+      this[coll] = new this._collections[coll]();
+      this[coll].parent = this;
     }
   }
 };
