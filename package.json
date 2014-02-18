@@ -1,0 +1,28 @@
+{
+  "name": "statey",
+  "description": "An observable, extendable object with derived watchable properties.",
+  "version": "0.0.0",
+  "author": "Henrik Joreteg <henrik@andyet.net>",
+  "bugs": {
+    "url": "https://github.com/henrikjoreteg/statey/issues"
+  },
+  "dependencies": {
+    "backbone-events-standalone": "~0.2.1",
+    "underscore": "~1.6.0"
+  },
+  "homepage": "https://github.com/henrikjoreteg/statey",
+  "keywords": [
+    "model",
+    "object",
+    "observable"
+  ],
+  "license": "MIT",
+  "main": "statey.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/henrikjoreteg/statey"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
