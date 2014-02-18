@@ -20,7 +20,7 @@ In our case it looks like this:
 var Statey = require('Statey');
 
 // Create a constructor to represent the state we want to store
-var Person = .extend({
+var Person = Statey.extend({
     props: {
         name: 'string',
         isDancing: 'boolean'
@@ -212,8 +212,52 @@ Say you want to calculate a value whenever it's accessed. Sure, you can create a
 
 If you say `cache: false` then it will fire a `change` event anytime any of the `deps` changes and it will be re-calculated each time its accessed.
 
+
+## statey can be extended as many times as you want
+
+Each statey object you define will have and `extend` method on the constructor.
+
+That means you can extend as much as you want and the definitions will get merged.
+
+```js
+var Person = Statey.extend({
+    props: {
+        name: 'string'
+    },
+    sayHi: function () {
+        return 'hi, ' + this.name;
+    }
+});
+
+var AwesomePerson = Person.extend({
+    props: {
+        awesomeness: 'number'
+    }
+});
+
+// Now awesome person will have both awesomeness and name properties
+var awesome = new AwesomePerson({
+    name: 'henrik',
+    awesomeness: 8
+});
+
+// and it will have the methods in the original
+awesome.sayHi(); // returns 'hi, henrik'
+
+// *BUT* it doesn't maintain the prototype chain
+// so instanceof checks will fail up the chain
+
+// so this is true
+awesome instanceof AwesomePerson; // true;
+
+// but this is false
+awesome instanceof Person; // false
+
+```
+
 ## Changelog
 
+- 0.0.2 - improved doc
 - 0.0.1 - initial publish
 
 ## Credits
