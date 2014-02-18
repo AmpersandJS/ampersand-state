@@ -1,7 +1,7 @@
 {
   "name": "statey",
   "description": "An observable, extensible state object with derived watchable properties.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Henrik Joreteg <henrik@andyet.net>",
   "bugs": {
     "url": "https://github.com/henrikjoreteg/statey/issues"
