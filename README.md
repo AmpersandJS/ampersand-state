@@ -1,11 +1,16 @@
-# statey
+# ampersand-state
 
-**note, this was abstracted out of human-model and is not super well tested as a standalone yet** 
+An observable, extensible state object with derived watchable properties.
 
-So, if it looks like [HumanModel](http://github.com/henrikjoreteg/human-model), it's because it's largely pulled from there. 
+Ampersand-state serves as a base object for [ampersand-model](http://github.com/ampersandjs/ampersand-model) but is useful any time you want to track complex state.
 
-The plan is to make this the base object for HumanModel that doesn't include any assumptions about REST or how you're going to use it. Thus making it useful for anytime you want something to model state, that events changes and lets you define and listen to derived properties.
+[ampersand-model](https://github.com/ampersandjs/ampersand-model) extends ampersand-state to include assumptions that you'd want if you're using models to model date from a REST API. But by itself ampersand-state is useful for anytime you want something to model state, that fires events for changes and lets you define and listen to derived properties.
 
+## install
+
+```
+npm install ampersand-state
+```
 
 ## In pursuit of the ultimate observable JS object.
 
@@ -17,10 +22,10 @@ In our case it looks like this:
 
 ```js
 // Require the lib
-var Statey = require('Statey');
+var State = require('ampersand-state');
 
 // Create a constructor to represent the state we want to store
-var Person = Statey.extend({
+var Person = State.extend({
     props: {
         name: 'string',
         isDancing: 'boolean'
@@ -51,7 +56,7 @@ So, what if our observable layer did that for us too?
 Say you wanted to describe a draggable element on a page so you wanted it to follow a set of a rules. You want it to only be considered to have been dragged if it's total delta is > 10 pixels.
 
 ```js
-var DraggedElementModel = Statey.extend({
+var DraggedElementModel = State.extend({
     props: {
         x: 'number',
         y: 'number'
@@ -95,7 +100,7 @@ Say you've got an observable that you're using to model data from a RESTful API.
 Cached, derived properties are perfect for handling this relationship:
 
 ```js
-var UserModel = Statey.extend({
+var UserModel = State.extend({
     props: {
         name: 'string',
         groupId: 'string'
@@ -136,7 +141,7 @@ By default, derived properties are cached.
 // assume this linkifies strings
 var linkify = require('urlify');
 
-var MySmartDescriptionModel = Statey.extend({
+var MySmartDescriptionModel = State.extend({
     // assume this is a long string of text
     description: 'string',
     derived: {
@@ -176,7 +181,7 @@ This is also important for cases where you're dealing with fast changing attribu
 Say you're drawing a realtime graph of tweets from the Twitter firehose, instead of binding your graph to increment with each tweet, if you know your graph only ticks with every thousand tweets you can easily create a property to watch.
 
 ```js
-var MyGraphDataModel = Statey.extend({
+var MyGraphDataModel = State.extend({
     props: {
         numberOfTweets: 'number'
     },
@@ -213,14 +218,14 @@ Say you want to calculate a value whenever it's accessed. Sure, you can create a
 If you say `cache: false` then it will fire a `change` event anytime any of the `deps` changes and it will be re-calculated each time its accessed.
 
 
-## statey can be extended as many times as you want
+## State can be extended as many times as you want
 
-Each statey object you define will have and `extend` method on the constructor.
+Each state object you define will have and `extend` method on the constructor.
 
 That means you can extend as much as you want and the definitions will get merged.
 
 ```js
-var Person = Statey.extend({
+var Person = State.extend({
     props: {
         name: 'string'
     },

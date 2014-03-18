@@ -1,8 +1,8 @@
-var Statey = require('../statey');
+var State = require('../ampersand-state');
 
 
 exports.setUp = function (cb) {
-    this.Person = Statey.extend({
+    this.Person = State.extend({
         props: {
             name: 'string'
         }

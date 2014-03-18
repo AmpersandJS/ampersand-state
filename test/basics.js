@@ -1,8 +1,8 @@
-var Statey = require('../statey');
+var State = require('../ampersand-state');
 
 
 exports.setUp = function (cb) {
-    this.Person = Statey.extend({
+    this.Person = State.extend({
         props: {
             name: 'string'
         }
@@ -35,7 +35,7 @@ exports['extended object maintains existing props'] = function (test) {
 };
 
 exports['extended object maintains existing methods'] = function (test) {
-    var Person = Statey.extend({
+    var Person = State.extend({
         props: {
             awesomeness: 'number'
         },

@@ -1,10 +1,10 @@
 {
-  "name": "statey",
+  "name": "ampersand-state",
   "description": "An observable, extensible state object with derived watchable properties.",
   "version": "0.0.2",
   "author": "Henrik Joreteg <henrik@andyet.net>",
   "bugs": {
-    "url": "https://github.com/henrikjoreteg/statey/issues"
+    "url": "https://github.com/ampersandjs/ampersand-state/issues"
   },
   "dependencies": {
     "backbone-events-standalone": "~0.2.1",
@@ -13,17 +13,17 @@
   "devDependencies": {
     "nodeunit": "~0.8.5"
   },
-  "homepage": "https://github.com/henrikjoreteg/statey",
+  "homepage": "https://github.com/ampersandjs/ampersand-state",
   "keywords": [
     "model",
     "object",
     "observable"
   ],
   "license": "MIT",
-  "main": "statey.js",
+  "main": "ampersand-state.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/henrikjoreteg/statey"
+    "url": "git://github.com/ampersandjs/ampersand-state"
   },
   "scripts": {
     "test": "nodeunit test/"
