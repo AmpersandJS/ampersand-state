@@ -6,6 +6,10 @@ Ampersand-state serves as a base object for [ampersand-model](http://github.com/
 
 [ampersand-model](https://github.com/ampersandjs/ampersand-model) extends ampersand-state to include assumptions that you'd want if you're using models to model date from a REST API. But by itself ampersand-state is useful for anytime you want something to model state, that fires events for changes and lets you define and listen to derived properties.
 
+<!-- starthide -->
+Part of the [Ampersand.js toolkit](http://ampersandjs.com) for building clientside applications.
+<!-- endhide -->
+
 ## install
 
 ```
@@ -265,6 +269,7 @@ awesome instanceof Person; // false
 - 0.0.2 - improved doc
 - 0.0.1 - initial publish
 
+<!-- starthide -->
 ## Credits
 
 [@HenrikJoreteg](http://twitter.com/henrikjoreteg)
@@ -272,3 +277,4 @@ awesome instanceof Person; // false
 ## License
 
 MIT
+<!-- endhide -->
