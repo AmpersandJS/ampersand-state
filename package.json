@@ -11,7 +11,7 @@
     "underscore": "~1.6.0"
   },
   "devDependencies": {
-    "nodeunit": "~0.8.5"
+    "tape": "~2.11.0"
   },
   "homepage": "https://github.com/ampersandjs/ampersand-state",
   "keywords": [
@@ -26,6 +26,6 @@
     "url": "git://github.com/ampersandjs/ampersand-state"
   },
   "scripts": {
-    "test": "nodeunit test/"
+    "test": "node test/main.js"
   }
 }
