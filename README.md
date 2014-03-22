@@ -10,6 +10,11 @@ Ampersand-state serves as a base object for [ampersand-model](http://github.com/
 Part of the [Ampersand.js toolkit](http://ampersandjs.com) for building clientside applications.
 <!-- endhide -->
 
+## browser support
+
+[![browser support](https://ci.testling.com/ampersandjs/ampersand-state.png)
+](https://ci.testling.com/ampersandjs/ampersand-state)
+
 ## install
 
 ```
