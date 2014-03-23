@@ -1,3 +1,5 @@
+/*jshint expr: true*/
+
 var test = require('tape');
 var State = require('../ampersand-state');
 
@@ -5,6 +7,15 @@ var Person = State.extend({
     props: {
         name: 'string'
     }
+});
+
+test('init with nothing should be okay', function (t) {
+    var EmptyModel = State.extend();
+    var something = new EmptyModel();
+    something.foo = 'bar';
+    t.ok(something);
+    t.equal(something.foo, 'bar');
+    t.end();
 });
 
 test('init with values', function (t) {

@@ -538,6 +538,7 @@ var createDerivedProperty = function (modelProto, name, definition) {
 };
 
 var extend = function (spec) {
+    spec = spec || {};
     var parent = this;
     var BaseClass = this._super || Base;
     var props, session, derived, collections;
