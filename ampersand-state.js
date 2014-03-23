@@ -1,3 +1,4 @@
+/* jshint expr: true, eqnull: true */
 //   (c) 2013 Henrik Joreteg
 //   MIT Licensed
 //   For all details and documentation:
@@ -27,7 +28,7 @@ function Base(attrs, options) {
     if (attrs && attrs[this.idAttribute] && this.registry) _.result(this, 'registry').store(this);
     this._initted = true;
     if (this.seal) Object.seal(this);
-};
+}
 
 var accessors = {
     attributes: {
@@ -156,7 +157,7 @@ var prototypeMixins = {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
             if (def.values && !_.contains(def.values, newVal)) {
-                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.map(function (item) { return item.toString(); }).join(', '));
+                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', '));
             }
 
             // enforce `setOnce` for properties if set
@@ -412,12 +413,11 @@ var prototypeMixins = {
     _getDerivedProperty: function (name, flushCache) {
         // is this a derived property that is cached
         if (this._derived[name].cache) {
-            // read through cache
-            if (!flushCache && this._cache.hasOwnProperty(name)) {
-                return this._cache[name];
-            } else {
-                return this._cache[name] = this._derived[name].fn.apply(this);
+            //set if this is the first time, or flushCache is set
+            if (flushCache || !this._cache.hasOwnProperty(name)) {
+                this._cache[name] = this._derived[name].fn.apply(this);
             }
+            return this._cache[name];
         } else {
             return this._derived[name].fn.apply(this);
         }
@@ -454,7 +454,7 @@ _.each(['keys', 'values', 'pairs', 'invert', 'pick', 'omit'], function (method) 
 });
 
 // add event methods
-BBEvents.mixin(prototypeMixins)
+BBEvents.mixin(prototypeMixins);
 
 // our dataTypes
 var dataTypes = {
@@ -538,6 +538,7 @@ var createDerivedProperty = function (modelProto, name, definition) {
 };
 
 var extend = function (spec) {
+    spec = spec || {};
     var parent = this;
     var BaseClass = this._super || Base;
     var props, session, derived, collections;
