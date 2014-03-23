@@ -537,14 +537,21 @@ var createDerivedProperty = function (modelProto, name, definition) {
     });
 };
 
-var extend = function (spec) {
+var extend = function (/*[newConstructorName],*/spec) {
     var parent = this;
     var BaseClass = this._super || Base;
     var props, session, derived, collections;
+    var constructorName = this._constructorName || 'State';
 
-    function State() {
-        BaseClass.apply(this, arguments);
+    var args = Array.prototype.slice.call(arguments);
+
+    //Override constructor name if passed
+    if (typeof args[0] === 'string' && (typeof args[1] === 'object' || typeof args[1] === 'undefined')) {
+        constructorName = args[0];
+        spec = args[1] || {};
     }
+
+    var State = eval("(function " + constructorName + "() { BaseClass.apply(this, arguments); })");
 
     // Add our special accessor properties
     Object.defineProperties(State.prototype, accessors);
@@ -607,6 +614,7 @@ var extend = function (spec) {
 
     // Keep reference to super human™
     State._super = State;
+    State._constructorName = constructorName;
 
     // Maintain ability to further extend
     State.extend = extend;
