@@ -156,7 +156,7 @@ var prototypeMixins = {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
             if (def.values && !_.contains(def.values, newVal)) {
-                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.map(function (item) { return item.toString(); }).join(', '));
+                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', '));
             }
 
             // enforce `setOnce` for properties if set
