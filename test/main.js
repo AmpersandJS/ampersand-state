@@ -50,6 +50,33 @@ test('extended object maintains existing methods', function (t) {
     t.end();
 });
 
+test('extended object can have a custom constructor name', function (t) {
+    //Default constructor is 'State'
+    var BaseState = State.extend({});
+    var baseItem = new BaseState();
+    t.ok(baseItem.constructor.toString().match(/function State/));
+
+    //Can override constructor name on extend
+    var Model = BaseState.extend('Model', { model: true });
+    var model = new Model();
+    t.ok(model.model);
+    t.ok(model.constructor.toString().match(/function Model/));
+
+    //Will maintain overridden down the chain
+    var Dog = Model.extend({ dog: true });
+    var dog = new Dog();
+    t.ok(dog.dog);
+    t.ok(dog.constructor.toString().match(/function Model/));
+
+    //Or you can override again
+    var MyDog = Dog.extend('MyDog', { myDog: true });
+    var myDog = new MyDog();
+    t.ok(myDog.myDog);
+    t.ok(myDog.constructor.toString().match(/function MyDog/));
+
+    t.end();
+});
+
 test('cached derived properties are calculated once per change', function (t) {
     var count = 0;
     var NewPerson = Person.extend({
