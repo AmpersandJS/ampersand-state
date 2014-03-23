@@ -140,4 +140,17 @@ test('uncached derived properties always fire events on dependency change', func
     person.name = 'different';
 });
 
-
+test('custom id attribute', function (t) {
+    var NewPerson = Person.extend({
+        props: {
+            _id: 'number',
+            ns: 'string'
+        },
+        idAttribute: '_id',
+        namespaceAttribute: 'ns'
+    });
+    var person = new NewPerson({name: 'henrik', ns: 'group1', _id: 47});
+    t.equal(person.getId(), 47);
+    t.equal(person.getNamespace(), 'group1');
+    t.end();
+});

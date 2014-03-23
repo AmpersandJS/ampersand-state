@@ -15,7 +15,6 @@ function Base(attrs, options) {
     if (options.registry) this.registry = options.registry;
     if (options.parse) attrs = this.parse(attrs, options);
     options._attrs = attrs;
-    this._namespace = options.namespace;
     this._initted = false;
     this._values = {};
     this._initCollections();
@@ -48,11 +47,17 @@ var accessors = {
 var prototypeMixins = {
     idAttribute: 'id',
 
+    namespaceAttribute: 'namespace',
+
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 
     getId: function () {
         return this.get(this.idAttribute);
+    },
+
+    getNamespace: function () {
+        return this.get(this.namespaceAttribute);
     },
 
     // stubbed out to be overwritten
