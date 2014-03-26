@@ -54,11 +54,11 @@ var prototypeMixins = {
     extraProperties: 'ignore',
 
     getId: function () {
-        return this.get(this.idAttribute);
+        return this[this.idAttribute];
     },
 
     getNamespace: function () {
-        return this.get(this.namespaceAttribute);
+        return this[this.namespaceAttribute];
     },
 
     // stubbed out to be overwritten
