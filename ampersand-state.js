@@ -1,11 +1,7 @@
-/* jshint expr: true, eqnull: true */
-//   (c) 2013 Henrik Joreteg
-//   MIT Licensed
-//   For all details and documentation:
-//   https://github.com/HenrikJoreteg/human-model
-//
 var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
+var propertyUtils = require('./properties');
+var dataTypes = require('./dataTypes');
 
 
 function Base(attrs, options) {
@@ -15,7 +11,6 @@ function Base(attrs, options) {
     this.collection = options.collection;
     if (options.registry) this.registry = options.registry;
     if (options.parse) attrs = this.parse(attrs, options);
-    options._attrs = attrs;
     this._initted = false;
     this._values = {};
     this._initCollections();
@@ -30,25 +25,27 @@ function Base(attrs, options) {
     if (this.seal) Object.seal(this);
 }
 
-var accessors = {
-    attributes: {
-        get: function () {
-            return this._getAttributes(true);
-        }
-    },
-    derived: {
-        get: function () {
-            var res = {};
-            for (var item in this._derived) res[item] = this._derived[item].fn.apply(this);
-            return res;
-        }
-    }
-};
 
-var prototypeMixins = {
+_.extend(Base.prototype, BBEvents, {
+    // getter for attributes
+    get attributes() {
+        return this._getAttributes(true);
+    },
+
+    // getter for derived properties
+    get derived() {
+        var res = {};
+        for (var item in this._derived) res[item] = this._derived[item].fn.apply(this);
+        return res;
+    },
+
     idAttribute: 'id',
 
     namespaceAttribute: 'namespace',
+
+    _derived: {},
+    _deps: {},
+    _definition: {},
 
     // can be allow, ignore, reject
     extraProperties: 'ignore',
@@ -348,46 +345,7 @@ var prototypeMixins = {
     },
 
     _createPropertyDefinition: function (name, desc, isSession) {
-        var self = this;
-        var def = this._definition[name] = {};
-        var type;
-        if (_.isString(desc)) {
-            // grab our type if all we've got is a string
-            type = this._ensureValidType(desc);
-            if (type) def.type = type;
-        } else {
-            type = this._ensureValidType(desc[0] || desc.type);
-            if (type) def.type = type;
-            if (desc[1] || desc.required) def.required = true;
-            // set default if defined
-            def.default = !_.isUndefined(desc[2]) ? desc[2] : desc.default;
-            def.allowNull = desc.allowNull ? desc.allowNull : false;
-            if (desc.setOnce) def.setOnce = true;
-            if (def.required && _.isUndefined(def.default)) def.default = this._getDefaultForType(type);
-            def.test = desc.test;
-            def.values = desc.values;
-        }
-        if (isSession) def.session = true;
-
-        // define a getter/setter on the prototype
-        // but they get/set on the instance
-        Object.defineProperty(self, name, {
-            set: function (val) {
-                this.set(name, val);
-            },
-            get: function () {
-                var result = this._values[name];
-                if (typeof result !== 'undefined') {
-                    if (dataTypes[def.type] && dataTypes[def.type].get) {
-                        result = dataTypes[def.type].get(result);
-                    }
-                    return result;
-                }
-                return def.default;
-            }
-        });
-
-        return def;
+        propertyUtils.createPropertyDefinition(this, name, desc, isSession);
     },
 
     // just makes friendlier errors when trying to define a new model
@@ -442,178 +400,65 @@ var prototypeMixins = {
         }
         return true;
     }
-};
-
-// Underscore methods we want to add
-_.each(['keys', 'values', 'pairs', 'invert', 'pick', 'omit'], function (method) {
-    prototypeMixins[method] = function () {
-        var args = Array.prototype.slice.call(arguments);
-        args.unshift(this.attributes);
-        return _[method].apply(_, args);
-    };
 });
 
-// add event methods
-BBEvents.mixin(prototypeMixins);
 
-// our dataTypes
-var dataTypes = {
-    date: {
-        set: function (newVal) {
-            var newType;
-            if (!_.isDate(newVal)) {
-                try {
-                    newVal = (new Date(parseInt(newVal, 10))).valueOf();
-                    newType = 'date';
-                } catch (e) {
-                    newType = typeof newVal;
-                }
-            } else {
-                newType = 'date';
-                newVal = newVal.valueOf();
-            }
-            return {
-                val: newVal,
-                type: newType
-            };
-        },
-        get: function (val) {
-            return new Date(val);
-        }
-    },
-    array: {
-        set: function (newVal) {
-            return {
-                val: newVal,
-                type: _.isArray(newVal) ? 'array' : typeof newVal
-            };
-        }
-    },
-    object: {
-        set: function (newVal) {
-            var newType = typeof newVal;
-            // we have to have a way of supporting "missing" objects.
-            // Null is an object, but setting a value to undefined
-            // should work too, IMO. We just override it, in that case.
-            if (newType !== 'object' && _.isUndefined(newVal)) {
-                newVal = null;
-                newType = 'object';
-            }
-            return {
-                val: newVal,
-                type: newType
-            };
-        }
-    }
-};
-
-var arrayNext = function (array, currentItem) {
-    var len = array.length;
-    var newIndex = array.indexOf(currentItem) + 1;
-    if (newIndex > (len - 1)) newIndex = 0;
-    return array[newIndex];
-};
-
-var createDerivedProperty = function (modelProto, name, definition) {
-    var def = modelProto._derived[name] = {
-        fn: _.isFunction(definition) ? definition : definition.fn,
-        cache: (definition.cache !== false),
-        depList: definition.deps || []
-    };
-
-    // add to our shared dependency list
-    _.each(def.depList, function (dep) {
-        modelProto._deps[dep] = _(modelProto._deps[dep] || []).union([name]);
-    });
-
-    // defined a top-level getter for derived names
-    Object.defineProperty(modelProto, name, {
-        get: function () {
-            return this._getDerivedProperty(name);
-        },
-        set: function () {
-            throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');
-        }
-    });
-};
-
-var extend = function (spec) {
-    spec = spec || {};
+var extend = function (protoProps) {
     var parent = this;
-    var BaseClass = this._super || Base;
-    var props, session, derived, collections;
+    var child;
+    var args = [].slice.call(arguments);
 
-    function State() {
-        BaseClass.apply(this, arguments);
+    // The constructor function for the new subclass is either defined by you
+    // (the "constructor" property in your `extend` definition), or defaulted
+    // by us to simply call the parent's constructor.
+    if (protoProps && protoProps.hasOwnProperty('constructor')) {
+        child = protoProps.constructor;
+    } else {
+        child = function () {
+            return parent.apply(this, arguments);
+        };
     }
 
-    // Add our special accessor properties
-    Object.defineProperties(State.prototype, accessors);
+    // Add static properties to the constructor function from parent
+    _.extend(child, parent);
 
-    // Mix in our methods
-    _.extend(State.prototype, prototypeMixins, {
-            // storage for our rules about derived properties
-        _derived: {},
-        _deps: {},
-        _definition: {}
-    });
+    // Set the prototype chain to inherit from `parent`, without calling
+    // `parent`'s constructor function.
+    var Surrogate = function(){ this.constructor = child; };
+    Surrogate.prototype = parent.prototype;
+    child.prototype = new Surrogate();
 
-    // Copy any methods from existing prototype
-    _.each(BaseClass.prototype, function (value, key) {
-        if (value instanceof Function) {
-            State.prototype[key] = value;
-        }
-    });
-
-    // Pull out previous model spec
-    if (this._spec) {
-        props = this._spec.props;
-        session = this._spec.session;
-        derived = this._spec.derived;
-        collections = this._spec.collections;
+    // Mix in all prototype properties to the subclass if supplied.
+    if (protoProps) {
+        args.forEach(function processArg(def) {
+            _.each(def, function (value, key) {
+                if (key === 'props' || key === 'session') {
+                    _.each(value, function (def, name) {
+                        propertyUtils.createPropertyDefinition(child.prototype, name, def, key === 'session');
+                    });
+                } else if (key === 'derived') {
+                    _.each(value, function (def, name) {
+                        propertyUtils.createDerivedProperty(child.prototype, name, def);
+                    });
+                } else if (key === 'collections') {
+                    _.each(value, function (constructor, name) {
+                        child.prototype._collections[name] = constructor;
+                    });
+                }
+            });
+            delete def.props;
+            delete def.session;
+            delete def.derived;
+            delete def.collections;
+            _.extend(child.prototype, def);
+        });
     }
 
-    // Extend previous with new special attributes
-    State._spec = {
-        props: _.extend({}, props, spec.props),
-        session: _.extend({}, session, spec.session),
-        derived: _.extend({}, derived, spec.derived),
-        collections: _.extend({}, collections, spec.collections)
-    };
+    // Set a convenience property in case the parent's prototype is needed
+    // later.
+    child.__super__ = parent.prototype;
 
-    // remove handled references before we loop
-    delete spec.props;
-    delete spec.session;
-    delete spec.derived;
-    delete spec.collections;
-
-    // Extend spec with any new proto methods we may have just added
-    _.extend(State._spec, spec);
-
-    _.each(State._spec, function (value, key) {
-        if (key === 'props' || key === 'session') {
-            _.each(value, function (def, name) {
-                State.prototype._createPropertyDefinition.call(State.prototype, name, def, key === 'session');
-            });
-        } else if (key === 'derived') {
-            _.each(value, function (def, name) {
-                createDerivedProperty(State.prototype, name, def);
-            });
-        } else if (key === 'collections') {
-            State.prototype._collections = value;
-        } else {
-            State.prototype[key] = value;
-        }
-    });
-
-    // Keep reference to super human™
-    State._super = State;
-
-    // Maintain ability to further extend
-    State.extend = extend;
-    State.dataTypes = dataTypes;
-
-    return State;
+    return child;
 };
 
 // also expose data types in our export

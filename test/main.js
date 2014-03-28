@@ -1,7 +1,7 @@
 /*jshint expr: true*/
 
 var test = require('tape');
-var State = require('../ampersand-state');
+var State = require('../state2');
 
 var Person = State.extend({
     props: {
@@ -43,7 +43,7 @@ test('extended object maintains existing props', function (t) {
 });
 
 test('extended object maintains existing methods', function (t) {
-    var Person = State.extend({
+    var NewPerson = State.extend({
         props: {
             awesomeness: 'number'
         },
@@ -51,12 +51,10 @@ test('extended object maintains existing methods', function (t) {
             if (this.awesomeness > 10) return true;
         }
     });
-    var AwesomePerson = Person.extend({});
-
+    var AwesomePerson = NewPerson.extend({});
     var awesome = new AwesomePerson({
         awesomeness: 11
     });
-
     t.ok(awesome.isTrulyAwesome());
     t.end();
 });
@@ -163,5 +161,23 @@ test('custom id attribute', function (t) {
     var person = new NewPerson({name: 'henrik', ns: 'group1', _id: 47});
     t.equal(person.getId(), 47);
     t.equal(person.getNamespace(), 'group1');
+    t.end();
+});
+
+test('instanceof checks should pass for all parents in the chain', function (t) {
+    var P1 = Person.extend({});
+    var P2 = P1.extend({});
+    var P3 = P2.extend({});
+    var p1 = new P1;
+    var p2 = new P2;
+    var p3 = new P3;
+    t.ok(p1 instanceof Person);
+    t.ok(p2 instanceof Person);
+    t.ok(p3 instanceof Person);
+    t.notOk(p1 instanceof P2);
+    t.ok(p2 instanceof P2);
+    t.ok(p3 instanceof P2);
+    t.notOk(p2 instanceof P3);
+    t.ok(p3 instanceof P3);
     t.end();
 });
