@@ -1,4 +1,5 @@
 var tape = require('tape');
+var _ = require('underscore');
 var State = require('../ampersand-state');
 var AmpersandRegistry = require('ampersand-registry');
 var definition, Foo, registry;
@@ -8,7 +9,7 @@ var definition, Foo, registry;
 var test = function () {
     reset();
     tape.apply(tape, arguments);
-}
+};
 
 function reset() {
     registry = new AmpersandRegistry();
@@ -154,7 +155,7 @@ test('Setting other properties ignores them by default', function (t) {
     t.strictEqual(foo.craziness, undefined, 'property should be ignored');
     t.end();
 });
-/*
+
 test('Setting other properties is ok if allowOtherProperties is true', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
@@ -180,6 +181,7 @@ test('should throw a type error for bad data types', function (t) {
 
     try { new Foo({list: 10}); }
     catch (err) { t.ok(err instanceof TypeError); }
+
     t.end();
 });
 
@@ -207,20 +209,6 @@ test('should store previous attributes', function (t) {
     t.end();
 });
 
-test('should have list method helpers', function (t) {
-    var foo = new Foo({
-        hash: [1, 2, 'a', 'b']
-    });
-    t.ok(foo.hasListVal('hash', 2));
-
-    foo.removeListVal('hash', 1);
-    t.deepEqual([2, 'a', 'b'], foo.hash);
-
-    foo.addListVal('hash', 10);
-    t.deepEqual([2, 'a', 'b', 10], foo.hash);
-    t.end();
-});
-
 test('should have data serialization methods', function (t) {
     var foo = new Foo({
         firstName: 'bob',
@@ -228,13 +216,6 @@ test('should have data serialization methods', function (t) {
         thing: 'abc'
     });
 
-    t.deepEqual(foo.keys(), [
-        'firstName',
-        'lastName',
-        'thing',
-        'myBool',
-        'active'
-    ]);
     t.deepEqual(foo.attributes, {
         firstName: 'bob',
         lastName: 'tom',
@@ -292,7 +273,7 @@ test('should fire events normally for properties defined on the fly', function (
 });
 
 test('should fire event on derived properties, even if dependent on ad hoc prop.', function (t) {
-    var Foo = new State.extend({
+    var Foo = State.extend({
         extraProperties: 'allow',
         derived: {
             isCrazy: {
@@ -304,8 +285,7 @@ test('should fire event on derived properties, even if dependent on ad hoc prop.
         }
     });
     var foo = new Foo();
-    foo.extraProperties = 'allow';
-    foo.on('change:isCrazy', function (t) {
+    foo.on('change:isCrazy', function () {
         t.ok(true);
     });
     foo.set({
@@ -354,7 +334,7 @@ test('derived properties', function (t) {
                 cache: false,
                 deps: ['name'],
                 fn: function () {
-                    notCachedRan++
+                    notCachedRan++;
                     return 'hi, ' + this.name;
                 }
             }
@@ -365,7 +345,7 @@ test('derived properties', function (t) {
     t.equal(foo.greeting, 'hi, henrik');
     t.equal(foo.greeting, 'hi, henrik');
     t.equal(ran, 1, 'cached derived should only run once');
-    t.equal(notCachedRan, 0, 'shold not have been run yet')
+    t.equal(notCachedRan, 0, 'shold not have been run yet');
     foo.name = 'someone';
     t.equal(foo.greeting, 'hi, someone');
     t.equal(foo.greeting, 'hi, someone');
@@ -396,7 +376,7 @@ test('cached, derived properties should only fire change event if they\'ve actua
     });
     var foo = new Foo({name: 'henrik'});
     foo.on('change:greeting', function () {
-        changed++
+        changed++;
     });
     t.equal(changed, 0);
     foo.name = 'new';
@@ -442,7 +422,7 @@ test('derived properties with derived dependencies', function (t) {
     });
     foo.on('change', function () {
         ran++;
-        t.ok(true, 'should file main event')
+        t.ok(true, 'should file main event');
     });
     foo.name = 'something';
     t.equal(ran, 4);
@@ -464,26 +444,6 @@ test('derived properties triggered with multiple instances', function (t) {
     t.end();
 });
 
-test('should fire a remove event', function (t) {
-    var foo = new Foo({firstName: 'hi'});
-    foo.on('remove', function () {
-        t.ok(true);
-    });
-    foo.remove();
-    t.end();
-});
-
-test('should remove all event bindings after remove', function (t) {
-    var foo = new Foo({thing: 'meow'});
-    foo.on('change', function () {
-        t.ok(false);
-    });
-    foo.remove();
-    foo.thing = 'cow';
-    t.ok(true);
-    t.end();
-});
-
 test('should store models in the registry', function (t) {
     var foo = new Foo({
         id: 1,
@@ -497,17 +457,6 @@ test('should store models in the registry', function (t) {
         t.ok(true);
     });
     blah.firstName = 'blah';
-    t.end();
-});
-
-test('should remove from registry on remove', function (t) {
-    var foo = new Foo({id: 20, lastName: 'hi'});
-    foo.remove();
-    var found = registry.lookup('foo', 20);
-    t.ok(!found);
-    // make a new one
-    var bar = new Foo({id: 20});
-    t.strictEqual(bar.lastName, '');
     t.end();
 });
 
@@ -567,12 +516,12 @@ test('Should be able to define and use custom data types', function (t) {
             };
         },
         get: function (val) {
-            return val + 'crazy!'
+            return val + 'crazy!';
         }
     };
 
     var Foo = State.extend({
-        props:{
+        props: {
             silliness: 'crazyType'
         }
     });
@@ -600,13 +549,13 @@ test('Should only allow nulls where specified', function (t) {
 });
 
 test('Attribute test function works', function (t) {
-        var foo = new Foo({good: 'good'});
-        t.equal(foo.good, 'good');
+    var foo = new Foo({good: 'good'});
+    t.equal(foo.good, 'good');
 
-        t.throws(function () {
-                foo.good = 'bad';
-        }, TypeError, 'Throws exception on invalid attribute value');
-        t.end();
+    t.throws(function () {
+        foo.good = 'bad';
+    }, TypeError, 'Throws exception on invalid attribute value');
+    t.end();
 });
 
 test('Values attribute basic functionality', function (t) {
@@ -621,7 +570,7 @@ test('Values attribute basic functionality', function (t) {
     var m = new Model();
 
     t.throws(function () {
-        m.state = 'PR'
+        m.state = 'PR';
     }, TypeError, 'Throws exception when setting something not in list');
 
     t.equal(m.state, undefined, 'Should be undefined if no default');
@@ -647,7 +596,7 @@ test('Values attribute default works', function (t) {
     t.equal(m.state, 'CA', 'Should have applied the default');
 
     t.throws(function () {
-        m.state = 'PR'
+        m.state = 'PR';
     }, TypeError, 'Throws exception when setting something not in list');
     t.end();
 });
@@ -677,11 +626,11 @@ test('toggle() works on boolean and values properties.', function (t) {
     m.toggle('state');
     t.equal(m.state, 'CA', 'Should go to next with loop');
 
-    m.toggle('isAwesome')
+    m.toggle('isAwesome');
     t.strictEqual(m.isAwesome, true, 'Should toggle even if undefined');
-    m.toggle('isAwesome')
+    m.toggle('isAwesome');
     t.strictEqual(m.isAwesome, false, 'Should toggle if true.');
-    m.toggle('isAwesome')
+    m.toggle('isAwesome');
     t.strictEqual(m.isAwesome, true, 'Should toggle if false.');
     t.end();
 });
@@ -706,4 +655,3 @@ test('property test function scope is correct.', function (t) {
     t.equal(m, temp);
     t.end();
 });
-*/

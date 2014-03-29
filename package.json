@@ -8,12 +8,14 @@
   },
   "dependencies": {
     "backbone-events-standalone": "~0.2.1",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "array-next": "~0.0.1"
   },
   "devDependencies": {
     "ampersand-registry": "0.x.x",
     "run-browser": "~1.2.0",
-    "tape": "~2.11.0"
+    "tape": "~2.11.0",
+    "precommit-hook": "~0.3.10"
   },
   "homepage": "https://github.com/ampersandjs/ampersand-state",
   "keywords": [
@@ -29,6 +31,7 @@
   },
   "scripts": {
     "test": "node test/index.js",
+    "validate": "jshint .",
     "start": "run-browser test/index.js"
   },
   "testling": {

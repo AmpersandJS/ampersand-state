@@ -1,3 +1,6 @@
+var _ = require('underscore');
+
+
 // our dataTypes
 module.exports = {
     date: {

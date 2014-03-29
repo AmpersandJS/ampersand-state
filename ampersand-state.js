@@ -1,5 +1,6 @@
 var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
+var arrayNext = require('array-next');
 var propertyUtils = require('./properties');
 var dataTypes = require('./dataTypes');
 
@@ -27,18 +28,6 @@ function Base(attrs, options) {
 
 
 _.extend(Base.prototype, BBEvents, {
-    // getter for attributes
-    get attributes() {
-        return this._getAttributes(true);
-    },
-
-    // getter for derived properties
-    get derived() {
-        var res = {};
-        for (var item in this._derived) res[item] = this._derived[item].fn.apply(this);
-        return res;
-    },
-
     idAttribute: 'id',
 
     namespaceAttribute: 'namespace',
@@ -341,7 +330,7 @@ _.extend(Base.prototype, BBEvents, {
     },
 
     _createPropertyDefinition: function (name, desc, isSession) {
-        propertyUtils.createPropertyDefinition(this, name, desc, isSession);
+        return propertyUtils.createPropertyDefinition(this, name, desc, isSession);
     },
 
     // just makes friendlier errors when trying to define a new model
@@ -398,6 +387,21 @@ _.extend(Base.prototype, BBEvents, {
     }
 });
 
+// getter for attributes
+Object.defineProperties(Base.prototype, {
+    attributes: {
+        get: function () {
+            return this._getAttributes(true);
+        }
+    },
+    derived: {
+        get: function () {
+            var res = {};
+            for (var item in this._derived) res[item] = this._derived[item].fn.apply(this);
+            return res;
+        }
+    }
+});
 
 var extend = function (protoProps) {
     var parent = this;
@@ -421,7 +425,7 @@ var extend = function (protoProps) {
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
-    var Surrogate = function(){ this.constructor = child; };
+    var Surrogate = function () { this.constructor = child; };
     Surrogate.prototype = parent.prototype;
     child.prototype = new Surrogate();
 

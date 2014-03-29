@@ -168,9 +168,9 @@ test('instanceof checks should pass for all parents in the chain', function (t) 
     var P1 = Person.extend({});
     var P2 = P1.extend({});
     var P3 = P2.extend({});
-    var p1 = new P1;
-    var p2 = new P2;
-    var p3 = new P3;
+    var p1 = new P1();
+    var p2 = new P2();
+    var p3 = new P3();
     t.ok(p1 instanceof Person);
     t.ok(p2 instanceof Person);
     t.ok(p3 instanceof Person);
