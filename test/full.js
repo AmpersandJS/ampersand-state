@@ -1,5 +1,4 @@
 var tape = require('tape');
-var _ = require('underscore');
 var State = require('../ampersand-state');
 var AmpersandRegistry = require('ampersand-registry');
 var definition, Foo, registry;
@@ -506,8 +505,6 @@ test('Calling `previous` during change of derived property that is not cached, s
 });
 
 test('Should be able to define and use custom data types', function (t) {
-    var previousTypes = _.clone(State.dataTypes);
-
     State.dataTypes.crazyType = {
         set: function (newVal) {
             return {
@@ -516,6 +513,7 @@ test('Should be able to define and use custom data types', function (t) {
             };
         },
         get: function (val) {
+            console.log('get', val);
             return val + 'crazy!';
         }
     };
@@ -529,9 +527,6 @@ test('Should be able to define and use custom data types', function (t) {
     var foo = new Foo({silliness: 'you '});
 
     t.equal(foo.silliness, 'you crazy!');
-
-    // reset it
-    State.dataTypes = previousTypes;
     t.end();
 });
 

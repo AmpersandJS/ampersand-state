@@ -1,8 +1,6 @@
 var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
 var arrayNext = require('array-next');
-var propertyUtils = require('./properties');
-var dataTypes = require('./dataTypes');
 
 
 function Base(attrs, options) {
@@ -267,17 +265,6 @@ _.extend(Base.prototype, BBEvents, {
         return this.serialize();
     },
 
-    // Returns `true` if the attribute contains a value that is not null
-    // or undefined.
-    has: function (attr) {
-        return this.get(attr) != null;
-    },
-
-    // return copy of model
-    clone: function () {
-        return new this.constructor(this._getAttributes(true));
-    },
-
     unset: function (attr, options) {
         var def = this._definition[attr];
         var type = def.type;
@@ -330,7 +317,7 @@ _.extend(Base.prototype, BBEvents, {
     },
 
     _createPropertyDefinition: function (name, desc, isSession) {
-        return propertyUtils.createPropertyDefinition(this, name, desc, isSession);
+        return createPropertyDefinition(this, name, desc, isSession);
     },
 
     // just makes friendlier errors when trying to define a new model
@@ -403,6 +390,76 @@ Object.defineProperties(Base.prototype, {
     }
 });
 
+// helper for creating/storing property definitions and creating
+// appropriate getters/setters
+var createPropertyDefinition = function (object, name, desc, isSession) {
+    var def = object._definition[name] = {};
+    var type;
+    if (_.isString(desc)) {
+        // grab our type if all we've got is a string
+        type = object._ensureValidType(desc);
+        if (type) def.type = type;
+    } else {
+        type = object._ensureValidType(desc[0] || desc.type);
+        if (type) def.type = type;
+        if (desc[1] || desc.required) def.required = true;
+        // set default if defined
+        def.default = !_.isUndefined(desc[2]) ? desc[2] : desc.default;
+        def.allowNull = desc.allowNull ? desc.allowNull : false;
+        if (desc.setOnce) def.setOnce = true;
+        if (def.required && _.isUndefined(def.default)) def.default = object._getDefaultForType(type);
+        def.test = desc.test;
+        def.values = desc.values;
+    }
+    if (isSession) def.session = true;
+
+    // define a getter/setter on the prototype
+    // but they get/set on the instance
+    Object.defineProperty(object, name, {
+        set: function (val) {
+            this.set(name, val);
+        },
+        get: function () {
+            var result = this._values[name];
+            if (typeof result !== 'undefined') {
+                if (dataTypes[def.type] && dataTypes[def.type].get) {
+                    result = dataTypes[def.type].get(result);
+                }
+                return result;
+            }
+            return def.default;
+        }
+    });
+
+    return def;
+};
+
+// helper for creating derived property definitions
+var createDerivedProperty = function (modelProto, name, definition) {
+    var def = modelProto._derived[name] = {
+        fn: _.isFunction(definition) ? definition : definition.fn,
+        cache: (definition.cache !== false),
+        depList: definition.deps || []
+    };
+
+    // add to our shared dependency list
+    _.each(def.depList, function (dep) {
+        modelProto._deps[dep] = _(modelProto._deps[dep] || []).union([name]);
+    });
+
+    // defined a top-level getter for derived names
+    Object.defineProperty(modelProto, name, {
+        get: function () {
+            return this._getDerivedProperty(name);
+        },
+        set: function () {
+            throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');
+        }
+    });
+};
+
+// the extend method used to extend prototypes, maintain inheritance chains for instanceof
+// and allow for additions to the model definitions.
 var extend = function (protoProps) {
     var parent = this;
     var child;
@@ -440,11 +497,11 @@ var extend = function (protoProps) {
             _.each(def, function (value, key) {
                 if (key === 'props' || key === 'session') {
                     _.each(value, function (def, name) {
-                        propertyUtils.createPropertyDefinition(child.prototype, name, def, key === 'session');
+                        createPropertyDefinition(child.prototype, name, def, key === 'session');
                     });
                 } else if (key === 'derived') {
                     _.each(value, function (def, name) {
-                        propertyUtils.createDerivedProperty(child.prototype, name, def);
+                        createDerivedProperty(child.prototype, name, def);
                     });
                 } else if (key === 'collections') {
                     _.each(value, function (constructor, name) {
@@ -468,7 +525,55 @@ var extend = function (protoProps) {
 };
 
 // also expose data types in our export
-Base.dataTypes = dataTypes;
+var dataTypes = Base.dataTypes = {
+    date: {
+        set: function (newVal) {
+            var newType;
+            if (!_.isDate(newVal)) {
+                try {
+                    newVal = (new Date(parseInt(newVal, 10))).valueOf();
+                    newType = 'date';
+                } catch (e) {
+                    newType = typeof newVal;
+                }
+            } else {
+                newType = 'date';
+                newVal = newVal.valueOf();
+            }
+            return {
+                val: newVal,
+                type: newType
+            };
+        },
+        get: function (val) {
+            return new Date(val);
+        }
+    },
+    array: {
+        set: function (newVal) {
+            return {
+                val: newVal,
+                type: _.isArray(newVal) ? 'array' : typeof newVal
+            };
+        }
+    },
+    object: {
+        set: function (newVal) {
+            var newType = typeof newVal;
+            // we have to have a way of supporting "missing" objects.
+            // Null is an object, but setting a value to undefined
+            // should work too, IMO. We just override it, in that case.
+            if (newType !== 'object' && _.isUndefined(newVal)) {
+                newVal = null;
+                newType = 'object';
+            }
+            return {
+                val: newVal,
+                type: newType
+            };
+        }
+    }
+};
 Base.extend = extend;
 
 // Our main exports
