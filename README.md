@@ -258,19 +258,20 @@ var awesome = new AwesomePerson({
 // and it will have the methods in the original
 awesome.sayHi(); // returns 'hi, henrik'
 
-// *BUT* it doesn't maintain the prototype chain
-// so instanceof checks will fail up the chain
+// it also maintains the prototype chain
+// so instanceof checks will work up the chain
 
 // so this is true
 awesome instanceof AwesomePerson; // true;
 
-// but this is false
-awesome instanceof Person; // false
+// and so is this
+awesome instanceof Person; // true
 
 ```
 
 ## Changelog
 
+- 0.1.0 - lots of cleanup, grabbing tests from human-model, now maintains the prototype chain so `instanceof` checks pass no matter how many times it's been extended.
 - 0.0.2 - improved doc
 - 0.0.1 - initial publish
 
