@@ -43,10 +43,6 @@ _.extend(Base.prototype, BBEvents, {
 
     namespaceAttribute: 'namespace',
 
-    _derived: {},
-    _deps: {},
-    _definition: {},
-
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 
@@ -407,6 +403,7 @@ var extend = function (protoProps) {
     var parent = this;
     var child;
     var args = [].slice.call(arguments);
+    var prop, item;
 
     // The constructor function for the new subclass is either defined by you
     // (the "constructor" property in your `extend` definition), or defaulted
@@ -427,6 +424,11 @@ var extend = function (protoProps) {
     var Surrogate = function(){ this.constructor = child; };
     Surrogate.prototype = parent.prototype;
     child.prototype = new Surrogate();
+
+    // set prototype level objects
+    child.prototype._derived =  _.extend({}, parent.prototype._derived);
+    child.prototype._deps = _.extend({}, parent.prototype._deps);
+    child.prototype._definition = _.extend({}, parent.prototype._definition);
 
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {

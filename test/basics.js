@@ -1,7 +1,7 @@
 /*jshint expr: true*/
 
 var test = require('tape');
-var State = require('../state2');
+var State = require('../ampersand-state');
 
 var Person = State.extend({
     props: {
