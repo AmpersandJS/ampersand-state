@@ -650,3 +650,28 @@ test('property test function scope is correct.', function (t) {
     t.equal(m, temp);
     t.end();
 });
+
+test('should be able to inherit for use in other objects', function (t) {
+    var StateObj = State.extend({
+        props: {
+            name: 'string'
+        }
+    });
+    function AwesomeThing() {
+        StateObj.apply(this, arguments);
+    }
+
+    AwesomeThing.prototype = Object.create(StateObj.prototype, {
+        constructor: AwesomeThing
+    });
+
+    AwesomeThing.prototype.hello = function () {
+        return this.name;
+    };
+
+    var awe = new AwesomeThing({name: 'cool'});
+
+    t.equal(awe.hello(), 'cool');
+    t.equal(awe.name, 'cool');
+    t.end();
+});
