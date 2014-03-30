@@ -94,7 +94,12 @@ test('should be sealable', function (t) {
     var bar = new Bar();
     t.throws(function () {
         "use strict";
+        // detect if strict mode worked
+        var isStrict = (function () { return !this; })();
         bar.someProperty = 'new';
+        // throw type error to be able to test in browsers
+        // that don't support strict
+        if (!isStrict) throw TypeError;
     }, TypeError, 'Throws exception in strict mode.');
     bar.someOtherProperty = 'something';
     t.ok(!bar.someOtherProperty, 'ignores properties otherwise');
