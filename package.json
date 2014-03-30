@@ -7,15 +7,15 @@
     "url": "https://github.com/ampersandjs/ampersand-state/issues"
   },
   "dependencies": {
+    "array-next": "~0.0.1",
     "backbone-events-standalone": "~0.2.1",
-    "underscore": "~1.6.0",
-    "array-next": "~0.0.1"
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "ampersand-registry": "0.x.x",
+    "precommit-hook": "~0.3.10",
     "run-browser": "~1.2.0",
-    "tape": "~2.11.0",
-    "precommit-hook": "~0.3.10"
+    "tape": "~2.12.1"
   },
   "homepage": "https://github.com/ampersandjs/ampersand-state",
   "keywords": [
