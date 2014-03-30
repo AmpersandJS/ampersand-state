@@ -490,6 +490,7 @@ var extend = function (protoProps) {
     child.prototype._derived =  _.extend({}, parent.prototype._derived);
     child.prototype._deps = _.extend({}, parent.prototype._deps);
     child.prototype._definition = _.extend({}, parent.prototype._definition);
+    child.prototype._collections = _.extend({}, parent.prototype._collections);
 
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
