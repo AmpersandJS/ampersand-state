@@ -1,6 +1,7 @@
 var tape = require('tape');
 var State = require('../ampersand-state');
 var AmpersandRegistry = require('ampersand-registry');
+var Collection = require('ampersand-collection');
 var definition, Foo, registry;
 
 
@@ -679,4 +680,35 @@ test('should be able to inherit for use in other objects', function (t) {
     t.equal(awe.hello(), 'cool');
     t.equal(awe.name, 'cool');
     t.end();
+});
+
+test('extended state objects should maintain child collections of parents', function (t) {
+    var State1 = State.extend({
+        collections: {
+            myStuff: Collection
+        }
+    });
+    var State2 = State1.extend({
+        collections: {
+            myOtherCollection: Collection
+        }
+    });
+    var thing = new State2();
+    t.ok(thing.myStuff);
+    t.ok(thing.myOtherCollection);
+    t.end();
+});
+
+test('`initialize` should have access to initialized child collections', function (t) {
+    var StateObj = State.extend({
+        initialize: function () {
+            t.ok(this.myStuff);
+            t.equal(this.myStuff.parent, this);
+            t.end();
+        },
+        collections: {
+            myStuff: Collection
+        }
+    });
+    var thing = new StateObj();
 });
