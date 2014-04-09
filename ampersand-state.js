@@ -30,32 +30,49 @@ _.extend(Base.prototype, BBEvents, {
 
     namespaceAttribute: 'namespace',
 
+    typeAttribute: 'modelType',
+
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 
+    // Get ID of model per configuration.
+    // Should *always* be how ID is determined by other code.
     getId: function () {
         return this[this.idAttribute];
     },
 
+    // Get namespace of model per configuration.
+    // Should *always* be how namespace is determined by other code.
     getNamespace: function () {
         return this[this.namespaceAttribute];
     },
 
-    // stubbed out to be overwritten
+    // Get type of model per configuration.
+    // Should *always* be how type is determined by other code.
+    getType: function () {
+        return this[this.typeAttribute];
+    },
+
+    // Stubbed out to be overwritten
     initialize: function () {
         return this;
     },
 
-    // backbone compatibility
+    // Parse can be used remap/restructure/rename incoming properties
+    // before they are applied to attributes.
     parse: function (resp, options) {
         return resp;
     },
 
-    // serialize gets props in raw form
+    // Serialize is the inverse of `parse` it lets you massage data
+    // on the way out. Before, sending to server, for example.
     serialize: function () {
         return this._getAttributes(false, true);
     },
 
+    // Main set method used by generated setters/getters and can
+    // be used directly if you need to pass options or set multiple
+    // properties at once.
     set: function (key, value, options) {
         var self = this;
         var extraProperties = this.extraProperties;

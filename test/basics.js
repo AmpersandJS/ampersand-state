@@ -164,6 +164,21 @@ test('custom id attribute', function (t) {
     t.end();
 });
 
+test('customizable `type` attribute', function (t) {
+    var FirstModel = State.extend({
+        type: 'hello',
+        typeAttribute: 'type'
+    });
+    var SecondModel = State.extend({
+        modelType: 'second'
+    });
+    var first = new FirstModel();
+    var second = new SecondModel();
+    t.equal(first.getType(), 'hello');
+    t.equal(second.getType(), 'second');
+    t.end();
+});
+
 test('instanceof checks should pass for all parents in the chain', function (t) {
     var P1 = Person.extend({});
     var P2 = P1.extend({});
