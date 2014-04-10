@@ -8,11 +8,11 @@
   },
   "dependencies": {
     "array-next": "~0.0.1",
-    "backbone-events-standalone": "~0.2.1",
-    "underscore": "~1.6.0"
+    "backbone-events-standalone": "0.2.1",
+    "underscore": "^1.6.0"
   },
   "devDependencies": {
-    "ampersand-collection": "~0.2.3",
+    "ampersand-collection": "^1.0.0",
     "ampersand-registry": "0.x.x",
     "precommit-hook": "~0.3.10",
     "run-browser": "~1.2.0",

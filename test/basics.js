@@ -179,6 +179,20 @@ test('customizable `type` attribute', function (t) {
     t.end();
 });
 
+test('everything should work with a property called `type`. Issue #6.', function (t) {
+    var Model = State.extend({
+        props: {
+            id: 'string',
+            type: 'string'
+        }
+    });
+    var model = new Model({id: '50', type: 'hello'});
+    t.equal(model.type, 'hello');
+    model.type = 'wat?';
+    t.equal(model.type, 'wat?');
+    t.end();
+});
+
 test('instanceof checks should pass for all parents in the chain', function (t) {
     var P1 = Person.extend({});
     var P2 = P1.extend({});
