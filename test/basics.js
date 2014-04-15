@@ -149,36 +149,6 @@ test('uncached derived properties always fire events on dependency change', func
     person.name = 'different';
 });
 
-test('custom id attribute', function (t) {
-    var NewPerson = Person.extend({
-        props: {
-            _id: 'number',
-            ns: 'string'
-        },
-        idAttribute: '_id',
-        namespaceAttribute: 'ns'
-    });
-    var person = new NewPerson({name: 'henrik', ns: 'group1', _id: 47});
-    t.equal(person.getId(), 47);
-    t.equal(person.getNamespace(), 'group1');
-    t.end();
-});
-
-test('customizable `type` attribute', function (t) {
-    var FirstModel = State.extend({
-        type: 'hello',
-        typeAttribute: 'type'
-    });
-    var SecondModel = State.extend({
-        modelType: 'second'
-    });
-    var first = new FirstModel();
-    var second = new SecondModel();
-    t.equal(first.getType(), 'hello');
-    t.equal(second.getType(), 'second');
-    t.end();
-});
-
 test('everything should work with a property called `type`. Issue #6.', function (t) {
     var Model = State.extend({
         props: {

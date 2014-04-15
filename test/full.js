@@ -449,22 +449,6 @@ test('derived properties triggered with multiple instances', function (t) {
     t.end();
 });
 
-test('should store models in the registry', function (t) {
-    var foo = new Foo({
-        id: 1,
-        firstName: 'roger',
-        thing: 'meow'
-    });
-    var blah = registry.lookup('foo', 1);
-    t.strictEqual(foo.firstName, blah.firstName);
-    t.strictEqual(foo, blah);
-    foo.on('change', function () {
-        t.ok(true);
-    });
-    blah.firstName = 'blah';
-    t.end();
-});
-
 test('should be able to bind events even if sealed', function (t) {
     var SealedModel = State.extend({seal: true, props: {name: 'string'}});
 
@@ -519,7 +503,6 @@ test('Should be able to define and use custom data types', function (t) {
             };
         },
         get: function (val) {
-            console.log('get', val);
             return val + 'crazy!';
         }
     };

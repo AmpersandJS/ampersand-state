@@ -5,53 +5,22 @@ var arrayNext = require('array-next');
 
 function Base(attrs, options) {
     options || (options = {});
-    this.cid = _.uniqueId('model');
-    // set collection/registry if passed in
-    this.collection = options.collection;
-    if (options.registry) this.registry = options.registry;
     if (options.parse) attrs = this.parse(attrs, options);
-    this._initted = false;
     this._values = {};
     this._initCollections();
     this._cache = {};
     this._previousAttributes = {};
     this._events = {};
-    if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     this._changed = {};
+    if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     this.initialize.apply(this, arguments);
-    if (attrs && attrs[this.idAttribute] && this.registry) _.result(this, 'registry').store(this);
-    this._initted = true;
     if (this.seal) Object.seal(this);
 }
 
 
 _.extend(Base.prototype, BBEvents, {
-    idAttribute: 'id',
-
-    namespaceAttribute: 'namespace',
-
-    typeAttribute: 'modelType',
-
     // can be allow, ignore, reject
     extraProperties: 'ignore',
-
-    // Get ID of model per configuration.
-    // Should *always* be how ID is determined by other code.
-    getId: function () {
-        return this[this.idAttribute];
-    },
-
-    // Get namespace of model per configuration.
-    // Should *always* be how namespace is determined by other code.
-    getNamespace: function () {
-        return this[this.namespaceAttribute];
-    },
-
-    // Get type of model per configuration.
-    // Should *always* be how type is determined by other code.
-    getType: function () {
-        return this[this.typeAttribute];
-    },
 
     // Stubbed out to be overwritten
     initialize: function () {
@@ -67,7 +36,7 @@ _.extend(Base.prototype, BBEvents, {
     // Serialize is the inverse of `parse` it lets you massage data
     // on the way out. Before, sending to server, for example.
     serialize: function () {
-        return this._getAttributes(false, true);
+        return this.getAttributes({props: true}, true);
     },
 
     // Main set method used by generated setters/getters and can
@@ -76,8 +45,10 @@ _.extend(Base.prototype, BBEvents, {
     set: function (key, value, options) {
         var self = this;
         var extraProperties = this.extraProperties;
+        var triggers = [];
         var changing, previous, changes, newType,
-            interpretedType, newVal, def, attr, attrs, silent, unset, currentVal, initial;
+            interpretedType, newVal, def, attr, attrs,
+            silent, unset, currentVal, initial;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
         if (_.isObject(key) || key === null) {
@@ -103,7 +74,7 @@ _.extend(Base.prototype, BBEvents, {
 
         // if not already changing, store previous
         if (!changing) {
-            this._previousAttributes = this._getAttributes(true);
+            this._previousAttributes = this.attributes;
             this._changed = {};
         }
         previous = this._previousAttributes;
@@ -184,8 +155,6 @@ _.extend(Base.prototype, BBEvents, {
                 self._values[change.key] = change.val;
             }
         });
-
-        var triggers = [];
 
         function gatherTriggers(key) {
             triggers.push(key);
@@ -270,7 +239,7 @@ _.extend(Base.prototype, BBEvents, {
     changedAttributes: function (diff) {
         if (!diff) return this.hasChanged() ? _.clone(this._changed) : false;
         var val, changed = false;
-        var old = this._changing ? this._previousAttributes : this._getAttributes(true);
+        var old = this._changing ? this._previousAttributes : this.attributes;
         for (var attr in diff) {
             if (_.isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
@@ -300,7 +269,7 @@ _.extend(Base.prototype, BBEvents, {
 
     clear: function (options) {
         var self = this;
-        _.each(this._getAttributes(true), function (val, key) {
+        _.each(this.attributes, function (val, key) {
             self.unset(key, options);
         });
         return this;
@@ -343,16 +312,25 @@ _.extend(Base.prototype, BBEvents, {
         return _.contains(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(_.keys(dataTypes)), type) ? type : undefined;
     },
 
-    _getAttributes: function (includeSession, raw) {
+    getAttributes: function (options, raw) {
+        options || (options = {});
+        _.defaults(options, {
+            session: false,
+            props: false,
+            derived: false
+        });
         var res = {};
         var val, item, def;
         for (item in this._definition) {
             def = this._definition[item];
-            if (!def.session || (includeSession && def.session)) {
+            if ((options.session && def.session) || (options.props && !def.session)) {
                 val = (raw) ? this._values[item] : this[item];
                 if (typeof val === 'undefined') val = def.default;
                 if (typeof val !== 'undefined') res[item] = val;
             }
+        }
+        if (options.derived) {
+            for (item in this._derived) res[item] = this[item];
         }
         return res;
     },
@@ -381,7 +359,7 @@ _.extend(Base.prototype, BBEvents, {
 
     // Check that all required attributes are present
     _verifyRequired: function () {
-        var attrs = this._getAttributes(true); // should include session
+        var attrs = this.attributes; // should include session
         for (var def in this._definition) {
             if (this._definition[def].required && typeof attrs[def] === 'undefined') {
                 return false;
@@ -395,21 +373,23 @@ _.extend(Base.prototype, BBEvents, {
 Object.defineProperties(Base.prototype, {
     attributes: {
         get: function () {
-            return this._getAttributes(true);
+            return this.getAttributes({props: true, session: true});
         }
     },
-    derived: {
+    all: {
         get: function () {
-            var res = {};
-            for (var item in this._derived) res[item] = this._derived[item].fn.apply(this);
-            return res;
+            return this.getAttributes({
+                session: true,
+                props: true,
+                derived: true
+            });
         }
     }
 });
 
 // helper for creating/storing property definitions and creating
 // appropriate getters/setters
-var createPropertyDefinition = function (object, name, desc, isSession) {
+function createPropertyDefinition(object, name, desc, isSession) {
     var def = object._definition[name] = {};
     var type;
     if (_.isString(desc)) {
@@ -449,10 +429,10 @@ var createPropertyDefinition = function (object, name, desc, isSession) {
     });
 
     return def;
-};
+}
 
 // helper for creating derived property definitions
-var createDerivedProperty = function (modelProto, name, definition) {
+function createDerivedProperty(modelProto, name, definition) {
     var def = modelProto._derived[name] = {
         fn: _.isFunction(definition) ? definition : definition.fn,
         cache: (definition.cache !== false),
@@ -473,11 +453,11 @@ var createDerivedProperty = function (modelProto, name, definition) {
             throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');
         }
     });
-};
+}
 
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.
-var extend = function (protoProps) {
+function extend(protoProps) {
     var parent = this;
     var child;
     var args = [].slice.call(arguments);
@@ -535,12 +515,14 @@ var extend = function (protoProps) {
         });
     }
 
+    var toString = Object.prototype.toString;
+
     // Set a convenience property in case the parent's prototype is needed
     // later.
     child.__super__ = parent.prototype;
 
     return child;
-};
+}
 
 // also expose data types in our export
 var dataTypes = Base.dataTypes = {
@@ -592,6 +574,7 @@ var dataTypes = Base.dataTypes = {
         }
     }
 };
+
 Base.extend = extend;
 
 // Our main exports
