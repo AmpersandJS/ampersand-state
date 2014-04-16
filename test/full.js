@@ -172,21 +172,25 @@ test('Setting other properties is ok if allowOtherProperties is true', function 
 });
 
 test('should throw a type error for bad data types', function (t) {
-    try { new Foo({firstName: 3}); }
-    catch (err) { t.ok(err instanceof TypeError); }
-
-    try { new Foo({num: 'foo'}); }
-    catch (err) { t.ok(err instanceof TypeError); }
-
-    try { new Foo({hash: 10}); }
-    catch (err) { t.ok(err instanceof TypeError); }
-
-    try { new Foo({today: 10}); }
-    catch (err) { t.ok(err instanceof TypeError); }
-
-    try { new Foo({list: 10}); }
-    catch (err) { t.ok(err instanceof TypeError); }
-
+    t.throws(function () {
+        new Foo({firstName: 3});
+    }, TypeError);
+    t.throws(function () {
+        new Foo({num: 'foo'});
+    }, TypeError);
+    t.throws(function () {
+        new Foo({hash: 10});
+    }, TypeError);
+    t.throws(function () {
+        new Foo({today: 'asdfadsfa'});
+    }, TypeError);
+    t.doesNotThrow(function () {
+        new Foo({today: 1397631169892});
+        new Foo({today: '1397631169892'});
+    });
+    t.throws(function () {
+        new Foo({list: 10});
+    }, TypeError);
     t.end();
 });
 
@@ -495,21 +499,22 @@ test('Calling `previous` during change of derived property that is not cached, s
 });
 
 test('Should be able to define and use custom data types', function (t) {
-    State.dataTypes.crazyType = {
-        set: function (newVal) {
-            return {
-                val: newVal,
-                type: 'crazyType'
-            };
-        },
-        get: function (val) {
-            return val + 'crazy!';
-        }
-    };
-
     var Foo = State.extend({
         props: {
             silliness: 'crazyType'
+        },
+        dataTypes: {
+            crazyType: {
+                set: function (newVal) {
+                    return {
+                        val: newVal,
+                        type: 'crazyType'
+                    };
+                },
+                get: function (val) {
+                    return val + 'crazy!';
+                }
+            }
         }
     });
 

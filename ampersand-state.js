@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
 var arrayNext = require('array-next');
+var dataTypes = require('./dataTypes');
 
 
 function Base(attrs, options) {
@@ -46,9 +47,8 @@ _.extend(Base.prototype, BBEvents, {
         var self = this;
         var extraProperties = this.extraProperties;
         var triggers = [];
-        var changing, previous, changes, newType,
-            interpretedType, newVal, def, attr, attrs,
-            silent, unset, currentVal, initial;
+        var changing, previous, changes, newType, newVal, def, cast, err, attr,
+            attrs, dataType, silent, unset, currentVal, initial, hasChanged;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
         if (_.isObject(key) || key === null) {
@@ -96,16 +96,18 @@ _.extend(Base.prototype, BBEvents, {
                 }
             }
 
+            dataType = this._dataTypes[def.type];
+
             // check type if we have one
-            if (dataTypes[def.type]) {
-                var cast = dataTypes[def.type].set(newVal);
+            if (dataType && dataType.set) {
+                cast = dataType.set(newVal);
                 newVal = cast.val;
                 newType = cast.type;
             }
 
             // If we've defined a test, run it
             if (def.test) {
-                var err = def.test.call(this, newVal, newType);
+                err = def.test.call(this, newVal, newType);
                 if (err) {
                     throw new TypeError('Property \'' + attr + '\' failed validation with error: ' + err);
                 }
@@ -128,13 +130,19 @@ _.extend(Base.prototype, BBEvents, {
                 throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', '));
             }
 
+            if (dataType && dataType.compare) {
+                hasChanged = !dataType.compare(currentVal, newVal);
+            } else {
+                hasChanged = !_.isEqual(currentVal, newVal);
+            }
+
             // enforce `setOnce` for properties if set
-            if (def.setOnce && currentVal !== undefined && !_.isEqual(currentVal, newVal)) {
+            if (def.setOnce && currentVal !== undefined && hasChanged) {
                 throw new TypeError('Property \'' + key + '\' can only be set once.');
             }
 
             // push to changes array if different
-            if (!_.isEqual(currentVal, newVal)) {
+            if (hasChanged) {
                 changes.push({prev: currentVal, val: newVal, key: attr});
             }
 
@@ -282,13 +290,8 @@ _.extend(Base.prototype, BBEvents, {
 
     // Get default values for a certain type
     _getDefaultForType: function (type) {
-        if (type === 'string') {
-            return '';
-        } else if (type === 'object') {
-            return {};
-        } else if (type === 'array') {
-            return [];
-        }
+        var dataType = this._dataTypes[type];
+        return dataType && dataType.default && dataType.default();
     },
 
     // Run validation against the next complete set of model attributes,
@@ -309,7 +312,7 @@ _.extend(Base.prototype, BBEvents, {
     // just makes friendlier errors when trying to define a new model
     // only used when setting up original property definitions
     _ensureValidType: function (type) {
-        return _.contains(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(_.keys(dataTypes)), type) ? type : undefined;
+        return _.contains(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(_.keys(this._dataTypes)), type) ? type : undefined;
     },
 
     getAttributes: function (options, raw) {
@@ -418,9 +421,10 @@ function createPropertyDefinition(object, name, desc, isSession) {
         },
         get: function () {
             var result = this._values[name];
+            var typeDef = this._dataTypes[def.type];
             if (typeof result !== 'undefined') {
-                if (dataTypes[def.type] && dataTypes[def.type].get) {
-                    result = dataTypes[def.type].get(result);
+                if (typeDef && typeDef.get) {
+                    result = typeDef.get(result);
                 }
                 return result;
             }
@@ -488,29 +492,41 @@ function extend(protoProps) {
     child.prototype._deps = _.extend({}, parent.prototype._deps);
     child.prototype._definition = _.extend({}, parent.prototype._definition);
     child.prototype._collections = _.extend({}, parent.prototype._collections);
+    child.prototype._dataTypes = _.extend({}, parent.prototype._dataTypes || dataTypes);
 
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
         args.forEach(function processArg(def) {
-            _.each(def, function (value, key) {
-                if (key === 'props' || key === 'session') {
-                    _.each(value, function (def, name) {
-                        createPropertyDefinition(child.prototype, name, def, key === 'session');
-                    });
-                } else if (key === 'derived') {
-                    _.each(value, function (def, name) {
-                        createDerivedProperty(child.prototype, name, def);
-                    });
-                } else if (key === 'collections') {
-                    _.each(value, function (constructor, name) {
-                        child.prototype._collections[name] = constructor;
-                    });
-                }
-            });
-            delete def.props;
-            delete def.session;
-            delete def.derived;
-            delete def.collections;
+            if (def.dataTypes) {
+                _.each(def.dataTypes, function (def, name) {
+                    child.prototype._dataTypes[name] = def;
+                });
+                delete def.dataTypes;
+            }
+            if (def.props) {
+                _.each(def.props, function (def, name) {
+                    createPropertyDefinition(child.prototype, name, def);
+                });
+                delete def.props;
+            }
+            if (def.session) {
+                _.each(def.session, function (def, name) {
+                    createPropertyDefinition(child.prototype, name, def, true);
+                });
+                delete def.session;
+            }
+            if (def.derived) {
+                _.each(def.derived, function (def, name) {
+                    createDerivedProperty(child.prototype, name, def);
+                });
+                delete def.derived;
+            }
+            if (def.collections) {
+                _.each(def.collections, function (constructor, name) {
+                    child.prototype._collections[name] = constructor;
+                });
+                delete def.collections;
+            }
             _.extend(child.prototype, def);
         });
     }
@@ -523,57 +539,6 @@ function extend(protoProps) {
 
     return child;
 }
-
-// also expose data types in our export
-var dataTypes = Base.dataTypes = {
-    date: {
-        set: function (newVal) {
-            var newType;
-            if (!_.isDate(newVal)) {
-                try {
-                    newVal = (new Date(parseInt(newVal, 10))).valueOf();
-                    newType = 'date';
-                } catch (e) {
-                    newType = typeof newVal;
-                }
-            } else {
-                newType = 'date';
-                newVal = newVal.valueOf();
-            }
-            return {
-                val: newVal,
-                type: newType
-            };
-        },
-        get: function (val) {
-            return new Date(val);
-        }
-    },
-    array: {
-        set: function (newVal) {
-            return {
-                val: newVal,
-                type: _.isArray(newVal) ? 'array' : typeof newVal
-            };
-        }
-    },
-    object: {
-        set: function (newVal) {
-            var newType = typeof newVal;
-            // we have to have a way of supporting "missing" objects.
-            // Null is an object, but setting a value to undefined
-            // should work too, IMO. We just override it, in that case.
-            if (newType !== 'object' && _.isUndefined(newVal)) {
-                newVal = null;
-                newType = 'object';
-            }
-            return {
-                val: newVal,
-                type: newType
-            };
-        }
-    }
-};
 
 Base.extend = extend;
 
