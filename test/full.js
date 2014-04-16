@@ -695,3 +695,16 @@ test('`initialize` should have access to initialized child collections', functio
     });
     var thing = new StateObj();
 });
+
+test('parent collection references should be maintained when adding/removing to a collection', function (t) {
+    var StateObj = State.extend({
+        id: 'string'
+    });
+    var c = new Collection();
+    var s = new StateObj({id: '47'});
+    c.add(s);
+    t.equal(s.collection, c);
+    c.remove(s);
+    t.notOk(s.collection);
+    t.end();
+});
