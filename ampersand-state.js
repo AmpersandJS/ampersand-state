@@ -48,7 +48,7 @@ _.extend(Base.prototype, BBEvents, {
         var extraProperties = this.extraProperties;
         var triggers = [];
         var changing, previous, changes, newType, newVal, def, cast, err, attr,
-            attrs, dataType, silent, unset, currentVal, initial, hasChanged;
+            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
         if (_.isObject(key) || key === null) {
@@ -96,6 +96,7 @@ _.extend(Base.prototype, BBEvents, {
                 }
             }
 
+            isEqual = this._getCompareForType(def.type);
             dataType = this._dataTypes[def.type];
 
             // check type if we have one
@@ -130,11 +131,7 @@ _.extend(Base.prototype, BBEvents, {
                 throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', '));
             }
 
-            if (dataType && dataType.compare) {
-                hasChanged = !dataType.compare(currentVal, newVal);
-            } else {
-                hasChanged = !_.isEqual(currentVal, newVal);
-            }
+            hasChanged = !isEqual(currentVal, newVal);
 
             // enforce `setOnce` for properties if set
             if (def.setOnce && currentVal !== undefined && hasChanged) {
@@ -147,7 +144,7 @@ _.extend(Base.prototype, BBEvents, {
             }
 
             // keep track of changed attributes
-            if (!_.isEqual(previous[attr], newVal)) {
+            if (!isEqual(previous[attr], newVal)) {
                 self._changed[attr] = newVal;
             } else {
                 delete self._changed[attr];
@@ -248,8 +245,11 @@ _.extend(Base.prototype, BBEvents, {
         if (!diff) return this.hasChanged() ? _.clone(this._changed) : false;
         var val, changed = false;
         var old = this._changing ? this._previousAttributes : this.attributes;
+        var def, isEqual;
         for (var attr in diff) {
-            if (_.isEqual(old[attr], (val = diff[attr]))) continue;
+            def = this._definition[attr];
+            isEqual = this._getCompareForType(def && def.type);
+            if (isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
         }
         return changed;
@@ -292,6 +292,13 @@ _.extend(Base.prototype, BBEvents, {
     _getDefaultForType: function (type) {
         var dataType = this._dataTypes[type];
         return dataType && dataType.default && dataType.default();
+    },
+
+    // Determine which comparison algorithm to use for comparing a property
+    _getCompareForType: function (type) {
+        var dataType = this._dataTypes[type];
+        if (dataType && dataType.compare) return dataType.compare;
+        return _.isEqual;
     },
 
     // Run validation against the next complete set of model attributes,

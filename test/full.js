@@ -524,6 +524,42 @@ test('Should be able to define and use custom data types', function (t) {
     t.end();
 });
 
+test('Uses dataType compare', function (t) {
+    var compareRun;
+
+    var Foo = State.extend({
+        props: {
+            silliness: 'crazyType'
+        },
+        dataTypes: {
+            crazyType: {
+                compare: function (oldVal, newVal) {
+                    compareRun = true;
+                    return false;
+                },
+                set: function (newVal) {
+                    return {
+                        val: newVal,
+                        type: 'crazyType'
+                    };
+                },
+                get: function (val) {
+                    return val + 'crazy!';
+                }
+            }
+        }
+    });
+
+    compareRun = false;
+    var foo = new Foo({ silliness: 'you' });
+    t.assert(compareRun);
+
+    compareRun = false;
+    foo.silliness = 'they';
+    t.assert(compareRun);
+    t.end();
+});
+
 test('Should only allow nulls where specified', function (t) {
     var foo = new Foo({
         firstName: 'bob',
