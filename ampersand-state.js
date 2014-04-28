@@ -14,8 +14,7 @@ function Base(attrs, options) {
     this._events = {};
     this._changed = {};
     if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
-    this.initialize.apply(this, arguments);
-    if (this.seal) Object.seal(this);
+    if (options.init !== false) this.initialize.apply(this, arguments);
 }
 
 

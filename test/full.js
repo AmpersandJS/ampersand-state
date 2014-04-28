@@ -89,24 +89,6 @@ test('should get the derived value', function (t) {
     t.end();
 });
 
-test('should be sealable', function (t) {
-    definition.seal = true;
-    var Bar = State.extend(definition);
-    var bar = new Bar();
-    t.throws(function () {
-        "use strict";
-        // detect if strict mode worked
-        var isStrict = (function () { return !this; })();
-        bar.someProperty = 'new';
-        // throw type error to be able to test in browsers
-        // that don't support strict
-        if (!isStrict) throw TypeError;
-    }, TypeError, 'Throws exception in strict mode.');
-    bar.someOtherProperty = 'something';
-    t.ok(!bar.someOtherProperty, 'ignores properties otherwise');
-    t.end();
-});
-
 test('should have default values for properties', function (t) {
     var foo = new Foo({
         firstName: 'jim',
@@ -450,20 +432,6 @@ test('derived properties triggered with multiple instances', function (t) {
         t.ok('name changed');
     });
     bar.firstName = 'bob too';
-    t.end();
-});
-
-test('should be able to bind events even if sealed', function (t) {
-    var SealedModel = State.extend({seal: true, props: {name: 'string'}});
-
-    var s = new SealedModel({name: 'henrik'});
-
-    t.equal(s.name, 'henrik', 'should have set name');
-    s.on('change:name', function () {
-        t.ok(true, 'event was triggered.');
-    });
-
-    s.name = 'superman'; // ridiculous, right?
     t.end();
 });
 
