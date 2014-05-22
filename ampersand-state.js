@@ -263,11 +263,7 @@ _.extend(Base.prototype, BBEvents, {
         var type = def.type;
         var val;
         if (def.required) {
-            if (!_.isUndefined(def.default)) {
-                val = def.default;
-            } else {
-                val = this._getDefaultForType(type);
-            }
+            val = _.result(def, 'default');
             return this.set(attr, val, options);
         } else {
             return this.set(attr, val, _.extend({}, options, {unset: true}));
@@ -290,7 +286,7 @@ _.extend(Base.prototype, BBEvents, {
     // Get default values for a certain type
     _getDefaultForType: function (type) {
         var dataType = this._dataTypes[type];
-        return dataType && dataType.default && dataType.default();
+        return dataType && dataType.default;
     },
 
     // Determine which comparison algorithm to use for comparing a property
@@ -334,7 +330,7 @@ _.extend(Base.prototype, BBEvents, {
             def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = (raw) ? this._values[item] : this[item];
-                if (typeof val === 'undefined') val = def.default;
+                if (typeof val === 'undefined') val = _.result(def, 'default');
                 if (typeof val !== 'undefined') res[item] = val;
             }
         }
@@ -409,8 +405,13 @@ function createPropertyDefinition(object, name, desc, isSession) {
         type = object._ensureValidType(desc[0] || desc.type);
         if (type) def.type = type;
         if (desc[1] || desc.required) def.required = true;
+
         // set default if defined
         def.default = !_.isUndefined(desc[2]) ? desc[2] : desc.default;
+        if (typeof def.default === 'object') {
+            throw new TypeError('The default value for ' + name + ' cannot be an object/array, must be a value or a function which returns a value/object/array');
+        }
+
         def.allowNull = desc.allowNull ? desc.allowNull : false;
         if (desc.setOnce) def.setOnce = true;
         if (def.required && _.isUndefined(def.default)) def.default = object._getDefaultForType(type);
@@ -434,7 +435,7 @@ function createPropertyDefinition(object, name, desc, isSession) {
                 }
                 return result;
             }
-            return def.default;
+            return _.result(def, 'default');
         }
     });
 
