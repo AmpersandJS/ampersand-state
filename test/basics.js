@@ -25,6 +25,13 @@ test('init with values', function (t) {
     t.end();
 });
 
+test('after initialized change should be empty until a set op', function (t) {
+    var person = new Person({name: 'phil'});
+    t.deepEqual(person.changed, {});
+    t.notOk(person.changedAttributes());
+    t.end();
+});
+
 test('extended object maintains existing props', function (t) {
     var AwesomePerson = Person.extend({
         props: {

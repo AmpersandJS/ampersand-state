@@ -12,9 +12,9 @@ function Base(attrs, options) {
     this._cache = {};
     this._previousAttributes = {};
     this._events = {};
+    if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     this.changed = {};
     this._changed = this.changed; //legacy
-    if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     if (options.init !== false) this.initialize.apply(this, arguments);
 }
 
