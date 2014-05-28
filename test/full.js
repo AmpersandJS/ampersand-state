@@ -321,6 +321,42 @@ test('clone with defined props/session props', function (t) {
     t.end();
 });
 
+//copied from backbone tests
+test('has', function (t) {
+    var Foo = State.extend({
+        extraProperties: 'allow'
+    });
+
+    var model = new Foo();
+
+    t.equal(model.has('name'), false);
+
+    model.set({
+        '0': 0,
+        '1': 1,
+        'true': true,
+        'false': false,
+        'empty': '',
+        'name': 'name',
+        'null': null,
+        'undefined': undefined
+    });
+
+    t.equal(model.has('0'), true);
+    t.equal(model.has('1'), true);
+    t.equal(model.has('true'), true);
+    t.equal(model.has('false'), true);
+    t.equal(model.has('empty'), true);
+    t.equal(model.has('name'), true);
+
+    model.unset('name');
+
+    t.equal(model.has('name'), false);
+    t.equal(model.has('null'), false);
+    t.equal(model.has('undefined'), false);
+    t.end();
+});
+
 test('should fire events normally for properties defined on the fly', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
