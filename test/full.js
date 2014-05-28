@@ -10,6 +10,10 @@ var test = function () {
     reset();
     tape.apply(tape, arguments);
 };
+test.only = function () {
+    reset();
+    tape.only.apply(tape, arguments);
+};
 
 function reset() {
     registry = new AmpersandRegistry();
@@ -168,6 +172,18 @@ test('#11 - multiple instances of the same state class should be able to use ext
     t.equal(two.b, 'two.b');
     t.equal(two.c, 'two.c');
 
+    t.end();
+});
+
+test('extraProperties = "allow" properties should be defined entirely on the instance not the prototype', function (t) {
+    var Foo = State.extend({
+        extraProperties: 'allow'
+    });
+
+    var one = new Foo({ a: 'one.a', b: 'one.b' });
+    var two = new Foo();
+
+    t.deepEqual(two._definition, {});
     t.end();
 });
 
@@ -765,9 +781,7 @@ test('should be able to inherit for use in other objects', function (t) {
         StateObj.apply(this, arguments);
     }
 
-    AwesomeThing.prototype = Object.create(StateObj.prototype, {
-        constructor: AwesomeThing
-    });
+    AwesomeThing.prototype = Object.create(StateObj.prototype);
 
     AwesomeThing.prototype.hello = function () {
         return this.name;

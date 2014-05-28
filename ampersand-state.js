@@ -7,6 +7,7 @@ var dataTypes = require('./dataTypes');
 function Base(attrs, options) {
     options || (options = {});
     this._values = {};
+    this._definition = {};
     if (options.parse) attrs = this.parse(attrs, options);
     this._initCollections();
     this._cache = {};
@@ -92,7 +93,7 @@ _.extend(Base.prototype, BBEvents, {
             newVal = attrs[attr];
             newType = typeof newVal;
             currentVal = this._values[attr];
-            def = this._definition[attr];
+            def = this._getDefinition(attr);
 
             if (!def) {
                 if (extraProperties === 'ignore') {
@@ -216,7 +217,7 @@ _.extend(Base.prototype, BBEvents, {
     // Toggle boolean properties or properties that have a `values`
     // array in its definition.
     toggle: function (property) {
-        var def = this._definition[property];
+        var def = this._getDefinition(property);
         if (def.type === 'boolean') {
             // if it's a bool, just flip it
             this[property] = !this[property];
@@ -255,7 +256,7 @@ _.extend(Base.prototype, BBEvents, {
         var old = this._changing ? this._previousAttributes : this.attributes;
         var def, isEqual;
         for (var attr in diff) {
-            def = this._definition[attr];
+            def = this._getDefinition(attr);
             isEqual = this._getCompareForType(def && def.type);
             if (isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
@@ -268,7 +269,7 @@ _.extend(Base.prototype, BBEvents, {
     },
 
     unset: function (attr, options) {
-        var def = this._definition[attr];
+        var def = this._getDefinition(attr);
         var type = def.type;
         var val;
         if (def.required) {
@@ -321,7 +322,7 @@ _.extend(Base.prototype, BBEvents, {
     },
 
     _createPropertyDefinition: function (name, desc, isSession) {
-        return createPropertyDefinition(this.constructor.prototype, name, desc, isSession);
+        return createPropertyDefinition(this, name, desc, isSession);
     },
 
     // just makes friendlier errors when trying to define a new model
@@ -339,8 +340,8 @@ _.extend(Base.prototype, BBEvents, {
         });
         var res = {};
         var val, item, def;
-        for (item in this._definition) {
-            def = this._definition[item];
+        for (item in this._getDefinition()) {
+            def = this._getDefinition(item);
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = (raw) ? this._values[item] : this[item];
                 if (typeof val === 'undefined') val = def.default;
@@ -351,6 +352,13 @@ _.extend(Base.prototype, BBEvents, {
             for (item in this._derived) res[item] = this[item];
         }
         return res;
+    },
+
+    _getDefinition: function (attr) {
+        if (attr) {
+            return this._definition[attr] || this.constructor.prototype._definition[attr];
+        }
+        return _.extend({}, this._definition, this.constructor.prototype._definition);
     },
 
     _getDerivedProperty: function (name, flushCache) {
@@ -378,8 +386,8 @@ _.extend(Base.prototype, BBEvents, {
     // Check that all required attributes are present
     _verifyRequired: function () {
         var attrs = this.attributes; // should include session
-        for (var def in this._definition) {
-            if (this._definition[def].required && typeof attrs[def] === 'undefined') {
+        for (var def in this._getDefinition()) {
+            if (this._getDefinition(def).required && typeof attrs[def] === 'undefined') {
                 return false;
             }
         }
