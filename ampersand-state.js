@@ -12,7 +12,8 @@ function Base(attrs, options) {
     this._cache = {};
     this._previousAttributes = {};
     this._events = {};
-    this._changed = {};
+    this.changed = {};
+    this._changed = this.changed; //legacy
     if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     if (options.init !== false) this.initialize.apply(this, arguments);
 }
@@ -82,7 +83,7 @@ _.extend(Base.prototype, BBEvents, {
         // if not already changing, store previous
         if (!changing) {
             this._previousAttributes = this.attributes;
-            this._changed = {};
+            this.changed = {};
         }
         previous = this._previousAttributes;
 
@@ -152,9 +153,9 @@ _.extend(Base.prototype, BBEvents, {
 
             // keep track of changed attributes
             if (!isEqual(previous[attr], newVal)) {
-                self._changed[attr] = newVal;
+                self.changed[attr] = newVal;
             } else {
-                delete self._changed[attr];
+                delete self.changed[attr];
             }
         }
 
@@ -238,8 +239,8 @@ _.extend(Base.prototype, BBEvents, {
     // Determine if the model has changed since the last `"change"` event.
     // If you specify an attribute name, determine if that attribute has changed.
     hasChanged: function (attr) {
-        if (attr == null) return !_.isEmpty(this._changed);
-        return _.has(this._changed, attr);
+        if (attr == null) return !_.isEmpty(this.changed);
+        return _.has(this.changed, attr);
     },
 
     // Return an object containing all the attributes that have changed, or
@@ -249,7 +250,7 @@ _.extend(Base.prototype, BBEvents, {
     // You can also pass an attributes object to diff against the model,
     // determining if there *would be* a change.
     changedAttributes: function (diff) {
-        if (!diff) return this.hasChanged() ? _.clone(this._changed) : false;
+        if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
         var val, changed = false;
         var old = this._changing ? this._previousAttributes : this.attributes;
         var def, isEqual;
