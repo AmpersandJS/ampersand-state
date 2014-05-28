@@ -6,8 +6,8 @@ var dataTypes = require('./dataTypes');
 
 function Base(attrs, options) {
     options || (options = {});
-    if (options.parse) attrs = this.parse(attrs, options);
     this._values = {};
+    if (options.parse) attrs = this.parse(attrs, options);
     this._initCollections();
     this._cache = {};
     this._previousAttributes = {};
