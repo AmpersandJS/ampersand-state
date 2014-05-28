@@ -143,13 +143,31 @@ test('Setting other properties ignores them by default', function (t) {
     t.end();
 });
 
-test('Setting other properties is ok if allowOtherProperties is true', function (t) {
+test('Setting other properties is ok if extraProperties = "allow"', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
     foo.set({
         craziness: 'new'
     });
     t.equal(foo.get('craziness'), 'new');
+    t.end();
+});
+
+test('#11 - multiple instances of the same state class should be able to use extraProperties = "allow" as expected', function (t) {
+    var Foo = State.extend({
+        extraProperties: 'allow'
+    });
+
+    var one = new Foo({ a: 'one.a', b: 'one.b' });
+    var two = new Foo({ a: 'two.a', b: 'two.b', c: 'two.c' });
+
+    t.equal(one.a, 'one.a');
+    t.equal(one.b, 'one.b');
+
+    t.equal(two.a, 'two.a');
+    t.equal(two.b, 'two.b');
+    t.equal(two.c, 'two.c');
+
     t.end();
 });
 

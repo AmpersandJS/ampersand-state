@@ -312,7 +312,7 @@ _.extend(Base.prototype, BBEvents, {
     },
 
     _createPropertyDefinition: function (name, desc, isSession) {
-        return createPropertyDefinition(this, name, desc, isSession);
+        return createPropertyDefinition(this.constructor.prototype, name, desc, isSession);
     },
 
     // just makes friendlier errors when trying to define a new model
