@@ -780,6 +780,32 @@ test('should be able to inherit for use in other objects', function (t) {
     t.end();
 });
 
+//copied from backbone tests
+test('should be able to provide static properties on extending a state object', function (t) {
+    t.plan(6);
+    var Parent = State.extend({
+        instancePropSame: function () {},
+        instancePropDiff: function () {}
+    }, {
+        classProp: function () {}
+    });
+    var Child = Parent.extend({
+        instancePropDiff: function () {}
+    });
+
+    var adult = new Parent();
+    var kid   = new Child();
+
+    t.equal(Child.classProp, Parent.classProp);
+    t.notEqual(Child.classProp, undefined);
+
+    t.equal(kid.instancePropSame, adult.instancePropSame);
+    t.notEqual(kid.instancePropSame, undefined);
+
+    t.notEqual(Child.prototype.instancePropDiff, Parent.prototype.instancePropDiff);
+    t.notEqual(Child.prototype.instancePropDiff, undefined);
+});
+
 test('extended state objects should maintain child collections of parents', function (t) {
     var State1 = State.extend({
         collections: {

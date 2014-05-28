@@ -476,7 +476,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.
-function extend(protoProps) {
+function extend(protoProps, staticProps) {
     var parent = this;
     var child;
     var args = [].slice.call(arguments);
@@ -494,7 +494,7 @@ function extend(protoProps) {
     }
 
     // Add static properties to the constructor function from parent
-    _.extend(child, parent);
+    _.extend(child, parent, staticProps);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
