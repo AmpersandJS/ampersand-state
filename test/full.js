@@ -98,11 +98,71 @@ test('should have default values for properties', function (t) {
     t.end();
 });
 
+test('should have default array/object properties', function (t) {
+    var Bar = State.extend({
+        props: {
+            list: ['array', true],
+            hash: ['object', true]
+        }
+    });
+    var bar = new Bar();
+    var otherBar = new Bar();
+
+    t.ok(bar.list !== undefined);
+    t.ok(bar.hash !== undefined);
+
+    //Should create unique instances of the defaults
+    otherBar.list.push('foo');
+    otherBar.hash.foo = 'bar';
+
+    t.ok(bar.list.length === 0);
+    t.ok(bar.hash.foo === undefined);
+
+    t.end();
+});
+
+test('should throw a useful error setting a default value to an array', function (t) {
+    t.plan(2);
+    try {
+        State.extend({
+            props: { list: ['array', true, []] }
+        });
+    } catch (err) {
+        t.ok(err instanceof TypeError);
+        t.ok(err.message.match(/value for list cannot be an object\/array/));
+    }
+});
+
+test('should throw a useful error setting a default value to an object', function (t) {
+    t.plan(2);
+    try {
+        State.extend({
+            props: { list: ['array', true, []] }
+        });
+    } catch (err) {
+        t.ok(err instanceof TypeError);
+        t.ok(err.message.match(/value for list cannot be an object\/array/));
+    }
+});
+
+test('a default should be settable as a function which returns a value', function (t) {
+    var Foo = State.extend({
+        props: {
+            anObject: ['object', true, function () { return {foo: 'bar'}; }]
+        }
+    });
+
+    var foo = new Foo();
+
+    t.deepEqual(foo.anObject, {foo: 'bar'});
+    t.end();
+});
+
 test('should throw an error setting a derived prop', function (t) {
+    t.plan(1);
     var foo = new Foo();
     try { foo.name = 'bob'; }
     catch (err) { t.ok(err instanceof TypeError); }
-    t.end();
 });
 
 test('Error when setting derived property should be helpful', function (t) {
