@@ -33,6 +33,9 @@ _.extend(Base.prototype, BBEvents, {
         return resp;
     },
 
+    clone: function () {
+        return new this.constructor(this.getAttributes({ props: true, session: true }, true));
+    },
     // Serialize is the inverse of `parse` it lets you massage data
     // on the way out. Before, sending to server, for example.
     serialize: function () {

@@ -269,6 +269,58 @@ test('serialize should not include session properties no matter how they\'re def
     t.end();
 });
 
+//Copied from backbone clone tests
+test('clone', function (t) {
+    var Foo = State.extend({
+        extraProperties: 'allow'
+    });
+    t.plan(10);
+    var a = new Foo({ 'foo': 1, 'bar': 2, 'baz': 3});
+    var b = a.clone();
+    t.equal(a.get('foo'), 1);
+    t.equal(a.get('bar'), 2);
+    t.equal(a.get('baz'), 3);
+    t.equal(b.get('foo'), a.get('foo'), "Foo should be the same on the clone.");
+    t.equal(b.get('bar'), a.get('bar'), "Bar should be the same on the clone.");
+    t.equal(b.get('baz'), a.get('baz'), "Baz should be the same on the clone.");
+    a.set({foo : 100});
+    t.equal(a.get('foo'), 100);
+    t.equal(b.get('foo'), 1, "Changing a parent attribute does not change the clone.");
+
+    var foo = new Foo({p: 1});
+    var bar = new Foo({p: 2});
+    bar.set(foo.clone().attributes, {unset: true});
+    t.equal(foo.get('p'), 1);
+    t.equal(bar.get('p'), undefined);
+});
+
+test('clone with defined props/session props', function (t) {
+    var Foo = State.extend({
+        props: {
+            foo: 'number',
+        },
+        session: {
+            bar: 'number'
+        }
+    });
+    var a = new Foo({ foo: 1, bar: 2 });
+    var b = a.clone();
+
+    t.equal(b.foo, 1, "clones props");
+    t.equal(b.bar, 2, "clones session props");
+
+    a.foo = 100;
+    b.bar = 200;
+
+    t.equal(a.foo, 100);
+    t.equal(a.bar, 2);
+
+    t.equal(b.foo, 1);
+    t.equal(b.bar, 200);
+
+    t.end();
+});
+
 test('should fire events normally for properties defined on the fly', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
