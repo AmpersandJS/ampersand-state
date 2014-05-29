@@ -14,8 +14,7 @@ function Base(attrs, options) {
     this._previousAttributes = {};
     this._events = {};
     if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
-    this.changed = {};
-    this._changed = this.changed; //legacy
+    this._changed = {};
     if (options.init !== false) this.initialize.apply(this, arguments);
 }
 
@@ -76,7 +75,7 @@ _.extend(Base.prototype, BBEvents, {
         // if not already changing, store previous
         if (!changing) {
             this._previousAttributes = this.attributes;
-            this.changed = {};
+            this._changed = {};
         }
         previous = this._previousAttributes;
 
@@ -146,9 +145,9 @@ _.extend(Base.prototype, BBEvents, {
 
             // keep track of changed attributes
             if (!isEqual(previous[attr], newVal)) {
-                self.changed[attr] = newVal;
+                self._changed[attr] = newVal;
             } else {
-                delete self.changed[attr];
+                delete self._changed[attr];
             }
         }
 
@@ -232,8 +231,8 @@ _.extend(Base.prototype, BBEvents, {
     // Determine if the model has changed since the last `"change"` event.
     // If you specify an attribute name, determine if that attribute has changed.
     hasChanged: function (attr) {
-        if (attr == null) return !_.isEmpty(this.changed);
-        return _.has(this.changed, attr);
+        if (attr == null) return !_.isEmpty(this._changed);
+        return _.has(this._changed, attr);
     },
 
     // Return an object containing all the attributes that have changed, or
@@ -243,7 +242,7 @@ _.extend(Base.prototype, BBEvents, {
     // You can also pass an attributes object to diff against the model,
     // determining if there *would be* a change.
     changedAttributes: function (diff) {
-        if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
+        if (!diff) return this.hasChanged() ? _.clone(this._changed) : false;
         var val, changed = false;
         var old = this._changing ? this._previousAttributes : this.attributes;
         var def, isEqual;
@@ -476,7 +475,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.
-function extend(protoProps, staticProps) {
+function extend(protoProps) {
     var parent = this;
     var child;
     var args = [].slice.call(arguments);
@@ -494,7 +493,7 @@ function extend(protoProps, staticProps) {
     }
 
     // Add static properties to the constructor function from parent
-    _.extend(child, parent, staticProps);
+    _.extend(child, parent);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.

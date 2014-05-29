@@ -27,7 +27,7 @@ test('init with values', function (t) {
 
 test('after initialized change should be empty until a set op', function (t) {
     var person = new Person({name: 'phil'});
-    t.deepEqual(person.changed, {});
+    t.deepEqual(person._changed, {});
     t.notOk(person.changedAttributes());
     t.end();
 });
