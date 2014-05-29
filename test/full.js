@@ -800,13 +800,38 @@ test('children and collections should be instantiated', function (t) {
     });
 
     var StateObj = State.extend({
-        id: 'string',
+        props: {
+            id: 'string'
+        },
         children: {
             firstChild: FirstChild
         }
     });
 
-    var first = new StateObj({
+    var data = {
+        id: 'child',
+        firstChild: {
+            id: 'child',
+            grandChild: {
+                id: 'grandChild',
+                nicknames: [
+                    {name: 'munchkin'},
+                    {name: 'kiddo'}
+                ]
+            }
+        }
+    };
+
+    var first = new StateObj(data);
+
+    t.ok(first.firstChild, 'child should be initted');
+    t.ok(first.firstChild.grandChild, 'grand child should be initted');
+    t.equal(first.firstChild.id, 'child');
+    t.equal(first.firstChild.grandChild.id, 'grandChild');
+    t.ok(first.firstChild.grandChild.nicknames instanceof Collection, 'should be collection');
+    t.equal(first.firstChild.grandChild.nicknames.length, 2);
+
+    t.deepEqual(first.serialize(), {
         id: 'child',
         firstChild: {
             id: 'child',
@@ -820,11 +845,19 @@ test('children and collections should be instantiated', function (t) {
         }
     });
 
-    t.ok(first.firstChild, 'child should be initted');
-    t.ok(first.firstChild.grandChild, 'grand child should be initted');
-    t.equal(first.firstChild.id, 'child');
-    t.equal(first.firstChild.grandChild.id, 'grandChild');
-    t.ok(first.firstChild.grandChild.nicknames instanceof Collection, 'should be collection');
-    t.equal(first.firstChild.grandChild.nicknames.length, 2);
+    t.equal(JSON.stringify(first), JSON.stringify({
+        id: 'child',
+        firstChild: {
+            id: 'child',
+            grandChild: {
+                id: 'grandChild',
+                nicknames: [
+                    {name: 'munchkin'},
+                    {name: 'kiddo'}
+                ]
+            }
+        }
+    }), 'should be able to pass whole object to JSON.stringify()');
+
     t.end();
 });
