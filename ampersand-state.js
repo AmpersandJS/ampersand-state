@@ -7,8 +7,10 @@ var dataTypes = require('./dataTypes');
 function Base(attrs, options) {
     options || (options = {});
     if (options.parse) attrs = this.parse(attrs, options);
+    if (options.parent) this.parent = options.parent;
     this._values = {};
     this._initCollections();
+    this._initChildren();
     this._cache = {};
     this._previousAttributes = {};
     this._events = {};
@@ -85,8 +87,13 @@ _.extend(Base.prototype, BBEvents, {
             currentVal = this._values[attr];
             def = this._definition[attr];
 
+
             if (!def) {
-                if (extraProperties === 'ignore') {
+                // if this is a child model
+                if (this._children[attr]) {
+                    this[attr].set(newVal, options);
+                    continue;
+                } else if (extraProperties === 'ignore') {
                     continue;
                 } else if (extraProperties === 'reject') {
                     throw new TypeError('No "' + attr + '" property defined on ' + (this.type || 'this') + ' model and allowOtherProperties not set.');
@@ -362,6 +369,14 @@ _.extend(Base.prototype, BBEvents, {
         }
     },
 
+    _initChildren: function () {
+        var child;
+        if (!this._children) return;
+        for (child in this._children) {
+            this[child] = new this._children[child]({}, {parent: this});
+        }
+    },
+
     // Check that all required attributes are present
     _verifyRequired: function () {
         var attrs = this.attributes; // should include session
@@ -499,6 +514,7 @@ function extend(protoProps) {
     child.prototype._deps = _.extend({}, parent.prototype._deps);
     child.prototype._definition = _.extend({}, parent.prototype._definition);
     child.prototype._collections = _.extend({}, parent.prototype._collections);
+    child.prototype._children = _.extend({}, parent.prototype._children);
     child.prototype._dataTypes = _.extend({}, parent.prototype._dataTypes || dataTypes);
 
     // Mix in all prototype properties to the subclass if supplied.
@@ -533,6 +549,12 @@ function extend(protoProps) {
                     child.prototype._collections[name] = constructor;
                 });
                 delete def.collections;
+            }
+            if (def.children) {
+                _.each(def.children, function (constructor, name) {
+                    child.prototype._children[name] = constructor;
+                });
+                delete def.children;
             }
             _.extend(child.prototype, def);
         });

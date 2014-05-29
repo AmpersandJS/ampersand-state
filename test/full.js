@@ -767,7 +767,9 @@ test('`initialize` should have access to initialized child collections', functio
 
 test('parent collection references should be maintained when adding/removing to a collection', function (t) {
     var StateObj = State.extend({
-        id: 'string'
+        props: {
+            id: 'string'
+        }
     });
     var c = new Collection();
     var s = new StateObj({id: '47'});
@@ -775,5 +777,45 @@ test('parent collection references should be maintained when adding/removing to 
     t.equal(s.collection, c);
     c.remove(s);
     t.notOk(s.collection);
+    t.end();
+});
+
+test('children should be instantiated', function (t) {
+    var GrandChild = State.extend({
+        props: {
+            id: 'string'
+        }
+    });
+
+    var FirstChild = State.extend({
+        props: {
+            id: 'string'
+        },
+        children: {
+            grandChild: GrandChild
+        }
+    });
+
+    var StateObj = State.extend({
+        id: 'string',
+        children: {
+            firstChild: FirstChild
+        }
+    });
+
+    var first = new StateObj({
+        id: 'child',
+        firstChild: {
+            id: 'child',
+            grandChild: {
+                id: 'grandChild'
+            }
+        }
+    });
+
+    t.ok(first.firstChild, 'child should be initted');
+    t.ok(first.firstChild.grandChild, 'grand child should be initted');
+    t.equal(first.firstChild.id, 'child');
+    t.equal(first.firstChild.grandChild.id, 'grandChild');
     t.end();
 });
