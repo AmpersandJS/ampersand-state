@@ -89,8 +89,8 @@ _.extend(Base.prototype, BBEvents, {
 
 
             if (!def) {
-                // if this is a child model
-                if (this._children[attr]) {
+                // if this is a child model or collection
+                if (this._children[attr] || this._collections[attr]) {
                     this[attr].set(newVal, options);
                     continue;
                 } else if (extraProperties === 'ignore') {
@@ -364,8 +364,7 @@ _.extend(Base.prototype, BBEvents, {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll]();
-            this[coll].parent = this;
+            this[coll] = new this._collections[coll]([], {parent: this});
         }
     },
 

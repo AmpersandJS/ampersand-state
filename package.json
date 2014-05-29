@@ -12,7 +12,7 @@
     "underscore": "^1.6.0"
   },
   "devDependencies": {
-    "ampersand-collection": "^1.0.0",
+    "ampersand-collection": "^1.1.2",
     "ampersand-registry": "0.x.x",
     "precommit-hook": "~0.3.10",
     "run-browser": "~1.2.0",

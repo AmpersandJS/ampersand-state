@@ -780,10 +780,13 @@ test('parent collection references should be maintained when adding/removing to 
     t.end();
 });
 
-test('children should be instantiated', function (t) {
+test('children and collections should be instantiated', function (t) {
     var GrandChild = State.extend({
         props: {
             id: 'string'
+        },
+        collections: {
+            nicknames: Collection
         }
     });
 
@@ -808,7 +811,11 @@ test('children should be instantiated', function (t) {
         firstChild: {
             id: 'child',
             grandChild: {
-                id: 'grandChild'
+                id: 'grandChild',
+                nicknames: [
+                    {name: 'munchkin'},
+                    {name: 'kiddo'}
+                ]
             }
         }
     });
@@ -817,5 +824,7 @@ test('children should be instantiated', function (t) {
     t.ok(first.firstChild.grandChild, 'grand child should be initted');
     t.equal(first.firstChild.id, 'child');
     t.equal(first.firstChild.grandChild.id, 'grandChild');
+    t.ok(first.firstChild.grandChild.nicknames instanceof Collection, 'should be collection');
+    t.equal(first.firstChild.grandChild.nicknames.length, 2);
     t.end();
 });
