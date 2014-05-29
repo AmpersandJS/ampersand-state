@@ -402,7 +402,6 @@ _.extend(Base.prototype, BBEvents, {
             this.listenTo(this[child], 'all', function (name, model, newValue) {
                 if (changeRE.test(name)) {
                     this.trigger('change:' + child + '.' + name.split(':')[1], model, newValue);
-
                 }
             });
         }

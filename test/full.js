@@ -890,6 +890,19 @@ test('children and collections should be instantiated', function (t) {
         }
     }), 'should be able to pass whole object to JSON.stringify()');
 
+    // using `set` should still apply to children
+    first.set({
+        firstChild: {
+            id: 'firstChild',
+            grandChild: {
+                nicknames: [{name: 'runt'}]
+            }
+        }
+    });
+    t.ok(first.firstChild instanceof FirstChild, 'should still be instanceof');
+    t.equal(first.firstChild.id, 'firstChild', 'change should have been applied');
+    t.equal(first.firstChild.grandChild.nicknames.length, 1, 'collection should have been updated');
+
     t.end();
 });
 

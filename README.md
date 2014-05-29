@@ -269,11 +269,116 @@ awesome instanceof Person; // true
 
 ```
 
-## Changelog
+## child models and collections
 
-- 0.1.0 - lots of cleanup, grabbing tests from human-model, now maintains the prototype chain so `instanceof` checks pass no matter how many times it's been extended.
-- 0.0.2 - improved doc
-- 0.0.1 - initial publish
+You can declare children and collections that will get instantiated on init as follows:
+
+```js
+var State = require('ampersand-state');
+var Messages = require('./models/messages');
+var ProfileModel = require('./models/profile');
+
+
+var Person = State.extend({
+    props: {
+        name: 'string'
+    },
+    collections: {
+        // `Messages` here is a collection
+        messages: Messages
+    },
+    children: {
+        // `ProfileModel` is another ampersand-state constructor
+        profile: ProfileModel
+    }
+});
+
+// When we instantiate an instance of a Person 
+// the Messages collection and ProfileModels
+// are instantiated as well
+
+var person = new Person();
+
+// so meetings exists as an empty collection
+person.meetings instanceof Meetings; // true
+
+// and profile exists as an empty `ProfileModel`
+person.profile instanceof ProfileModel; // true
+
+// This also provides some additional capabilities
+// when we instantiate a state object with some
+// data it will apply them to the collections and child
+// models as you might expect:
+var otherPerson = new Person({
+    messages: [
+        {from: 'someone', message: 'hi'},
+        {from: 'someoneElse', message: 'yo!'},
+    ],
+    profile: {
+        name: 'Joe', 
+        hairColor: 'black'
+    }
+});
+
+// now messages would have a length
+otherPerson.messages.length === 2; // true
+
+// and the profile state object would be
+// populated
+otherPerson.profile.name === 'Joe'; // true
+
+// The same works for `set`, it will apply it 
+// to children as well. 
+otherPerson.set({profile: {name: 'Mary'}});
+
+// Since this a state object it triggers a `change:name` on 
+// the `profile` object. 
+// In addition, since it's a child that event propagates 
+// up. More on that below.
+```
+
+## Event bubbling, derived properties based on children
+
+Say you want a simple way to listen for any changes that are represented in a tempalate.
+
+Let's say you've got a `person` state object with a `profile` child. You want an easy way to listen for changes to either the base `person` object or the `profile`. In fact, you want to listen to anything related to the person object. 
+
+Rather than having to worry about watching the right thing, we do exactly what the browser does to solve this problem: we bubble up the events up the chain. 
+
+Now we can listen for deeply nested changes to properties.
+
+And we can declare derived properties that depend on children. For example:
+
+```js
+var Person = State.extend({
+    children: {
+        profile: Profile
+    },
+    derived: {
+        childsName: {
+            // now we can declare a child as a
+            // dependency
+            deps: ['profile.name'],
+            fn: function () {
+                return 'my child\'s name is ' + this.profile.name;
+            }
+        }
+    }
+});
+
+var me = new Person();
+
+// we can listen for changes to the derived property
+me.on('change:childsName', function (model, newValue) {
+    console.log(newValue); // logs out `my child's name is henrik`
+});
+
+// so when a property of a child is changed the callback
+// above will be fired (if the resulting derived property is different)
+me.profile.name = 'henrik';
+```
+
+## Changelog
 
 <!-- starthide -->
 ## Credits
