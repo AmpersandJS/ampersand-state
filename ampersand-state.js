@@ -1,7 +1,7 @@
 var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
+var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
-var dataTypes = require('./dataTypes');
 var changeRE = /^change:/;
 
 
@@ -147,20 +147,17 @@ _.extend(Base.prototype, BBEvents, {
                 throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', '));
             }
 
-            hasChanged = !isEqual(currentVal, newVal);
+            hasChanged = !isEqual(currentVal, newVal, attr);
 
             // enforce `setOnce` for properties if set
             if (def.setOnce && currentVal !== undefined && hasChanged) {
                 throw new TypeError('Property \'' + key + '\' can only be set once.');
             }
 
-            // push to changes array if different
+            // keep track of changed attributes
+            // and push to changes array
             if (hasChanged) {
                 changes.push({prev: currentVal, val: newVal, key: attr});
-            }
-
-            // keep track of changed attributes
-            if (!isEqual(previous[attr], newVal)) {
                 self._changed[attr] = newVal;
             } else {
                 delete self._changed[attr];
@@ -290,7 +287,7 @@ _.extend(Base.prototype, BBEvents, {
     // Determine which comparison algorithm to use for comparing a property
     _getCompareForType: function (type) {
         var dataType = this._dataTypes[type];
-        if (dataType && dataType.compare) return dataType.compare;
+        if (dataType && dataType.compare) return _.bind(dataType.compare, this);
         return _.isEqual;
     },
 
@@ -356,7 +353,6 @@ _.extend(Base.prototype, BBEvents, {
                     }
                     self._cache[name] = newVal;
                     self.trigger('change:' + name, self, self._cache[name]);
-                    if (options.triggerChange) self.trigger('change');
                 }
             };
 
@@ -399,12 +395,18 @@ _.extend(Base.prototype, BBEvents, {
         if (!this._children) return;
         for (child in this._children) {
             this[child] = new this._children[child]({}, {parent: this});
-            this.listenTo(this[child], 'all', function (name, model, newValue) {
-                if (changeRE.test(name)) {
-                    this.trigger('change:' + child + '.' + name.split(':')[1], model, newValue);
-                }
-            });
+            this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
         }
+    },
+
+    // Returns a bound handler for doing event bubbling while
+    // adding a name to the change string.
+    _getEventBubblingHandler: function (propertyName) {
+        return _.bind(function (name, model, newValue) {
+            if (changeRE.test(name)) {
+                this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
+            }
+        }, this);
     },
 
     // Check that all required attributes are present
@@ -510,6 +512,106 @@ function createDerivedProperty(modelProto, name, definition) {
         }
     });
 }
+
+var dataTypes = {
+    string: {
+        default: function () {
+            return '';
+        }
+    },
+    date: {
+        set: function (newVal) {
+            var newType;
+            if (!_.isDate(newVal)) {
+                try {
+                    newVal = new Date(parseInt(newVal, 10));
+                    if (!_.isDate(newVal)) throw TypeError;
+                    newVal = newVal.valueOf();
+                    if (_.isNaN(newVal)) throw TypeError;
+                    newType = 'date';
+                } catch (e) {
+                    newType = typeof newVal;
+                }
+            } else {
+                newType = 'date';
+                newVal = newVal.valueOf();
+            }
+            return {
+                val: newVal,
+                type: newType
+            };
+        },
+        get: function (val) {
+            return new Date(val);
+        },
+        default: function () {
+            return new Date();
+        }
+    },
+    array: {
+        set: function (newVal) {
+            return {
+                val: newVal,
+                type: _.isArray(newVal) ? 'array' : typeof newVal
+            };
+        },
+        default: function () {
+            return [];
+        }
+    },
+    object: {
+        set: function (newVal) {
+            var newType = typeof newVal;
+            // we have to have a way of supporting "missing" objects.
+            // Null is an object, but setting a value to undefined
+            // should work too, IMO. We just override it, in that case.
+            if (newType !== 'object' && _.isUndefined(newVal)) {
+                newVal = null;
+                newType = 'object';
+            }
+            return {
+                val: newVal,
+                type: newType
+            };
+        },
+        default: function () {
+            return {};
+        }
+    },
+    // the `state` data type is a bit special in that setting it should
+    // also bubble events
+    state: {
+        set: function (newVal) {
+            var isInstance = newVal instanceof Base;
+            if (isInstance) {
+                return {
+                    val: newVal,
+                    type: 'state'
+                };
+            } else {
+                return {
+                    val: newVal,
+                    type: typeof newVal
+                };
+            }
+        },
+        compare: function (currentVal, newVal, attributeName) {
+            var isSame = currentVal === newVal;
+
+            // if this has changed we want to also handle
+            // event propagation
+            if (!isSame) {
+                this.stopListening(currentVal);
+                if (newVal != null) {
+                    console.log('starting to listen', attributeName);
+                    this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
+                }
+            }
+
+            return isSame;
+        }
+    }
+};
 
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.

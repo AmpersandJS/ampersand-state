@@ -1029,3 +1029,105 @@ test('Should be able to declare derived properties that have nested deps', funct
 
     first.child.grandChild.name = 'something';
 });
+
+test('`state` properties', function (t) {
+    var Person = State.extend({
+        props: {
+            sub: 'state'
+        }
+    });
+
+    var SubState = State.extend({
+        props: {
+            id: 'string'
+        }
+    });
+
+    var p = new Person();
+
+    t.plan(4);
+
+    t.equal(p.sub, undefined, 'should be undefined to start');
+
+    t.throws(function () {
+        p.sub = 'something silly';
+    }, TypeError, 'Throws type error if not state object');
+
+    p.once('change:sub', function () {
+        t.pass('fired change for state');
+    });
+
+    var sub = new SubState({id: 'hello'});
+
+    p.sub = sub;
+
+    p.on('change:sub', function () {
+        t.fail('shouldnt fire if same instance');
+    });
+
+    p.sub = sub;
+
+    p.on('change:sub.id', function () {
+        t.pass('child property event bubbled');
+    });
+
+    p.sub.id = 'new';
+
+    // new person
+    var p2 = new Person();
+    var sub1 = new SubState({id: 'first'});
+    var sub2 = new SubState({id: 'second'});
+
+    p2.on('change:sub.id', function () {
+        t.fail('should not bubble on old one');
+    });
+
+    p2.sub = sub1;
+    p2.sub = sub2;
+
+    sub1.id = 'something different';
+
+    t.end();
+});
+
+test('`state` properties should invalidate dependent derived properties when changed', function (t) {
+    var counter = 0;
+    var Person = State.extend({
+        props: {
+            sub: 'state'
+        },
+        derived: {
+            subId: {
+                deps: ['sub.id'],
+                fn: function () {
+                    return this.sub && this.sub.id;
+                }
+            }
+        }
+    });
+
+    var SubState = State.extend({
+        props: {
+            id: 'string'
+        }
+    });
+
+    var p = new Person();
+
+    // count each time it's changed
+    p.on('change:subId', function () {
+        counter++;
+    });
+
+    var sub1 = new SubState({id: '1'});
+    var sub2 = new SubState({id: '2'});
+
+    t.equal(p.subId, undefined, 'should be undefined to start');
+
+    p.sub = sub1;
+
+    t.equal(p.subId, '1', 'should invalidated cache');
+    t.equal(counter, 1, 'should fire change callback for derived item');
+
+    t.end();
+});
