@@ -79,7 +79,6 @@ function reset() {
     Foo = State.extend(definition);
 }
 
-
 test('should get the derived value', function (t) {
     var foo = new Foo({
         firstName: 'jim',
@@ -892,4 +891,128 @@ test('children and collections should be instantiated', function (t) {
     }), 'should be able to pass whole object to JSON.stringify()');
 
     t.end();
+});
+
+test('listens to child events', function (t) {
+    var GrandChild = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        },
+        collections: {
+            nicknames: Collection
+        }
+    });
+
+    var FirstChild = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        },
+        children: {
+            grandChild: GrandChild
+        }
+    });
+
+    var StateObj = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        },
+        children: {
+            firstChild: FirstChild
+        }
+    });
+
+    var first = new StateObj({
+        id: 'child',
+        name: 'first-name',
+        firstChild: {
+            id: 'child',
+            name: 'first-child-name',
+            grandChild: {
+                id: 'grandChild',
+                name: 'Henrik',
+                nicknames: [
+                    {name: 'munchkin'},
+                    {name: 'kiddo'}
+                ]
+            }
+        }
+    });
+
+    //Change property
+    first.once('change:name', function (model, newVal) {
+        t.equal(newVal, 'new-first-name');
+    });
+    first.name = 'new-first-name';
+    t.equal(first.name, 'new-first-name');
+
+
+    //Change child property
+    first.once('change:firstChild.name', function (model, newVal) {
+        t.equal(newVal, 'new-first-child-name');
+    });
+    first.firstChild.name = 'new-first-child-name';
+    t.equal(first.firstChild.name, 'new-first-child-name');
+
+
+    //Change grand child property
+    first.on('change:firstChild.grandChild.name', function (unsure, name) {
+        t.equal(name, "Phil");
+    });
+    first.firstChild.grandChild.name = 'Phil';
+    t.equal(first.firstChild.grandChild.name, 'Phil');
+
+    t.end();
+});
+
+test('Should be able to declare derived properties that have nested deps', function (t) {
+    var GrandChild = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        }
+    });
+
+    var FirstChild = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        },
+        children: {
+            grandChild: GrandChild
+        }
+    });
+
+    var StateObj = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        },
+        children: {
+            child: FirstChild
+        },
+        derived: {
+            relationship: {
+                deps: ['child.grandChild.name', 'name'],
+                fn: function () {
+                    return this.name + ' has grandchild ' + (this.child.grandChild.name || '');
+                }
+            }
+        }
+    });
+
+    var first = new StateObj({
+        name: 'henrik'
+    });
+
+    t.equal(first.relationship, 'henrik has grandchild ', 'basics properties working');
+
+    first.on('change:relationship', function () {
+        t.pass('got change event on derived property for child');
+        t.end();
+    });
+
+    first.child.grandChild.name = 'something';
 });

@@ -2,6 +2,7 @@ var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
 var arrayNext = require('array-next');
 var dataTypes = require('./dataTypes');
+var changeRE = /^change:/;
 
 
 function Base(attrs, options) {
@@ -17,6 +18,7 @@ function Base(attrs, options) {
     this._events = {};
     if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     this._changed = {};
+    if (this._derived) this._initDerived();
     if (options.init !== false) this.initialize.apply(this, arguments);
 }
 
@@ -175,31 +177,12 @@ _.extend(Base.prototype, BBEvents, {
             }
         });
 
-        function gatherTriggers(key) {
-            triggers.push(key);
-            _.each((self._deps[key] || []), function (derTrigger) {
-                gatherTriggers(derTrigger);
+        if (!silent && changes.length) self._pending = true;
+        if (!silent) {
+            _.each(changes, function (change) {
+                self.trigger('change:' + change.key, self, change.val);
             });
         }
-
-        if (!silent && changes.length) self._pending = true;
-        _.each(changes, function (change) {
-            gatherTriggers(change.key);
-        });
-
-        _.each(_.uniq(triggers), function (key) {
-            var derived = self._derived[key];
-            if (derived && derived.cache && !initial) {
-                var oldDerived = self._cache[key];
-                var newDerived = self._getDerivedProperty(key, true);
-                if (!_.isEqual(oldDerived, newDerived)) {
-                    self._previousAttributes[key] = oldDerived;
-                    if (!silent) self.trigger('change:' + key, self, newDerived);
-                }
-            } else {
-                if (!silent) self.trigger('change:' + key, self, self[key]);
-            }
-        });
 
         // You might be wondering why there's a `while` loop here. Changes can
         // be recursively nested within `"change"` events.
@@ -355,6 +338,34 @@ _.extend(Base.prototype, BBEvents, {
         return res;
     },
 
+    _initDerived: function () {
+        var self = this;
+
+        _.each(this._derived, function (value, name) {
+            var def = self._derived[name];
+            def.deps = def.depList;
+
+            var update = function (options) {
+                options = options || {};
+
+                var newVal = def.fn.call(self);
+
+                if (self._cache[name] !== newVal || !def.cache) {
+                    if (def.cache) {
+                        self._previousAttributes[name] = self._cache[name];
+                    }
+                    self._cache[name] = newVal;
+                    self.trigger('change:' + name, self, self._cache[name]);
+                    if (options.triggerChange) self.trigger('change');
+                }
+            };
+
+            def.deps.forEach(function (propString) {
+                self.listenTo(self, 'change:' + propString, update);
+            });
+        });
+    },
+
     _getDefinition: function (attr) {
         if (attr) {
             return this._definition[attr] || this.constructor.prototype._definition[attr];
@@ -388,6 +399,12 @@ _.extend(Base.prototype, BBEvents, {
         if (!this._children) return;
         for (child in this._children) {
             this[child] = new this._children[child]({}, {parent: this});
+            this.listenTo(this[child], 'all', function (name, model, newValue) {
+                if (changeRE.test(name)) {
+                    this.trigger('change:' + child + '.' + name.split(':')[1], model, newValue);
+
+                }
+            });
         }
     },
 
