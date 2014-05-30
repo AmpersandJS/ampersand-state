@@ -1129,5 +1129,12 @@ test('`state` properties should invalidate dependent derived properties when cha
     t.equal(p.subId, '1', 'should invalidated cache');
     t.equal(counter, 1, 'should fire change callback for derived item');
 
-    t.end();
+    p.on('change:sub.id', function (model, newVal) {
+        t.pass('change event should fire');
+        t.equal(model, sub1, 'callback on these should be sub model');
+        t.equal(newVal, 'newId', 'should include new val');
+        t.end();
+    });
+
+    sub1.id = 'newId';
 });
