@@ -114,7 +114,7 @@ var UserModel = State.extend({
         name: 'string',
         groupId: 'string'
     },
-    derirved: {
+    derived: {
         groupModel: {
             deps: ['groupId'],
             fn: function () {
