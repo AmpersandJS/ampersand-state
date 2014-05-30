@@ -11,6 +11,7 @@ function Base(attrs, options) {
     this._definition = {};
     if (options.parse) attrs = this.parse(attrs, options);
     if (options.parent) this.parent = options.parent;
+    this._keyTree = new KeyTree();
     this._initCollections();
     this._initChildren();
     this._cache = {};
@@ -357,9 +358,17 @@ _.extend(Base.prototype, BBEvents, {
             };
 
             def.deps.forEach(function (propString) {
-                self.listenTo(self, 'change:' + propString, update);
+                self._keyTree.add(propString, update);
             });
         });
+
+        this.on('all', function (eventName) {
+            if (changeRE.test(eventName)) {
+                self._keyTree.get(eventName.split(':')[1]).forEach(function (fn) {
+                    fn();
+                });
+            }
+        }, this);
     },
 
     _getDefinition: function (attr) {
@@ -603,7 +612,6 @@ var dataTypes = {
             if (!isSame) {
                 this.stopListening(currentVal);
                 if (newVal != null) {
-                    console.log('starting to listen', attributeName);
                     this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
                 }
             }
