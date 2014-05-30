@@ -9,8 +9,8 @@
   "dependencies": {
     "array-next": "~0.0.1",
     "backbone-events-standalone": "0.2.1",
-    "underscore": "^1.6.0",
-    "key-tree-store": "~0.1.0"
+    "key-tree-store": "~0.1.0",
+    "underscore": "^1.6.0"
   },
   "devDependencies": {
     "ampersand-collection": "^1.2.0",
