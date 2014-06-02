@@ -4,11 +4,10 @@ var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
 var changeRE = /^change:/;
 
-
 function Base(attrs, options) {
     options || (options = {});
     this._values = {};
-    this._definition = {};
+    this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);
     if (options.parent) this.parent = options.parent;
     this._keyTree = new KeyTree();
@@ -59,7 +58,7 @@ _.extend(Base.prototype, BBEvents, {
         var self = this;
         var extraProperties = this.extraProperties;
         var triggers = [];
-        var changing, previous, changes, newType, newVal, def, cast, err, attr,
+        var changing, changes, newType, newVal, def, cast, err, attr,
             attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
@@ -89,14 +88,13 @@ _.extend(Base.prototype, BBEvents, {
             this._previousAttributes = this.attributes;
             this._changed = {};
         }
-        previous = this._previousAttributes;
 
         // For each `set` attribute...
         for (attr in attrs) {
             newVal = attrs[attr];
             newType = typeof newVal;
             currentVal = this._values[attr];
-            def = this._getDefinition(attr);
+            def = this._definition[attr];
 
 
             if (!def) {
@@ -203,7 +201,7 @@ _.extend(Base.prototype, BBEvents, {
     // Toggle boolean properties or properties that have a `values`
     // array in its definition.
     toggle: function (property) {
-        var def = this._getDefinition(property);
+        var def = this._definition[property];
         if (def.type === 'boolean') {
             // if it's a bool, just flip it
             this[property] = !this[property];
@@ -242,7 +240,7 @@ _.extend(Base.prototype, BBEvents, {
         var old = this._changing ? this._previousAttributes : this.attributes;
         var def, isEqual;
         for (var attr in diff) {
-            def = this._getDefinition(attr);
+            def = this._definition[attr];
             isEqual = this._getCompareForType(def && def.type);
             if (isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
@@ -255,7 +253,7 @@ _.extend(Base.prototype, BBEvents, {
     },
 
     unset: function (attr, options) {
-        var def = this._getDefinition(attr);
+        var def = this._definition[attr];
         var type = def.type;
         var val;
         if (def.required) {
@@ -322,8 +320,8 @@ _.extend(Base.prototype, BBEvents, {
         });
         var res = {};
         var val, item, def;
-        for (item in this._getDefinition()) {
-            def = this._getDefinition(item);
+        for (item in this._definition) {
+            def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = (raw) ? this._values[item] : this[item];
                 if (typeof val === 'undefined') val = _.result(def, 'default');
@@ -371,13 +369,6 @@ _.extend(Base.prototype, BBEvents, {
         }, this);
     },
 
-    _getDefinition: function (attr) {
-        if (attr) {
-            return this._definition[attr] || this.constructor.prototype._definition[attr];
-        }
-        return _.extend({}, this._definition, this.constructor.prototype._definition);
-    },
-
     _getDerivedProperty: function (name, flushCache) {
         // is this a derived property that is cached
         if (this._derived[name].cache) {
@@ -421,8 +412,8 @@ _.extend(Base.prototype, BBEvents, {
     // Check that all required attributes are present
     _verifyRequired: function () {
         var attrs = this.attributes; // should include session
-        for (var def in this._getDefinition()) {
-            if (this._getDefinition(def).required && typeof attrs[def] === 'undefined') {
+        for (var def in this._definition) {
+            if (this._definition[def].required && typeof attrs[def] === 'undefined') {
                 return false;
             }
         }
