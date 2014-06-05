@@ -585,7 +585,7 @@ var dataTypes = {
     // also bubble events
     state: {
         set: function (newVal) {
-            var isInstance = newVal instanceof Base;
+            var isInstance = newVal instanceof Base || (newVal && newVal.isState);
             if (isInstance) {
                 return {
                     val: newVal,
