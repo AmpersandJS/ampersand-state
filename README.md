@@ -378,6 +378,13 @@ me.on('change:childsName', function (model, newValue) {
 me.profile.name = 'henrik';
 ```
 
+## A quick note about instanceof checks
+
+With npm and browserify for module deps you can sometimes end up with a situation where, the same `state` constructor wasn't used to build a `state` object. As a result `instanceof` checks will fail. 
+
+In order to deal with this (because sometimes this is a legitimate scenario), `state` simply creates a read-only `isState` property on all state objects that can be used to check whether or a not a given object is in fact a state object no matter what its constructor was.
+
+
 ## Changelog
 
 <!-- starthide -->

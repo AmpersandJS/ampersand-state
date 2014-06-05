@@ -445,6 +445,9 @@ Object.defineProperties(Base.prototype, {
                 derived: true
             });
         }
+    },
+    isState: {
+        value: true
     }
 });
 
