@@ -191,14 +191,13 @@ test('instanceof checks should pass for all parents in the chain', function (t) 
     t.ok(p2.isState);
     t.ok(p3.isState);
 
-    // shouldn't ework
+    // shouldn't be possible to change
     p1.isState = false;
     p2.isState = false;
     p3.isState = false;
     t.ok(p1.isState);
     t.ok(p2.isState);
     t.ok(p3.isState);
-
 
     t.end();
 });
