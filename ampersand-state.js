@@ -6,6 +6,7 @@ var changeRE = /^change:/;
 
 function Base(attrs, options) {
     options || (options = {});
+    if (!this.cid) this.cid = _.uniqueId('state');
     this._values = {};
     this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);

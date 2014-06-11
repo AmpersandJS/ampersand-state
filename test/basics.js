@@ -170,6 +170,18 @@ test('everything should work with a property called `type`. Issue #6.', function
     t.end();
 });
 
+test('should have cid', function (t) {
+    var Model = State.extend({
+        props: {
+            id: 'string',
+            type: 'string'
+        }
+    });
+    var m = new Model();
+    t.ok(m.cid);
+    t.end();
+});
+
 test('instanceof checks should pass for all parents in the chain', function (t) {
     var P1 = Person.extend({});
     var P2 = P1.extend({});
