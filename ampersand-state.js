@@ -106,7 +106,7 @@ _.extend(Base.prototype, BBEvents, {
                 } else if (extraProperties === 'ignore') {
                     continue;
                 } else if (extraProperties === 'reject') {
-                    throw new TypeError('No "' + attr + '" property defined on ' + (this.type || 'this') + ' model and allowOtherProperties not set.');
+                    throw new TypeError('No "' + attr + '" property defined on ' + (this.type || 'this') + ' model and extraProperties not set to "ignore" or "allow"');
                 } else if (extraProperties === 'allow') {
                     def = this._createPropertyDefinition(attr, 'any');
                 }
