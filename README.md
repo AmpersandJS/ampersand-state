@@ -10,10 +10,12 @@ Ampersand-state serves as a base object for [ampersand-model](http://github.com/
 Part of the [Ampersand.js toolkit](http://ampersandjs.com) for building clientside applications.
 <!-- endhide -->
 
+<!-- starthide -->
 ## browser support
 
 [![browser support](https://ci.testling.com/ampersandjs/ampersand-state.png)
 ](https://ci.testling.com/ampersandjs/ampersand-state)
+<!-- endhide -->
 
 ## install
 
@@ -21,6 +23,7 @@ Part of the [Ampersand.js toolkit](http://ampersandjs.com) for building clientsi
 npm install ampersand-state
 ```
 
+<!-- starthide -->
 ## In pursuit of the ultimate observable JS object.
 
 So much of building an application is managing state. Your app needs a single unadulterated *source of truth*. But in order to fully de-couple it from everything that cares about it, it needs to be observable.
@@ -383,7 +386,102 @@ me.profile.name = 'henrik';
 With npm and browserify for module deps you can sometimes end up with a situation where, the same `state` constructor wasn't used to build a `state` object. As a result `instanceof` checks will fail. 
 
 In order to deal with this (because sometimes this is a legitimate scenario), `state` simply creates a read-only `isState` property on all state objects that can be used to check whether or a not a given object is in fact a state object no matter what its constructor was.
+<!-- endhide -->
 
+## API Reference
+
+### extend `AmpersandState.extend({ })`
+
+To create a State class of your own, you extend AmpersandState and provide instance properties an options for your class. Typically here you will pass any properties (`props`, `session` and `derived` of your state class, and any instance methods to be attached to instances of your class.
+
+```javascript
+var Person = AmpersandState.extend({
+    props: {
+        firstName: 'string',
+        lastName: 'string'
+    },
+    session: {
+        signedIn: ['boolean', true, false],
+    },
+    derived: {
+        fullName: {
+            deps: ['firstName', 'lastName'],
+            fn: function () {
+                return this.firstName + ' ' + this.lastName;
+            }
+        }
+    }
+
+});
+```
+
+### constructor
+### initialize
+
+### extraProperties `AmpersandState.extend({ extraProperties: 'allow' })`
+
+Defines how properties that aren't defined in `props`, `session` or `derived` are handled. May be set to `'allow'`, `'reject'` or `'allow'`.
+
+```javascript
+var StateA = AmpersandState.extend({
+    extraProperties: 'allow',
+});
+
+var stateA = new StateA({ foo: 'bar' });
+stateA.foo === 'bar' //=> true
+
+
+var StateB = AmpersandState.extend({
+    extraProperties: 'ignore',
+});
+
+var stateB = new StateB({ foo: 'bar' });
+stateB.foo === undefined //=> true
+
+
+var stateC = AmpersandState.extend({
+    extraProperties: 'reject'
+});
+
+var stateC = new StateC({ foo: 'bar' })
+//=> TypeError('No foo property defined on this model and extraProperties not set to "ignore" or "allow".');
+```
+
+### dataTypes
+
+
+### props/session `AmpersandView.extend({ props: { name: 'string' }, session: { active: 'boolean' })`
+
+Set **props** to an object describing the observed properties of your state class. Props can be defined in three different ways:
+
+* As a string with the expected dataType. One of `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`. Eg: `name: 'string'`.
+* An array of `[dataType, required, default]`
+* An object `{ type: 'string', required: true, default: '' , allowNull: false}`
+
+
+
+### derived
+
+
+### parse
+
+## serialize
+
+### set
+
+### get
+
+### unset
+
+### toggle
+
+### previousAttribuetes
+
+### hashChanged
+
+### changedAttributes
+
+### toJSON
 
 ## Changelog
 
