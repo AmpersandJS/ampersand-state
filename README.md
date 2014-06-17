@@ -17,10 +17,10 @@ Part of the [Ampersand.js toolkit](http://ampersandjs.com) for building clientsi
 ](https://ci.testling.com/ampersandjs/ampersand-state)
 <!-- endhide -->
 
-## install
+## Install
 
 ```
-npm install ampersand-state
+npm install ampersand-state --save
 ```
 
 <!-- starthide -->
@@ -465,7 +465,7 @@ Set **props** to an object describing the observed properties of your state clas
 
 ### parse
 
-## serialize
+### serialize
 
 ### set
 
