@@ -901,7 +901,7 @@ test('children and collections should be instantiated', function (t) {
     });
     t.ok(first.firstChild instanceof FirstChild, 'should still be instanceof');
     t.equal(first.firstChild.id, 'firstChild', 'change should have been applied');
-    t.equal(first.firstChild.grandChild.nicknames.length, 1, 'collection should have been updated');
+    t.equal(first.firstChild.grandChild.nicknames.length, 3, 'collection should have been updated');
 
     t.end();
 });
