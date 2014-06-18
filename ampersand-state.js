@@ -177,7 +177,7 @@ _.extend(Base.prototype, BBEvents, {
         if (!silent && changes.length) self._pending = true;
         if (!silent) {
             _.each(changes, function (change) {
-                self.trigger('change:' + change.key, self, change.val);
+                self.trigger('change:' + change.key, self, change.val, options);
             });
         }
 
