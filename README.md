@@ -73,6 +73,50 @@ Available options:
 * `[parse]` {Boolean} - whether to call the class's [parse](#ampersand-state-parse) function with the initial attributes. _Defaults to `false`_.
 * `[parent]` {AmpersandState} - pass a reference to a model's parent to store on the model.
 
+### idAttribute `model.idAttribute`
+
+The attribute that should be used as the unique id of the model - typically the name of the property representing the model's id on the server. `getId` uses this to determine the id for use when constructing a model's url for saving to the server.
+
+Defaults to `'id'`.
+
+```
+var Person = AmpersandModel.extend({
+    idAttribute: 'personId',
+    urlRoot: '/people',
+    props: {
+        personId: 'number',
+        name: 'string'
+    }
+});
+
+var me = new Person({ personId: 123 });
+
+console.log(me.url()) //=> "/people/123"
+```
+
+### getId `model.getId()`
+
+Get ID of model per `idAttribute` configuration. Should *always* be how ID is determined by other code.
+
+### namespaceAttribute `model.namespaceAttribute`
+
+The property name that should be used as a namespace. Namespaces are completely optional, but exist in case you need to make an additionl distinction between models, that may be of the same type, with potentially conflicting IDs but are in fact different.
+
+Defaults to `'namespace'`.
+
+### getNamespace `model.getNamespace()`
+
+Get namespace of model per `namespaceAttribute` configuration. Should *always* be how namespace is determined by other code.
+
+### typeAttribute
+
+The property name that should be used to specify what type of model this is. This is optional, but specifying a model type types provides a standard, yet configurable way to determine what type of model it is.
+
+Defaults to `'modelType'`.
+
+### getType `model.getType()`
+
+Get type of model per `typeAttribute` configuration. Should *always* be how type is determined by other code.
 
 ### extraProperties `AmpersandState.extend({ extraProperties: 'allow' })`
 
@@ -102,6 +146,61 @@ var stateC = AmpersandState.extend({
 var stateC = new StateC({ foo: 'bar' })
 //=> TypeError('No foo property defined on this model and extraProperties not set to "ignore" or "allow".');
 ```
+
+### collection `state.collection`
+
+A reference to the collection a state is in, if in a collection.
+
+This is used for building the default `url` property, etc. 
+
+Which is why you can do this:
+
+```js
+// some ampersand-rest-collection instance
+// with a `url` property
+widgets.url //=> '/api/widgets'
+
+// get a widget from our collection
+var badWidget = widgets.get('47');
+
+// Without a `collection` reference this
+// widget wouldn't know what URL to build
+// when calling destroy
+badWidget.destroy(); // does a DELETE /api/widgets/47
+```
+
+### cid `state.cid`
+
+A special property of states, the **cid**, or a client id, is a unique identifier automatically assigned to all states when they are first created. Client ids are handy when the state has not been saved to the server, and so does not yet have it's true **id** but needs a unique id so it can be rendered in the UI etc.
+
+```javascript
+var userA = new User();
+console.log(userA.cid) //=> "state-1"
+
+var userB = new User();
+console.log(userB.cid) //=> "state-2"
+```
+
+### isNew `model.isNew()`
+
+Has this model been saved to the server yet? If the model does not yet have an id (using `getId()`), it is considered to be new.
+
+### escape `model.escape()`
+
+Similar to `get`, but returns the HTML-escaped version of a model's attribute. If you're interpolating data from the model into HTML, using **escape** to retrieve attributes will help prevent XSS attacks.
+
+```
+var hacker = new PersonModel({
+    name: "<script>alert('xss')</script>"
+});
+
+document.body.innerHTML = hacker.escape('name');
+```
+
+### isValid `model.isValid()`
+
+Check if the model is currently in a valid state, it does this by calling the `validate` method, of your model if you've provided one.
+
 
 ### dataTypes
 

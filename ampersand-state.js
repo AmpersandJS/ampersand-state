@@ -6,11 +6,12 @@ var changeRE = /^change:/;
 
 function Base(attrs, options) {
     options || (options = {});
-    if (!this.cid) this.cid = _.uniqueId('state');
+    this.cid = _.uniqueId('state');
     this._values = {};
     this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);
-    if (options.parent) this.parent = options.parent;
+    this.parent = options.parent;
+    this.collection = options.collection;
     this._keyTree = new KeyTree();
     this._initCollections();
     this._initChildren();
@@ -28,9 +29,48 @@ _.extend(Base.prototype, BBEvents, {
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 
+    idAttribute: 'id',
+
+    namespaceAttribute: 'namespace',
+
+    typeAttribute: 'modelType',
+
     // Stubbed out to be overwritten
     initialize: function () {
         return this;
+    },
+
+    // Get ID of model per configuration.
+    // Should *always* be how ID is determined by other code.
+    getId: function () {
+        return this[this.idAttribute];
+    },
+
+    // Get namespace of model per configuration.
+    // Should *always* be how namespace is determined by other code.
+    getNamespace: function () {
+        return this[this.namespaceAttribute];
+    },
+
+    // Get type of model per configuration.
+    // Should *always* be how type is determined by other code.
+    getType: function () {
+        return this[this.typeAttribute];
+    },
+
+    // A model is new if it has never been saved to the server, and lacks an id.
+    isNew: function () {
+        return this.getId() == null;
+    },
+
+    // get HTML-escaped value of attribute
+    escape: function (attr) {
+        return _.escape(this.get(attr));
+    },
+
+    // Check if the model is currently in a valid state.
+    isValid: function (options) {
+        return this._validate({}, _.extend(options || {}, { validate: true }));
     },
 
     // Parse can be used remap/restructure/rename incoming properties
