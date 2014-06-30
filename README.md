@@ -53,6 +53,17 @@ var Person = AmpersandState.extend({
 });
 ```
 
+`AmpersandState.extend` does more than just copy attributes from one prototype to another.  It also sets up several new objects on the newly created prototype.  This renders it incompatible with Coffeescript's class based extend.
+
+For instance, this will not work since it never calls `AmpersandState.extend`:
+
+    class Foo extends AmpersandView
+         constructor: (options)->
+             @special = options.special
+             super
+
+
+
 ### constructor/initialize `new AmpersandState([attrs], [options])`
 
 When creating an instance of a state object, you can pass in the initial values of the **attributes** which will be [set](#ampersand-state-set) on the model. Unless [extraProperties](#amperand-state-extra-properties) is set to `allow`, you will need to have defined these attributes in `props` or `session`.
