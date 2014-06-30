@@ -8,7 +8,7 @@ An observable, extensible state object with derived watchable properties.
 
 Ampersand-state serves as a base object for [ampersand-model](http://github.com/ampersandjs/ampersand-model) but is useful any time you want to track complex state.
 
-[ampersand-model](https://github.com/ampersandjs/ampersand-model) extends ampersand-state to include assumptions that you'd want if you're using models to model date from a REST API. But by itself ampersand-state is useful for anytime you want something to model state, that fires events for changes and lets you define and listen to derived properties.
+[ampersand-model](https://github.com/ampersandjs/ampersand-model) extends ampersand-state to include assumptions that you'd want if you're using models to model data from a REST API. But by itself ampersand-state is useful for anytime you want something to model state, that fires events for changes and lets you define and listen to derived properties.
 
 For further explanation see the [learn ampersand-state](http://ampersandjs.com/learn/state) guide.
 
@@ -27,7 +27,7 @@ npm install ampersand-state --save
 
 ### extend `AmpersandState.extend({ })`
 
-To create a **State** class of your own, you extend **AmpersandState** and provide instance properties an options for your class. Typically here you will pass any properties (`props`, `session` and `derived` of your state class, and any instance methods to be attached to instances of your class.
+To create a **State** class of your own, you extend **AmpersandState** and provide instance properties and options for your class. Typically here you will pass any properties (`props`, `session` and `derived` of your state class, and any instance methods to be attached to instances of your class.
 
 **extend** correctly sets up the prototype chain, so that subclasses created with **extend** can be further extended as many times as you like.
 
@@ -120,7 +120,7 @@ Get type of model per `typeAttribute` configuration. Should *always* be how type
 
 ### extraProperties `AmpersandState.extend({ extraProperties: 'allow' })`
 
-Defines how properties that aren't defined in `props`, `session` or `derived` are handled. May be set to `'allow'`, `'reject'` or `'allow'`.
+Defines how properties that aren't defined in `props`, `session` or `derived` are handled. May be set to `'allow'`, `'ignore'` or `'reject'`.
 
 ```javascript
 var StateA = AmpersandState.extend({
