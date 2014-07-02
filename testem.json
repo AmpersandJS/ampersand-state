@@ -1,0 +1,13 @@
+{
+    "framework": "tap",
+    "src_files": [
+        "ampersand-state.js",
+        "test/*.js"
+    ],
+    "serve_files": [
+        "tests.bundle.js"
+    ],
+    "before_tests": "browserify test/index.js -o tests.bundle.js",
+    "after_tests": "rm tests.bundle.js",
+    "launch_in_dev": ["PhantomJS", "Chrome"]
+}
