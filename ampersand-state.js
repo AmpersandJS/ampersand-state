@@ -490,21 +490,33 @@ Object.defineProperties(Base.prototype, {
 // appropriate getters/setters
 function createPropertyDefinition(object, name, desc, isSession) {
     var def = object._definition[name] = {};
-    var type;
+    var type, descArray;
+
     if (_.isString(desc)) {
         // grab our type if all we've got is a string
         type = object._ensureValidType(desc);
         if (type) def.type = type;
     } else {
-        type = object._ensureValidType(desc[0] || desc.type);
-        if (type) def.type = type;
-        if (desc[1] || desc.required) def.required = true;
 
-        // set default if defined
-        def.default = !_.isUndefined(desc[2]) ? desc[2] : desc.default;
-        if (typeof def.default === 'object') {
+        //Transform array of ['type', required, default] to object form
+        if (_.isArray(desc)) {
+            descArray = desc;
+            desc = {
+                type: descArray[0],
+                required: descArray[1],
+                default: descArray[2]
+            };
+        }
+
+        type = object._ensureValidType(desc.type);
+        if (type) def.type = type;
+
+        if (desc.required) def.required = true;
+
+        if (typeof desc.default === 'object') {
             throw new TypeError('The default value for ' + name + ' cannot be an object/array, must be a value or a function which returns a value/object/array');
         }
+        def.default = desc.default;
 
         def.allowNull = desc.allowNull ? desc.allowNull : false;
         if (desc.setOnce) def.setOnce = true;
