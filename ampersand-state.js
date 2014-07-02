@@ -481,7 +481,8 @@ Object.defineProperties(Base.prototype, {
         }
     },
     isState: {
-        value: true
+        get: function () { return true; },
+        set: function () { }
     }
 });
 
