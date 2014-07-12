@@ -756,6 +756,20 @@ test("set and unset", function (t) {
     t.end();
 });
 
+test("unset even if value has been specified", function (t) {
+    var Model = State.extend({
+        props: {
+            foo: 'string'
+        }
+    });
+    var model = new Model({ foo: 'bar' });
+    model.on('change:foo', function () {
+        t.equal(model.get('foo'), undefined);
+    });
+    model.set({ foo: 'baz' }, { unset: true });
+    t.equal(model.get('foo'), undefined);
+    t.end();
+});
 
 test("nested `set` during `'change:attr'`", function (t) {
     var events = [];
