@@ -513,7 +513,7 @@ function createPropertyDefinition(object, name, desc, isSession) {
 
         if (desc.required) def.required = true;
 
-        if (typeof desc.default === 'object') {
+        if (desc.default && typeof desc.default === 'object') {
             throw new TypeError('The default value for ' + name + ' cannot be an object/array, must be a value or a function which returns a value/object/array');
         }
         def.default = desc.default;

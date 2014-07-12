@@ -35,6 +35,7 @@ function reset() {
             list: ['array'],
             myBool: ['boolean', true, false],
             someNumber: {type: 'number', allowNull: true},
+            someNull: {type: 'object', default: null},
             good: {
                 type: 'string',
                 test: function (newVal) {
@@ -98,6 +99,7 @@ test('should have default values for properties', function (t) {
         lastName: 'tom'
     });
     t.strictEqual(foo.myBool, false);
+    t.strictEqual(foo.someNull, null);
     t.end();
 });
 
@@ -305,13 +307,15 @@ test('should have data serialization methods', function (t) {
         lastName: 'tom',
         thing: 'abc',
         myBool: false,
-        active: true
+        active: true,
+        someNull: null
     });
     t.deepEqual(foo.serialize(), {
         firstName: 'bob',
         lastName: 'tom',
         thing: 'abc',
-        myBool: false
+        myBool: false,
+        someNull: null
     });
     t.end();
 });
