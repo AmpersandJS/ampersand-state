@@ -357,11 +357,12 @@ test("clear", function (t) {
     var Model = State.extend({
         props: {
             name: 'string',
-            id: 'number'
+            id: 'number',
+            length: 'number'
         }
     });
     var changed;
-    var model = new Model({id: 1, name : "Model"});
+    var model = new Model({id: 1, name : "Model", length: 1});
     model.on("change:name", function () { changed = true; });
     model.clear();
     t.equal(changed, true);
