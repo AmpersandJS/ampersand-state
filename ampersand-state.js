@@ -307,7 +307,7 @@ _.extend(Base.prototype, BBEvents, {
 
     clear: function (options) {
         var self = this;
-        _.each(this.attributes, function (val, key) {
+        _.each(_.keys(this.attributes), function (key) {
             self.unset(key, options);
         });
         return this;
