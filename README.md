@@ -226,7 +226,7 @@ var Person = AmpersandState.extend({
         paying: ['boolean', true, false], //required attribute, defaulted to false
         type: {
             type: 'string',
-            values: ['regular-hero', 'super-hero', 'mega-hero'
+            values: ['regular-hero', 'super-hero', 'mega-hero' ]
         }
     }
 });
