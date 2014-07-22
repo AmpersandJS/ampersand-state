@@ -7,6 +7,7 @@ var changeRE = /^change:/;
 function Base(attrs, options) {
     options || (options = {});
     this.cid = _.uniqueId('state');
+    this._events = {};
     this._values = {};
     this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);
@@ -17,7 +18,6 @@ function Base(attrs, options) {
     this._initChildren();
     this._cache = {};
     this._previousAttributes = {};
-    this._events = {};
     if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
     this._changed = {};
     if (this._derived) this._initDerived();
