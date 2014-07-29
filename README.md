@@ -211,11 +211,12 @@ Pass **props** as an object to extend, describing the observable properties of y
 Properties can be defined in three different ways:
 
 * As a string with the expected dataType. One of `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`. Eg: `name: 'string'`. Can also be set to the name of a custom `dataTypes` if any are defined for the class.
-* An array of `[dataType, required, default]`
-* An object `{ type: 'string', required: true, default: '' , allowNull: false}`
-
-* If `required` is true, and a `default` is set for the property, the property will start with that value, and revert to it after a call to `unset(propertyName)`.
+* An array of `[dataType, required, default]`.
+* An object `{ type: 'string', required: true, default: '' , allowNull: false}`.
+* `default` will be the value that the property will be set to if it is undefined, either by not being set during initialization, or by being explicit set to undefined.
+* If `required` is true, one of two things will happen.  If a `default` is set for the property, the property will start with that value, and revert to it after a call to `unset(propertyName)`.  If a `default` is not set for the property, an error will be thrown after a call to `unset(propertyName)`.
 * Trying to set a property to an invalid type will raise an exception.
+
 * See [get](#ampersand-state-get) and [set](#ampersand-state-set) for more information about getting and setting properties.
 
 ```javascript
@@ -228,6 +229,21 @@ var Person = AmpersandState.extend({
             type: 'string',
             values: ['regular-hero', 'super-hero', 'mega-hero' ]
         }
+    }
+});
+```
+
+#### defaulting to objects/arrays
+
+You will get an error if you try to set the default of any property as either an object or array.  This is because those two data types are mutable and passed by reference.  If you were to default a property to `[]` this would return *the same array* on every new instantiation of the model.
+
+Instead, if you want to default a property to an array or object you can set `default` to a function like this
+
+```javascript
+AmpersandModel.extend({
+    props: {
+        checkpoints: { type: 'array', default: function () { return [];
+}}
     }
 });
 ```
