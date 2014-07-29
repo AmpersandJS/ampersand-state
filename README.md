@@ -242,8 +242,10 @@ Instead, if you want to default a property to an array or object you can set `de
 ```javascript
 AmpersandModel.extend({
     props: {
-        checkpoints: { type: 'array', default: function () { return [];
-}}
+        checkpoints: {
+            type: 'array',
+            default: function () { return []; }
+        }
     }
 });
 ```
