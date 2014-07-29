@@ -250,6 +250,8 @@ AmpersandModel.extend({
 });
 ```
 
+It's worth noting that both `array` and `object` do this already: they default to empty versions of themselves.  You would only need to do this if you wanted to default to an array/object that wasn't empty.
+
 ### session `AmpersandView.extend({ session: { name: 'string' } })`
 
 Session properties are defined and work in exactly the same way as [props](#ampersand-state-props), but generally only exist for the lifetime of the page. They would not typically be persisted to the server, and are not returned by calls to `toJSON()` or `serialize()`.
