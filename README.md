@@ -211,10 +211,12 @@ Pass **props** as an object to extend, describing the observable properties of y
 Properties can be defined in three different ways:
 
 * As a string with the expected dataType. One of `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`. Eg: `name: 'string'`. Can also be set to the name of a custom `dataTypes` if any are defined for the class.
-* An array of `[dataType, required, default]`.
-* An object `{ type: 'string', required: true, default: '' , allowNull: false}`.
+* An array of `[dataType, required, default]`
+* An object `{ type: 'string', required: true, default: '' , values: [], allowNull: false, setOnce: false }`
 * `default` will be the value that the property will be set to if it is undefined, either by not being set during initialization, or by being explicit set to undefined.
 * If `required` is true, one of two things will happen.  If a `default` is set for the property, the property will start with that value, and revert to it after a call to `unset(propertyName)`.  If a `default` is not set for the property, an error will be thrown after a call to `unset(propertyName)`.
+* If `values` array is passed, then you'll be able to change a property to one of those values only.
+* If `setOnce` is true, then you'll be able to set property only once.
 * Trying to set a property to an invalid type will raise an exception.
 
 * See [get](#ampersand-state-get) and [set](#ampersand-state-set) for more information about getting and setting properties.
@@ -224,10 +226,10 @@ var Person = AmpersandState.extend({
     props: {
         name: 'string',
         age: 'number',
-        paying: ['boolean', true, false], //required attribute, defaulted to false
+        paying: ['boolean', true, false], // required attribute, defaulted to false
         type: {
             type: 'string',
-            values: ['regular-hero', 'super-hero', 'mega-hero' ]
+            values: ['regular-hero', 'super-hero', 'mega-hero']
         }
     }
 });
