@@ -122,6 +122,8 @@ Get type of model per `typeAttribute` configuration. Should *always* be how type
 
 Defines how properties that aren't defined in `props`, `session` or `derived` are handled. May be set to `'allow'`, `'ignore'` or `'reject'`.
 
+Defaults to `ignore`.
+
 ```javascript
 var StateA = AmpersandState.extend({
     extraProperties: 'allow',
