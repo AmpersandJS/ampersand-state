@@ -6,7 +6,7 @@ var changeRE = /^change:/;
 
 function Base(attrs, options) {
     options || (options = {});
-    this.cid = _.uniqueId('state');
+    this.cid || (this.cid = _.uniqueId('state'));
     this._events = {};
     this._values = {};
     this._definition = Object.create(this._definition);
