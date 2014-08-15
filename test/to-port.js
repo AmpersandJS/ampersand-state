@@ -1,44 +1,8 @@
 /*
 These still need to be ported to use tape, etc.
-
 */
 
-
-
-test("#1664 - Changing from one value, silently to another, back to original triggers a change.", 1, function() {
-    var Model = AmpersandModel.extend({
-      props: {
-        x: 'number'
-      }
-    });
-    var model = new Model({x:1});
-    model.on('change:x', function() { ok(true); });
-    model.set({x:2},{silent:true});
-    model.set({x:3},{silent:true});
-    model.set({x:1});
-  });
-
-  test("#1664 - multiple silent changes nested inside a change event", 2, function() {
-    var changes = [];
-    var Model = AmpersandModel.extend({
-      props: {
-        a: 'string',
-        b: 'number',
-        c: 'string'
-      }
-    });
-    var model = new Model();
-    model.on('change', function() {
-      model.set({a: 'c'}, {silent:true});
-      model.set({b: 2}, {silent:true});
-      model.unset('c', {silent:true});
-    });
-    model.on('change:a change:b change:c', function(model, val) { changes.push(val); });
-    model.set({a:'a', b:1, c:'item'});
-    deepEqual(changes, ['a',1,'item']);
-    deepEqual(model.attributes, {a: 'c', b: 2});
-  });
-
+//does not work
   test("#1791 - `attributes` is available for `parse`", function() {
     var Model = AmpersandModel.extend({
       parse: function() { this.has('a'); } // shouldn't throw an error
@@ -47,23 +11,6 @@ test("#1664 - Changing from one value, silently to another, back to original tri
     expect(0);
   });
 
-  test("silent changes in last `change` event back to original triggers change", 2, function() {
-    var changes = [];
-    var Model = AmpersandModel.extend({
-      props: {
-        a: 'string'
-      }
-    });
-    var model = new Model();
-    model.on('change:a change:b change:c', function(model, val) { changes.push(val); });
-    model.on('change', function() {
-      model.set({a:'c'}, {silent:true});
-    });
-    model.set({a:'a'});
-    deepEqual(changes, ['a']);
-    model.set({a:'a'});
-    deepEqual(changes, ['a', 'a']);
-  });
 
   test("#1943 change calculations should use _.isEqual", function() {
     var Model = AmpersandModel.extend({
