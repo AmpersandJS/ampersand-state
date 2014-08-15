@@ -149,6 +149,8 @@ _.extend(Base.prototype, BBEvents, {
                     throw new TypeError('No "' + attr + '" property defined on ' + (this.type || 'this') + ' model and extraProperties not set to "ignore" or "allow"');
                 } else if (extraProperties === 'allow') {
                     def = this._createPropertyDefinition(attr, 'any');
+                } else if (extraProperties) {
+                    throw new TypeError('Invalid value for "extraProperties: ' + extraProperties);
                 }
             }
 
