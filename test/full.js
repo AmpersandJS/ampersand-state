@@ -199,32 +199,6 @@ test('Setting other properties when `extraProperties: "reject"` throws error', f
     t.end();
 });
 
-test('should be able to set a null date on an optional property', function (t) {
-    var Foo = State.extend({
-        props: {
-            aDate: ['date', false]
-        }
-    });
-
-    var foo = new Foo();
-    foo.aDate = null;
-    t.strictEqual(foo.aDate, null);
-    t.end();
-});
-
-test('should not be able to set a null date on a required property', function (t) {
-    t.plan(1);
-    var Foo = State.extend({
-        props: {
-            aDate: ['date', true]
-        }
-    });
-
-    var foo = new Foo();
-    try { foo.aDate = null; }
-    catch (err) { t.ok(err instanceof TypeError); }
-});
-
 test('Setting other properties ignores them by default', function (t) {
     var foo = new Foo();
     foo.set({
