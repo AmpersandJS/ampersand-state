@@ -581,7 +581,10 @@ var dataTypes = {
     date: {
         set: function (newVal) {
             var newType;
-            if (!_.isDate(newVal)) {
+            if (_.isNull(newVal)) {
+                // a date can be null
+                newType = 'date';
+            } else if (!_.isDate(newVal)) {
                 try {
                     newVal = new Date(parseInt(newVal, 10));
                     if (!_.isDate(newVal)) throw TypeError;
@@ -601,7 +604,7 @@ var dataTypes = {
             };
         },
         get: function (val) {
-            return new Date(val);
+            return val === null ? null : new Date(val);
         },
         default: function () {
             return new Date();
