@@ -1314,3 +1314,21 @@ test("#2030 - set with failed validate, followed by another set triggers change"
     t.deepEqual([attr, main, error], [1, 1, 1]);
     t.end();
 });
+
+test("#1179 - isValid returns true in the absence of validate.", function(t) {
+    var Model = State.extend({
+        validate: null
+    });
+    var model = new Model();
+    t.ok(model.isValid());
+    t.end();
+});
+
+test("#1791 - `attributes` is available for `parse`", function(t) {
+    var Model = State.extend({
+        //Backbone test used this.has which was a this.get !== null test
+        parse: function() { this.get('a') != null; } // shouldn't throw an error
+    });
+    var model = new Model(null, {parse: true});
+    t.end();
+});
