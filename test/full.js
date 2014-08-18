@@ -1327,7 +1327,7 @@ test("#1179 - isValid returns true in the absence of validate.", function(t) {
 test("#1791 - `attributes` is available for `parse`", function(t) {
     var Model = State.extend({
         //Backbone test used this.has which was a this.get !== null test
-        parse: function() { this.get('a') != null; } // shouldn't throw an error
+        parse: function() { this.get('a') !== null; } // shouldn't throw an error
     });
     var model = new Model(null, {parse: true});
     t.end();
