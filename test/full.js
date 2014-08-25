@@ -1332,3 +1332,19 @@ test("#1791 - `attributes` is available for `parse`", function(t) {
     var model = new Model(null, {parse: true});
     t.end();
 });
+
+test("changing from defaults has correct previousAttributes", function (t) {
+    var Model = State.extend({
+        props: {
+            test1: ['boolean', true, true],
+            test2: ['boolean', true, true],
+            test3: ['string']
+        }
+    });
+    var model = new Model();
+    model.test1 = false;
+    t.deepEqual(model.previousAttributes(), {test1: true, test2: true});
+    model.test3 = 'hello';
+    t.deepEqual(model.previousAttributes(), {test1: false, test2: true, test3: undefined});
+    t.end();
+});
