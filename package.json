@@ -17,6 +17,7 @@
     "ampersand-registry": "0.x.x",
     "browserify": "^5.9.1",
     "jshint": "^2.5.3",
+    "phantomjs": "^1.9.7-15",
     "precommit-hook": "^1.0.7",
     "run-browser": "~1.2.0",
     "tap-spec": "^0.2.0",
