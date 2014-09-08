@@ -990,6 +990,42 @@ test('listens to child events', function (t) {
     first.firstChild.grandChild.name = 'Bob';
 });
 
+test('#66 - listens to child events on collections', function (t) {
+    var Rooms = Collection.extend({
+        model: State.extend({
+            props: {
+                size: ['number', true, 10],
+            }
+        })
+    });
+
+    var House = State.extend({
+        collections: {
+            rooms: Rooms,
+        },
+        derived: {
+            totalArea: {
+                deps: ['rooms.size'],
+                fn: function() {
+                    return this.rooms.reduce(function(a, b) {
+                        return a + b.size;
+                    }, 0);
+                }
+            }
+        }
+    });
+
+    var house = new House({
+        rooms: [{size: 12}, {size: 20}]
+    });
+
+    t.plan(2);
+
+    t.equal(house.totalArea, 32);
+    house.rooms.at(0).size = 30;
+    t.equal(house.totalArea, 50);
+});
+
 test('Should be able to declare derived properties that have nested deps', function (t) {
     var GrandChild = State.extend({
         props: {

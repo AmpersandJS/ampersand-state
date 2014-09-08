@@ -428,6 +428,7 @@ _.extend(Base.prototype, BBEvents, {
         if (!this._collections) return;
         for (coll in this._collections) {
             this[coll] = new this._collections[coll]([], {parent: this});
+            this.listenTo(this[coll], 'all', this._getEventBubblingHandler(coll));
         }
     },
 
