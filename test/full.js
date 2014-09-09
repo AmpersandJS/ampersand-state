@@ -1026,6 +1026,83 @@ test('#66 - listens to child events on collections', function (t) {
     t.equal(house.totalArea, 50);
 });
 
+test('#66 - listens to child events on collection by collection name', function (t) {
+    var Room = State.extend({
+        props: {
+            size: ['number', true, 10]
+        }
+    });
+    var Rooms = Collection.extend({
+        model: Room
+    });
+
+    var House = State.extend({
+        collections: {
+            rooms: Rooms
+        },
+        derived: {
+            totalArea: {
+                deps: ['rooms'],
+                fn: function() {
+                    return this.rooms.reduce(function(a, b) {
+                        return a + b.size;
+                    }, 0);
+                }
+            }
+        }
+    });
+
+    var house = new House({
+        rooms: [{size: 12}, {size: 20}]
+    });
+
+    t.plan(2);
+
+    t.equal(house.totalArea, 32);
+    house.rooms.at(0).size = 30;
+    t.equal(house.totalArea, 50);
+});
+
+test('#66 - listens to child events on children by child name', function (t) {
+    var Room = State.extend({
+        props: {
+            size: ['number', true, 10],
+            name: ['string', true, 'room']
+        }
+    });
+    var Rooms = Collection.extend({
+        model: Room
+    });
+
+    var House = State.extend({
+        children: {
+            mainRoom: Room
+        },
+        derived: {
+            mainRoomDesc: {
+                deps: ['mainRoom'],
+                fn: function () {
+                    return this.mainRoom.name + this.mainRoom.size;
+                }
+            }
+        }
+    });
+
+    var house = new House({
+        rooms: [{size: 12}, {size: 20}],
+        mainRoom: {size: 100}
+    });
+
+    t.plan(3);
+
+    t.equal(house.mainRoomDesc, 'room100');
+    house.mainRoom.name = 'mainroom';
+    t.equal(house.mainRoomDesc, 'mainroom100');
+    house.mainRoom.size = 1001;
+    t.equal(house.mainRoomDesc, 'mainroom1001');
+});
+
+
 test('Should be able to declare derived properties that have nested deps', function (t) {
     var GrandChild = State.extend({
         props: {
