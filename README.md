@@ -27,7 +27,7 @@ npm install ampersand-state --save
 
 ### extend `AmpersandState.extend({ })`
 
-To create a **State** class of your own, you extend **AmpersandState** and provide instance properties and options for your class. Typically here you will pass any properties (`props`, `session` and `derived` of your state class, and any instance methods to be attached to instances of your class.
+To create a **State** class of your own, you extend **AmpersandState** and provide instance properties and options for your class. Typically here you will pass any properties (`props`, `session` and `derived`) of your state class, and any instance methods to be attached to instances of your class.
 
 **extend** correctly sets up the prototype chain, so that subclasses created with **extend** can be further extended as many times as you like.
 
