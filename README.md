@@ -55,7 +55,7 @@ var Person = AmpersandState.extend({
 
 ### constructor/initialize `new AmpersandState([attrs], [options])`
 
-When creating an instance of a state object, you can pass in the initial values of the **attributes** which will be [set](#ampersand-state-set) on the model. Unless [extraProperties](#amperand-state-extra-properties) is set to `allow`, you will need to have defined these attributes in `props` or `session`.
+When creating an instance of a state object, you can pass in the initial values of the **attributes** which will be [set](#ampersand-state-set) on the state. Unless [extraProperties](#amperand-state-extra-properties) is set to `allow`, you will need to have defined these attributes in `props` or `session`.
 
 If you have defined an **initialize** function for your subclass of State, it will be invoked at creation time.
 
@@ -71,11 +71,11 @@ me.firstName //=> Phil
 Available options:
 
 * `[parse]` {Boolean} - whether to call the class's [parse](#ampersand-state-parse) function with the initial attributes. _Defaults to `false`_.
-* `[parent]` {AmpersandState} - pass a reference to a model's parent to store on the model.
+* `[parent]` {AmpersandState} - pass a reference to a state's parent to store on the state.
 
-### idAttribute `model.idAttribute`
+### idAttribute `state.idAttribute`
 
-The attribute that should be used as the unique id of the model - typically the name of the property representing the model's id on the server. `getId` uses this to determine the id for use when constructing a model's url for saving to the server.
+The attribute that should be used as the unique id of the state - typically the name of the property representing the model's id on the server. `getId` uses this to determine the id for use when constructing a model's url for saving to the server.
 
 Defaults to `'id'`.
 
@@ -94,29 +94,29 @@ var me = new Person({ personId: 123 });
 console.log(me.url()) //=> "/people/123"
 ```
 
-### getId `model.getId()`
+### getId `state.getId()`
 
-Get ID of model per `idAttribute` configuration. Should *always* be how ID is determined by other code.
+Get ID of state per `idAttribute` configuration. Should *always* be how ID is determined by other code.
 
-### namespaceAttribute `model.namespaceAttribute`
+### namespaceAttribute `state.namespaceAttribute`
 
-The property name that should be used as a namespace. Namespaces are completely optional, but exist in case you need to make an additionl distinction between models, that may be of the same type, with potentially conflicting IDs but are in fact different.
+The property name that should be used as a namespace. Namespaces are completely optional, but exist in case you need to make an additionl distinction between states, that may be of the same type, with potentially conflicting IDs but are in fact different.
 
 Defaults to `'namespace'`.
 
-### getNamespace `model.getNamespace()`
+### getNamespace `state.getNamespace()`
 
-Get namespace of model per `namespaceAttribute` configuration. Should *always* be how namespace is determined by other code.
+Get namespace of state per `namespaceAttribute` configuration. Should *always* be how namespace is determined by other code.
 
 ### typeAttribute
 
-The property name that should be used to specify what type of model this is. This is optional, but specifying a model type types provides a standard, yet configurable way to determine what type of model it is.
+The property name that should be used to specify what type of state this is. This is optional, but specifying a type provides a standard, yet configurable way to determine what type of state it is.
 
-Defaults to `'modelType'`.
+Defaults to `'stateType'`.
 
-### getType `model.getType()`
+### getType `state.getType()`
 
-Get type of model per `typeAttribute` configuration. Should *always* be how type is determined by other code.
+Get type of state per `typeAttribute` configuration. Should *always* be how type is determined by other code.
 
 ### extraProperties `AmpersandState.extend({ extraProperties: 'allow' })`
 
@@ -146,14 +146,14 @@ var stateC = AmpersandState.extend({
 });
 
 var stateC = new StateC({ foo: 'bar' })
-//=> TypeError('No foo property defined on this model and extraProperties not set to "ignore" or "allow".');
+//=> TypeError('No foo property defined on this state and extraProperties not set to "ignore" or "allow".');
 ```
 
 ### collection `state.collection`
 
 A reference to the collection a state is in, if in a collection.
 
-This is used for building the default `url` property, etc. 
+This is used for building the default `url` property, etc.
 
 Which is why you can do this:
 
@@ -183,13 +183,13 @@ var userB = new User();
 console.log(userB.cid) //=> "state-2"
 ```
 
-### isNew `model.isNew()`
+### isNew `state.isNew()`
 
-Has this model been saved to the server yet? If the model does not yet have an id (using `getId()`), it is considered to be new.
+Has this state been saved to the server yet? If the state does not yet have an id (using `getId()`), it is considered to be new.
 
-### escape `model.escape()`
+### escape `state.escape()`
 
-Similar to `get`, but returns the HTML-escaped version of a model's attribute. If you're interpolating data from the model into HTML, using **escape** to retrieve attributes will help prevent XSS attacks.
+Similar to `get`, but returns the HTML-escaped version of a state's attribute. If you're interpolating data from the state into HTML, using **escape** to retrieve attributes will help prevent XSS attacks.
 
 ```
 var hacker = new PersonModel({
@@ -199,14 +199,14 @@ var hacker = new PersonModel({
 document.body.innerHTML = hacker.escape('name');
 ```
 
-### isValid `model.isValid()`
+### isValid `state.isValid()`
 
-Check if the model is currently in a valid state, it does this by calling the `validate` method, of your model if you've provided one.
+Check if the state is currently in a valid state, it does this by calling the `validate` method, of your state if you've provided one.
 
 
 ### dataTypes
 
-### props `AmpersandView.extend({ props: { name: 'string' } })`
+### props `AmpersandState.extend({ props: { name: 'string' } })`
 
 Pass **props** as an object to extend, describing the observable properties of your state class. The props properties should not be set on an instance, as this won't define new properties, they should only be passed to extend.
 
@@ -239,7 +239,7 @@ var Person = AmpersandState.extend({
 
 #### defaulting to objects/arrays
 
-You will get an error if you try to set the default of any property as either an object or array.  This is because those two data types are mutable and passed by reference.  If you were to default a property to `[]` this would return *the same array* on every new instantiation of the model.
+You will get an error if you try to set the default of any property as either an object or array.  This is because those two data types are mutable and passed by reference.  If you were to default a property to `[]` this would return *the same array* on every new instantiation of the state.
 
 Instead, if you want to default a property to an array or object you can set `default` to a function like this
 
@@ -256,7 +256,7 @@ AmpersandModel.extend({
 
 It's worth noting that both `array` and `object` do this already: they default to empty versions of themselves.  You would only need to do this if you wanted to default to an array/object that wasn't empty.
 
-### session `AmpersandView.extend({ session: { name: 'string' } })`
+### session `AmpersandState.extend({ session: { name: 'string' } })`
 
 Session properties are defined and work in exactly the same way as [props](#ampersand-state-props), but generally only exist for the lifetime of the page. They would not typically be persisted to the server, and are not returned by calls to `toJSON()` or `serialize()`.
 
@@ -344,7 +344,7 @@ console.log(me.hat) //=> Hat{color: 'green'}
 
 ### parse
 
-**parse** is called when the model is initialized allowing the attributes to be modified/remapped/renamed/etc before they are actually applied to the model. In ampersand-state, parse is only called when the model is first initialized, and only if `{ parse: true }` is passed to the constructor options:
+**parse** is called when the state is initialized allowing the attributes to be modified/remapped/renamed/etc before they are actually applied to the state. In ampersand-state, parse is only called when the state is first initialized, and only if `{ parse: true }` is passed to the constructor options:
 
 ```javascript
 var Person = AmpersandState.extend({
@@ -371,7 +371,7 @@ console.log(me.personID) //=> undefined
 
 ### serialize `state.serialize()`
 
-Serialize the state object into a plain object, ready for sending to the server (typically called via [toJSON](#ampersand-state-tojson)). Of the model's properties, only `props` is returned, `session` and `derived` are omitted. Will also serialize any `children` or `collections` by calling their serialize methods.
+Serialize the state object into a plain object, ready for sending to the server (typically called via [toJSON](#ampersand-state-tojson)). Of the states's properties, only `props` is returned, `session` and `derived` are omitted. Will also serialize any `children` or `collections` by calling their serialize methods.
 
 
 ### get `state.get(attribute); state[attribute]; state.firstName`
@@ -443,20 +443,20 @@ console.log(me.color) //=> 'red'
 
 ### previousAttributes `state.previousAttributes()`
 
-Return a copy of the object's previous attributes (the state before the last `"change"` event). Useful for getting a diff between versions of a model, or getting back to a valid state after an error occurs.
+Return a copy of the object's previous attributes (the state before the last `"change"` event). Useful for getting a diff between versions of a state, or getting back to a valid state after an error occurs.
 
 
 ### hasChanged `state.hasChanged([attribute])`
 
-Determine if the model has been modified since the last `"change"` event. If an attribute name is passed, determine if that one attribute has changed.
+Determine if the state has been modified since the last `"change"` event. If an attribute name is passed, determine if that one attribute has changed.
 
 ### changedAttributes `state.changedAttributes([objectToDiff])`
 
-Return an object containing all the attributes that have changed, or false if there are no changed attributes. Useful for determining what parts of a view need to be updated and/or what attributes need to be persisted to the server. Unset attributes will be set to undefined.  You can also pass an attributes object to diff against the model, determining if there *would be* a change.
+Return an object containing all the attributes that have changed, or false if there are no changed attributes. Useful for determining what parts of a view need to be updated and/or what attributes need to be persisted to the server. Unset attributes will be set to undefined.  You can also pass an attributes object to diff against the state, determining if there *would be* a change.
 
 ### toJSON `state.toJSON()`
 
-Return a shallow copy of the model's attributes for JSON stringification. This can be used for persistence, serialization, or for augmentation before being sent to the server. The name of this method is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that the JavaScript API for JSON.stringify works.
+Return a shallow copy of the state's attributes for JSON stringification. This can be used for persistence, serialization, or for augmentation before being sent to the server. The name of this method is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that the JavaScript API for JSON.stringify works.
 
 Calls [serialize](#ampersand-state-serialize) to determine which values to return in the object. Will be called implicitly by JSON.stringify.
 

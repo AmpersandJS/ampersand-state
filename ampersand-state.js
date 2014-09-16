@@ -33,7 +33,7 @@ _.extend(Base.prototype, BBEvents, {
 
     namespaceAttribute: 'namespace',
 
-    typeAttribute: 'modelType',
+    typeAttribute: 'stateType',
 
     // Stubbed out to be overwritten
     initialize: function () {
