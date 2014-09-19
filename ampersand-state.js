@@ -660,7 +660,10 @@ var dataTypes = {
             // if this has changed we want to also handle
             // event propagation
             if (!isSame) {
-                this.stopListening(currentVal);
+                if (currentVal) {
+                    this.stopListening(currentVal);
+                }
+
                 if (newVal != null) {
                     this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
                 }

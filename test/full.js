@@ -1043,7 +1043,8 @@ test('Should be able to declare derived properties that have nested deps', funct
 test('`state` properties', function (t) {
     var Person = State.extend({
         props: {
-            sub: 'state'
+            sub: 'state',
+            sub2: 'state'
         }
     });
 
@@ -1099,6 +1100,39 @@ test('`state` properties', function (t) {
 
     t.end();
 });
+
+test.only('Issue: #75 `state` property from undefined -> state', function (t) {
+    t.plan(2);
+
+    var Person = State.extend({
+        props: {
+            sub: 'state',
+            sub2: 'state'
+        }
+    });
+
+    var SubState = State.extend({
+        props: {
+            foo: 'string'
+        }
+    });
+
+    var sub = new SubState({ foo: 'a' });
+    var p = new Person({ sub: sub });
+
+    p.on('change:sub.foo', function () {
+        t.ok(true);
+    });
+
+    sub.foo = 'b';
+
+    p.sub2 = new SubState({ foo: 'bar' });
+
+    sub.foo = 'c';
+
+    t.end();
+});
+
 
 test('`state` properties should invalidate dependent derived properties when changed', function (t) {
     var counter = 0;
