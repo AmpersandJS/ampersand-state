@@ -348,6 +348,112 @@ test('serialize should not include session properties no matter how they\'re def
     t.end();
 });
 
+test('serialize should include session properties if session is true in options', function (t) {
+    var Foo = State.extend({
+        props: {
+            name: 'string'
+        },
+        session: {
+            active: 'boolean'
+        }
+    });
+
+    var foo = new Foo({name: 'hi', active: true});
+    t.deepEqual(foo.serialize({session: true}), {name: 'hi', active: true});
+    t.end();
+});
+
+test('serialize should include session properties on children if session is true in options', function (t) {
+    var Foo = State.extend({
+    	props: {
+    		name: 'string'
+    	},
+		session: {
+			active: 'boolean'
+		}
+    });
+	var Bar = State.extend({
+        props: {
+            name: 'string'
+        },
+		children: {
+			foo: Foo
+		}
+    });
+
+    var bar = new Bar({name: 'hi', foo: {name: 'yo', active: true}});
+    t.deepEqual(bar.serialize({session: true}), {name: 'hi', foo: {name: 'yo', active: true}});
+    t.end();
+});
+
+test('serialize should not include derived properties by default.', function (t) {
+    var Foo = State.extend({
+        props: {
+            name: 'string'
+        },
+        derived: {
+			greeting: {
+	        	deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}				
+			}
+        }
+    });
+
+    var foo = new Foo({name: 'Hello'});
+    t.deepEqual(foo.serialize(), {name: 'Hello'});
+    t.end();
+});
+
+test('serialize should include derived properties when specified in options.', function (t) {
+    var Foo = State.extend({
+        props: {
+            name: 'string'
+        },
+        derived: {
+			greeting: {
+	        	deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}				
+			}
+        }
+    });
+
+    var foo = new Foo({name: 'Hello'});
+    t.deepEqual(foo.serialize({derived: true}), {name: 'Hello', greeting: 'Hello, World!'});
+    t.end();
+});
+
+test('serialize should include derived properties on children if derived is true in options', function (t) {
+    var Foo = State.extend({
+    	props: {
+    		name: 'string'
+    	},
+        derived: {
+			greeting: {
+	        	deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}				
+			}
+        }
+    });
+	var Bar = State.extend({
+        props: {
+            name: 'string'
+        },
+		children: {
+			foo: Foo
+		}
+    });
+
+    var bar = new Bar({name: 'hi', foo: {name: 'Hello'}});
+    t.deepEqual(bar.serialize({derived: true}), {name: 'hi', foo: {name: 'Hello', greeting: 'Hello, World!'}});
+    t.end();
+});
+
 test('should fire events normally for properties defined on the fly', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
@@ -1101,7 +1207,7 @@ test('`state` properties', function (t) {
     t.end();
 });
 
-test.only('Issue: #75 `state` property from undefined -> state', function (t) {
+test('Issue: #75 `state` property from undefined -> state', function (t) {
     t.plan(2);
 
     var Person = State.extend({
@@ -1364,5 +1470,60 @@ test("#1791 - `attributes` is available for `parse`", function(t) {
         parse: function() { this.get('a') !== null; } // shouldn't throw an error
     });
     var model = new Model(null, {parse: true});
+    t.end();
+});
+
+test("toJSON without options includes only normal properties.", function(t) {
+    var Model = State.extend({
+		props: {
+			name: 'string'
+		},
+		session: {
+			active: 'boolean'
+		},
+		derived: {
+			greeting: {
+				deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}
+			}
+		}
+    });
+    var model = new Model({name: 'Hello', active: true});
+	t.deepEqual(model.toJSON(), {name: 'Hello'});
+    t.end();
+});
+
+test("toJSON includes session properties when specified in options.", function(t) {
+    var Model = State.extend({
+		props: {
+			name: 'string'
+		},
+		session: {
+			active: 'boolean'
+		}
+    });
+    var model = new Model({name: 'Hello', active: true});
+	t.deepEqual(model.toJSON({session: true}), {name: 'Hello', active: true});
+    t.end();
+});
+
+test("toJSON includes derived properties when specified in options.", function(t) {
+    var Model = State.extend({
+		props: {
+			name: 'string'
+		},
+		derived: {
+			greeting: {
+				deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}
+			}
+		}
+    });
+    var model = new Model({name: 'Hello'});
+	t.deepEqual(model.toJSON({derived: true}), {name: 'Hello', greeting: 'Hello, World!'});
     t.end();
 });
