@@ -1101,7 +1101,7 @@ test('`state` properties', function (t) {
     t.end();
 });
 
-test.only('Issue: #75 `state` property from undefined -> state', function (t) {
+test('Issue: #75 `state` property from undefined -> state', function (t) {
     t.plan(2);
 
     var Person = State.extend({
