@@ -81,8 +81,8 @@ _.extend(Base.prototype, BBEvents, {
 
     // Serialize is the inverse of `parse` it lets you massage data
     // on the way out. Before, sending to server, for example.
-    serialize: function () {
-        var res = this.getAttributes({props: true}, true);
+    serialize: function (options) {
+        var res = this.getAttributes(_.extend(options || {}, { props: true, session: false }), true);
         _.each(this._children, function (value, key) {
             res[key] = this[key].serialize();
         }, this);
