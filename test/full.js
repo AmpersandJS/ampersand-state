@@ -354,13 +354,35 @@ test('serialize should include session properties if session is true in options'
             name: 'string'
         },
         session: {
-            // simple definintion
             active: 'boolean'
         }
     });
 
     var foo = new Foo({name: 'hi', active: true});
     t.deepEqual(foo.serialize({session: true}), {name: 'hi', active: true});
+    t.end();
+});
+
+test('serialize should include session properties on children if session is true in options', function (t) {
+    var Foo = State.extend({
+    	props: {
+    		name: 'string'
+    	},
+		session: {
+			active: 'boolean'
+		}
+    });
+	var Bar = State.extend({
+        props: {
+            name: 'string'
+        },
+		children: {
+			foo: Foo
+		}
+    });
+
+    var bar = new Bar({name: 'hi', foo: {name: 'yo', active: true}});
+    t.deepEqual(bar.serialize({session: true}), {name: 'hi', foo: {name: 'yo', active: true}});
     t.end();
 });
 

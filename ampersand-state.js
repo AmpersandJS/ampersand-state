@@ -84,10 +84,10 @@ _.extend(Base.prototype, BBEvents, {
     serialize: function (options) {
         var res = this.getAttributes(_.extend({ props: true }, options), true);
         _.each(this._children, function (value, key) {
-            res[key] = this[key].serialize();
+            res[key] = this[key].serialize(options);
         }, this);
         _.each(this._collections, function (value, key) {
-            res[key] = this[key].serialize();
+            res[key] = this[key].serialize(options);
         }, this);
         return res;
     },
