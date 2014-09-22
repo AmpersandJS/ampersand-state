@@ -369,9 +369,14 @@ console.log(me.personID) //=> undefined
 
 **parse** is arguably more useful in ampersand-model, where data typically comes from the server.
 
-### serialize `state.serialize()`
+### serialize `state.serialize([options])`
 
-Serialize the state object into a plain object, ready for sending to the server (typically called via [toJSON](#ampersand-state-tojson)). Of the model's properties, only `props` is returned, `session` and `derived` are omitted. Will also serialize any `children` or `collections` by calling their serialize methods.
+Serialize the state object into a plain object, ready for sending to the server (typically called via [toJSON](#ampersand-state-tojson)). Of the model's properties, only `props` is returned, `session` and `derived` are omitted by default. Will also serialize any `children` or `collections` by calling their serialize methods.
+
+Possible options:
+
+* `session` {Boolean} - whether to include `session` properties in the serialized object.
+* `derived` {Boolean} - whether to include `derived` properties in the serialized object.
 
 
 ### get `state.get(attribute); state[attribute]; state.firstName`
@@ -454,7 +459,7 @@ Determine if the model has been modified since the last `"change"` event. If an 
 
 Return an object containing all the attributes that have changed, or false if there are no changed attributes. Useful for determining what parts of a view need to be updated and/or what attributes need to be persisted to the server. Unset attributes will be set to undefined.  You can also pass an attributes object to diff against the model, determining if there *would be* a change.
 
-### toJSON `state.toJSON()`
+### toJSON `state.toJSON([options])`
 
 Return a shallow copy of the model's attributes for JSON stringification. This can be used for persistence, serialization, or for augmentation before being sent to the server. The name of this method is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that the JavaScript API for JSON.stringify works.
 
