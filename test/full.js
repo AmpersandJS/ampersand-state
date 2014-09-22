@@ -1422,3 +1422,58 @@ test("#1791 - `attributes` is available for `parse`", function(t) {
     var model = new Model(null, {parse: true});
     t.end();
 });
+
+test("toJSON without options includes only normal properties.", function(t) {
+    var Model = State.extend({
+		props: {
+			name: 'string'
+		},
+		session: {
+			active: 'boolean'
+		},
+		derived: {
+			greeting: {
+				deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}
+			}
+		}
+    });
+    var model = new Model({name: 'Hello', active: true});
+	t.deepEqual(model.toJSON(), {name: 'Hello'});
+    t.end();
+});
+
+test("toJSON includes session properties when specified in options.", function(t) {
+    var Model = State.extend({
+		props: {
+			name: 'string'
+		},
+		session: {
+			active: 'boolean'
+		}
+    });
+    var model = new Model({name: 'Hello', active: true});
+	t.deepEqual(model.toJSON({session: true}), {name: 'Hello', active: true});
+    t.end();
+});
+
+test("toJSON includes derived properties when specified in options.", function(t) {
+    var Model = State.extend({
+		props: {
+			name: 'string'
+		},
+		derived: {
+			greeting: {
+				deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}
+			}
+		}
+    });
+    var model = new Model({name: 'Hello'});
+	t.deepEqual(model.toJSON({derived: true}), {name: 'Hello', greeting: 'Hello, World!'});
+    t.end();
+});

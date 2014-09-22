@@ -289,8 +289,8 @@ _.extend(Base.prototype, BBEvents, {
         return changed;
     },
 
-    toJSON: function () {
-        return this.serialize();
+    toJSON: function (options) {
+        return this.serialize(options);
     },
 
     unset: function (attr, options) {
