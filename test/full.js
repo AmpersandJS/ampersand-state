@@ -348,7 +348,7 @@ test('serialize should not include session properties no matter how they\'re def
     t.end();
 });
 
-test('serialize should not include session properties even if session is true in options', function (t) {
+test('serialize should include session properties if session is true in options', function (t) {
     var Foo = State.extend({
         props: {
             name: 'string'
@@ -360,7 +360,7 @@ test('serialize should not include session properties even if session is true in
     });
 
     var foo = new Foo({name: 'hi', active: true});
-    t.deepEqual(foo.serialize({session: true}), {name: 'hi'});
+    t.deepEqual(foo.serialize({session: true}), {name: 'hi', active: true});
     t.end();
 });
 
@@ -401,18 +401,6 @@ test('serialize should include derived properties when specified in options.', f
 
     var foo = new Foo({name: 'Hello'});
     t.deepEqual(foo.serialize({derived: true}), {name: 'Hello', greeting: 'Hello, World!'});
-    t.end();
-});
-
-test('serialize should include properties even when props is false in options.', function (t) {
-    var Foo = State.extend({
-        props: {
-            name: 'string'
-        }
-    });
-
-    var foo = new Foo({name: 'Hello'});
-    t.deepEqual(foo.serialize({props: false}), {name: 'Hello'});
     t.end();
 });
 
