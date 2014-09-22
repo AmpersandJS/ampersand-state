@@ -426,6 +426,34 @@ test('serialize should include derived properties when specified in options.', f
     t.end();
 });
 
+test('serialize should include derived properties on children if derived is true in options', function (t) {
+    var Foo = State.extend({
+    	props: {
+    		name: 'string'
+    	},
+        derived: {
+			greeting: {
+	        	deps: ['name'],
+				fn: function() {
+					return this.name + ', World!';
+				}				
+			}
+        }
+    });
+	var Bar = State.extend({
+        props: {
+            name: 'string'
+        },
+		children: {
+			foo: Foo
+		}
+    });
+
+    var bar = new Bar({name: 'hi', foo: {name: 'Hello'}});
+    t.deepEqual(bar.serialize({derived: true}), {name: 'hi', foo: {name: 'Hello', greeting: 'Hello, World!'}});
+    t.end();
+});
+
 test('should fire events normally for properties defined on the fly', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
