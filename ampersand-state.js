@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var BBEvents = require('backbone-events-standalone');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
