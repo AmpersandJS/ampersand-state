@@ -1,4 +1,27 @@
-var _ = require('underscore');
+var _ = {
+    bind: require('lodash.bind'),
+    clone: require('lodash.clone'),
+    contains: require('lodash.contains'),
+    defaults: require('lodash.defaults'),
+    each: require('lodash.foreach'),
+    escape: require('lodash.escape'),
+    extend: require('lodash.assign'),
+    has: require('lodash.has'),
+    isArray: require('lodash.isarray'),
+    isDate: require('lodash.isdate'),
+    isEmpty: require('lodash.isempty'),
+    isEqual: require('lodash.isequal'),
+    isFunction: require('lodash.isfunction'),
+    isNaN: require('lodash.isnan'),
+    isNull: require('lodash.isnull'),
+    isObject: require('lodash.isobject'),
+    isString: require('lodash.isstring'),
+    isUndefined: require('lodash.isundefined'),
+    keys: require('lodash.keys'),
+    result: require('lodash.result'),
+    union: require('lodash.union'),
+    uniqueId: require('lodash.uniqueId'),
+};
 var BBEvents = require('backbone-events-standalone');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
@@ -558,7 +581,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
     // add to our shared dependency list
     _.each(def.depList, function (dep) {
-        modelProto._deps[dep] = _(modelProto._deps[dep] || []).union([name]);
+        modelProto._deps[dep] = _.union(modelProto._deps[dep] || [], [name]);
     });
 
     // defined a top-level getter for derived names
