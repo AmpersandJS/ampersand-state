@@ -75,7 +75,7 @@ _.extend(Base.prototype, BBEvents, {
 
     // Parse can be used remap/restructure/rename incoming properties
     // before they are applied to attributes.
-    parse: function (resp) {
+    parse: function (resp, options) {
         return resp;
     },
 
