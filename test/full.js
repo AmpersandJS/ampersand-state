@@ -910,6 +910,32 @@ test('children and collections should be instantiated', function (t) {
     t.end();
 });
 
+test('issue #82, child collections should not be cleared if they add data to themselves when instantiated', function (t) {
+    var Widget = State.extend({
+        props: {
+            title: 'string'
+        }
+    });
+    var Widgets = Collection.extend({
+        initialize: function () {
+            // some collections read from data they have immediate access to
+            // like localstorage, or whatnot. This should not be wiped out
+            // when instantiated by parent.
+            this.add([{title: 'hi'}]);
+        },
+        model: Widget
+    });
+    var Parent = State.extend({
+        collections: {
+            widgets: Widgets
+        }
+    });
+    var parent = new Parent();
+
+    t.equal(parent.widgets.length, 1, 'should contain data added by initialize method of child collection');
+    t.end();
+});
+
 test('listens to child events', function (t) {
     var GrandChild = State.extend({
         props: {
