@@ -427,7 +427,7 @@ _.extend(Base.prototype, BBEvents, {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll]([], {parent: this});
+            this[coll] = new this._collections[coll](null, {parent: this});
             this.listenTo(this[coll], 'all', this._getEventBubblingHandler(coll, function (model) {
                 return !!this[coll].get(model);
             }));
@@ -668,7 +668,10 @@ var dataTypes = {
             // if this has changed we want to also handle
             // event propagation
             if (!isSame) {
-                this.stopListening(currentVal);
+                if (currentVal) {
+                    this.stopListening(currentVal);
+                }
+
                 if (newVal != null) {
                     this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
                 }

@@ -910,6 +910,32 @@ test('children and collections should be instantiated', function (t) {
     t.end();
 });
 
+test('issue #82, child collections should not be cleared if they add data to themselves when instantiated', function (t) {
+    var Widget = State.extend({
+        props: {
+            title: 'string'
+        }
+    });
+    var Widgets = Collection.extend({
+        initialize: function () {
+            // some collections read from data they have immediate access to
+            // like localstorage, or whatnot. This should not be wiped out
+            // when instantiated by parent.
+            this.add([{title: 'hi'}]);
+        },
+        model: Widget
+    });
+    var Parent = State.extend({
+        collections: {
+            widgets: Widgets
+        }
+    });
+    var parent = new Parent();
+
+    t.equal(parent.widgets.length, 1, 'should contain data added by initialize method of child collection');
+    t.end();
+});
+
 test('listens to child events', function (t) {
     var GrandChild = State.extend({
         props: {
@@ -1156,7 +1182,8 @@ test('Should be able to declare derived properties that have nested deps', funct
 test('`state` properties', function (t) {
     var Person = State.extend({
         props: {
-            sub: 'state'
+            sub: 'state',
+            sub2: 'state'
         }
     });
 
@@ -1212,6 +1239,39 @@ test('`state` properties', function (t) {
 
     t.end();
 });
+
+test('Issue: #75 `state` property from undefined -> state', function (t) {
+    t.plan(2);
+
+    var Person = State.extend({
+        props: {
+            sub: 'state',
+            sub2: 'state'
+        }
+    });
+
+    var SubState = State.extend({
+        props: {
+            foo: 'string'
+        }
+    });
+
+    var sub = new SubState({ foo: 'a' });
+    var p = new Person({ sub: sub });
+
+    p.on('change:sub.foo', function () {
+        t.ok(true);
+    });
+
+    sub.foo = 'b';
+
+    p.sub2 = new SubState({ foo: 'bar' });
+
+    sub.foo = 'c';
+
+    t.end();
+});
+
 
 test('`state` properties should invalidate dependent derived properties when changed', function (t) {
     var counter = 0;
