@@ -320,7 +320,7 @@ var Hat = AmpersandState.extend({
 
 var Person = AmpersandState.extend({
     props: {
-        name: 'Phil'
+        name: 'string'
     },
     children: {
         hat: Hat
@@ -341,6 +341,49 @@ me.set({ hat: { color: 'green' } });
 
 console.log(me.hat) //=> Hat{color: 'green'}
 ```
+
+### collections `AmpersandState.extend({ collections: { widgets: Widgets } })`
+
+Define child collection objects to attach to the object. Attributes passed to the constructor or to `set()` will be proxied to the collections. 
+
+```javascript
+var State = require('ampersand-state');
+var Collection = require('ampersand-collection');
+
+var Widget = State.extend({
+    props: {
+        name: 'string',
+        funLevel: 'number'
+    }
+});
+
+var WidgetCollection = Collection.extend({
+    model: Widget
+});
+
+var Person = AmpersandState.extend({
+    props: {
+        name: 'string'
+    },
+    collections: {
+        widgets: WidgetCollection
+    }
+});
+
+var me = new Person({
+    name: 'Henrik', 
+    widgets: [
+        { name: 'rc car', funLevel: 8 },
+        { name: 'skis', funLevel: 11 }
+    ]
+});
+
+console.log(me.widgets.length); //=> 2
+console.log(me.widgets instanceof WidgetCollection); //=> true
+```
+
+Note that currently, events *don't* bubble from collections to parent automatically. This is done for efficiency reasons. But there are discussions ongoing about how to best handle this case.
+
 
 ### parse
 
