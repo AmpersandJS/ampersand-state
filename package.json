@@ -3,10 +3,16 @@
   "description": "An observable, extensible state object with derived watchable properties.",
   "version": "4.3.13",
   "author": "Henrik Joreteg <henrik@andyet.net>",
+  "browserify": {
+    "transform": [
+      "ampersand-version"
+    ]
+  },
   "bugs": {
     "url": "https://github.com/ampersandjs/ampersand-state/issues"
   },
   "dependencies": {
+    "ampersand-version": "^1.0.0",
     "array-next": "~0.0.1",
     "backbone-events-standalone": "0.2.2",
     "key-tree-store": "~0.1.0",
