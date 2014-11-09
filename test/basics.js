@@ -230,6 +230,23 @@ test('custom id and namespace attributes', function (t) {
     t.end();
 });
 
+test('no idAttribute prop defined still can use id ', function(t) {
+    var NewPerson = State.extend();
+    var person = new NewPerson({id: '47'});
+    t.equal(person.getId(), '47');
+    t.end();
+});
+
+test('custom idAttribute but no prop defined', function(t){
+    var NewPerson = State.extend({
+        idAttribute: '_id'
+    });
+    var person = new NewPerson({_id: 47});
+    t.equal(person.getId(), 47);
+    t.end();
+});
+
+
 test('customizable `type` attribute', function (t) {
     var FirstModel = State.extend({
         type: 'hello',
