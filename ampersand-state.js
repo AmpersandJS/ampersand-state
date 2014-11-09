@@ -754,6 +754,11 @@ function extend(protoProps) {
         });
     }
 
+    // if no `idAttribute` property defined yet, then define one as a default
+    if(!Object.getOwnPropertyDescriptor(child.prototype,child.prototype.idAttribute)){
+        createPropertyDefinition(child.prototype, child.prototype.idAttribute, 'any');
+    }
+    // should toString be removed???  it's an unused variable...
     var toString = Object.prototype.toString;
 
     // Set a convenience property in case the parent's prototype is needed
