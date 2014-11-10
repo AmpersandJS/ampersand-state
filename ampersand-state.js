@@ -140,9 +140,13 @@ _.extend(Base.prototype, BBEvents, {
 
 
             if (!def) {
-                // if this is a child model or collection
-                if (this._children[attr] || this._collections[attr]) {
+                // if this is a child model
+                if (this._children[attr]) {
                     this[attr].set(newVal, options);
+                    continue;
+                // if it is a collection set silent to false during initial set
+                } else if (this._collections[attr]) {
+                    this[attr].set(newVal, options.silent && options.initial ? _.extend(options, {silent: false}) : options);
                     continue;
                 } else if (extraProperties === 'ignore') {
                     continue;

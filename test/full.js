@@ -1392,3 +1392,27 @@ test("#1791 - `attributes` is available for `parse`", function(t) {
     var model = new Model(null, {parse: true});
     t.end();
 });
+
+test("child collections call add on init", function(t) {
+    var MyCollection = Collection.extend({
+        model: State.extend({
+            props: {
+                id: 'string'
+            }
+        }),
+        initialize: function () {
+            this.listenTo(this, 'add', function (model) {
+                t.equal(model.id, '1');
+                t.end();
+            });
+        }
+    });
+    var Model = State.extend({
+        collections: {
+            items: MyCollection
+        }
+    });
+    var model = new Model({
+        items: [{id: '1'}]
+    });
+});
