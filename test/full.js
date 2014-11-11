@@ -1392,3 +1392,26 @@ test("#1791 - `attributes` is available for `parse`", function(t) {
     var model = new Model(null, {parse: true});
     t.end();
 });
+
+test("#96 - changedAttributes includes properties that are not direct model attributes", function(t) {
+    var Submodel = State.extend({
+        props: {
+            b: 'number'
+        }
+    });
+
+    var Model = State.extend({
+        props: {
+            a: 'number'
+        },
+        children: {
+            submodels: Submodel
+        }
+    });
+
+    var model = new Model();
+    var old = JSON.parse(JSON.stringify(model));
+    var diff = model.changedAttributes(old);
+    t.ok(diff === false, 'should return false');
+    t.end();
+});

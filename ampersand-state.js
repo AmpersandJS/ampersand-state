@@ -283,7 +283,8 @@ _.extend(Base.prototype, BBEvents, {
         var def, isEqual;
         for (var attr in diff) {
             def = this._definition[attr];
-            isEqual = this._getCompareForType(def && def.type);
+            if (!def) continue;
+            isEqual = this._getCompareForType(def.type);
             if (isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
         }
