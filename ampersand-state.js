@@ -153,6 +153,12 @@ _.extend(Base.prototype, BBEvents, {
                 }
             }
 
+            if (currentVal === undefined) {
+                //Pull from defaults where applicable
+                currentVal = this.attributes[attr];
+            }
+
+
             isEqual = this._getCompareForType(def.type);
             dataType = this._dataTypes[def.type];
 
