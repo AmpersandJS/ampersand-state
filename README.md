@@ -509,6 +509,8 @@ Determine if the state has been modified since the last `"change"` event. If an 
 
 Return an object containing all the attributes that have changed, or false if there are no changed attributes. Useful for determining what parts of a view need to be updated and/or what attributes need to be persisted to the server. Unset attributes will be set to undefined.  You can also pass an attributes object to diff against the state, determining if there *would be* a change.
 
+Note that if passing an attributes object to diff against, only changes to properties defined on the model will be detected. This means that changes to children or collections will *not* be returned as changes by this method.
+
 ### toJSON `state.toJSON()`
 
 Return a shallow copy of the state's attributes for JSON stringification. This can be used for persistence, serialization, or for augmentation before being sent to the server. The name of this method is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that the JavaScript API for JSON.stringify works.
