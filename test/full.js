@@ -1409,9 +1409,14 @@ test("#96 - changedAttributes includes properties that are not direct model attr
         }
     });
 
-    var model = new Model();
+    var model = new Model({ a: 1 });
     var old = JSON.parse(JSON.stringify(model));
     var diff = model.changedAttributes(old);
     t.ok(diff === false, 'should return false');
+
+    diff = model.changedAttributes({ a: 5, submodels: [] });
+    t.ok(diff.hasOwnProperty('a'), 'should return the changed `a`');
+    t.ok(!diff.hasOwnProperty('submodels'), 'should not return `submodels`');
+
     t.end();
 });
