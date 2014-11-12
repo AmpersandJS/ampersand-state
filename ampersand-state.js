@@ -185,7 +185,7 @@ _.extend(Base.prototype, BBEvents, {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
             if (def.values && !_.contains(def.values, newVal)) {
-                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', '));
+                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', ') + '. Tried to set ' + newVal);
             }
 
             hasChanged = !isEqual(currentVal, newVal, attr);
