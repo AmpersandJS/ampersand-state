@@ -382,6 +382,17 @@ test('should fire event on derived properties, even if dependent on ad hoc prop.
     t.end();
 });
 
+test('throw error on invalid extraProperties', function (t) {
+    var Foo = State.extend({
+        extraProperties: 'qwijbo'
+    });
+    var foo = new Foo();
+    t.throws(function () {
+        foo.set('a', 'b');
+    }, TypeError, 'Throws TypeError on invalid extraProperties');
+    t.end();
+});
+
 test('should fire general change event on single attribute', function (t) {
     var foo = new Foo({firstName: 'coffee'});
     foo.on('change', function () {
