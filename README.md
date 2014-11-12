@@ -416,7 +416,7 @@ var Person = AmpersandState.extend({
     }
 });
 
-var me = new Person({ personID: 123, name: 'Phil' });
+var me = new Person({ personID: 123, name: 'Phil' },{ parse: true});
 
 console.log(me.id) //=> 123
 console.log(me.personID) //=> undefined
