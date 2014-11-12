@@ -1,3 +1,4 @@
+/*$AMPERSAND_VERSION*/
 var _ = require('underscore');
 var BBEvents = require('backbone-events-standalone');
 var KeyTree = require('key-tree-store');
@@ -6,7 +7,7 @@ var changeRE = /^change:/;
 
 function Base(attrs, options) {
     options || (options = {});
-    this.cid = _.uniqueId('state');
+    this.cid || (this.cid = _.uniqueId('state'));
     this._events = {};
     this._values = {};
     this._definition = Object.create(this._definition);
@@ -284,7 +285,8 @@ _.extend(Base.prototype, BBEvents, {
         var def, isEqual;
         for (var attr in diff) {
             def = this._definition[attr];
-            isEqual = this._getCompareForType(def && def.type);
+            if (!def) continue;
+            isEqual = this._getCompareForType(def.type);
             if (isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
         }
@@ -429,7 +431,7 @@ _.extend(Base.prototype, BBEvents, {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll]([], {parent: this});
+            this[coll] = new this._collections[coll](null, {parent: this});
         }
     },
 
@@ -662,7 +664,10 @@ var dataTypes = {
             // if this has changed we want to also handle
             // event propagation
             if (!isSame) {
-                this.stopListening(currentVal);
+                if (currentVal) {
+                    this.stopListening(currentVal);
+                }
+
                 if (newVal != null) {
                     this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
                 }

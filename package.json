@@ -1,12 +1,18 @@
 {
   "name": "ampersand-state",
   "description": "An observable, extensible state object with derived watchable properties.",
-  "version": "4.3.8",
+  "version": "4.3.15",
   "author": "Henrik Joreteg <henrik@andyet.net>",
+  "browserify": {
+    "transform": [
+      "ampersand-version"
+    ]
+  },
   "bugs": {
     "url": "https://github.com/ampersandjs/ampersand-state/issues"
   },
   "dependencies": {
+    "ampersand-version": "^1.0.0",
     "array-next": "~0.0.1",
     "backbone-events-standalone": "0.2.2",
     "key-tree-store": "~0.1.0",
@@ -15,9 +21,14 @@
   "devDependencies": {
     "ampersand-collection": "^1.3.2",
     "ampersand-registry": "0.x.x",
-    "precommit-hook": "~0.3.10",
+    "browserify": "^5.9.1",
+    "jshint": "^2.5.3",
+    "phantomjs": "^1.9.7-15",
+    "precommit-hook": "^1.0.7",
     "run-browser": "~1.2.0",
-    "tape": "~2.12.1"
+    "tap-spec": "^0.2.0",
+    "tape": "~2.12.1",
+    "tape-run": "^0.2.0"
   },
   "homepage": "https://github.com/ampersandjs/ampersand-state",
   "keywords": [
@@ -32,7 +43,7 @@
     "url": "git://github.com/ampersandjs/ampersand-state"
   },
   "scripts": {
-    "test": "node test/index.js",
+    "test": "browserify test/index.js | tape-run | tap-spec",
     "validate": "jshint .",
     "start": "run-browser test/index.js"
   },
