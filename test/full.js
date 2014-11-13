@@ -264,6 +264,9 @@ test('should throw a type error for bad data types', function (t) {
     t.doesNotThrow(function () {
         new Foo({today: 1397631169892});
         new Foo({today: '1397631169892'});
+        new Foo({today: '2014-11-13'});
+        new Foo({today: '2014-11-13T21:01Z'});
+        new Foo({today: '2014-11-13T21:01:28.752Z'});
     });
     t.throws(function () {
         new Foo({list: 10});
@@ -1438,6 +1441,10 @@ test("#100 #101 - string dates can be parsed", function(t) {
     t.ok(isDate(model.today));
     t.equal(model.today.valueOf(), date.valueOf());
 
+    model.today = '1397631169892';
+    t.ok(isDate(model.today));
+    t.equal(model.today.valueOf(), date.valueOf());
+
     model.today = isoString;
     t.ok(isDate(model.today));
     t.equal(model.today.valueOf(), date.valueOf());
@@ -1445,6 +1452,14 @@ test("#100 #101 - string dates can be parsed", function(t) {
     model.today = '2014-11-13';
     t.ok(isDate(model.today));
     t.equal(model.today.toJSON(), '2014-11-13T00:00:00.000Z');
+
+    model.today = '2014-11-13T21:01Z';
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), '2014-11-13T21:01:00.000Z');
+
+    model.today = '2014-11-13T21:01:28.752Z';
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), '2014-11-13T21:01:28.752Z');
 
     t.end();
 });

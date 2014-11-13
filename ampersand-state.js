@@ -588,11 +588,11 @@ var dataTypes = {
                     var dateVal;
                     dateVal = new Date(newVal).valueOf();
                     if (isNaN(dateVal)) {
+                        // If the newVal cant be parsed, then try parseInt first
                         dateVal = new Date(parseInt(newVal, 10)).valueOf();
+                        if (isNaN(dateVal)) throw TypeError;
                     }
-                    if (isNaN(dateVal)) {
-                        throw TypeError;
-                    }
+                    newVal = dateVal;
                     newType = 'date';
                 } catch (e) {
                     newType = typeof newVal;
