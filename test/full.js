@@ -1420,3 +1420,31 @@ test("#96 - changedAttributes includes properties that are not direct model attr
 
     t.end();
 });
+
+test("#100 #101 - string dates can be parsed", function(t) {
+    var Today = State.extend({
+        props: {
+            today: 'date'
+        }
+    });
+
+    var isDate = function (obj) { return Object.prototype.toString.call(obj) === '[object Date]'; };
+    var isoString = '2014-04-16T06:52:49.892Z';
+    var date = new Date(isoString);
+
+    var model = new Today();
+
+    model.today = 1397631169892;
+    t.ok(isDate(model.today));
+    t.equal(model.today.valueOf(), date.valueOf());
+
+    model.today = isoString;
+    t.ok(isDate(model.today));
+    t.equal(model.today.valueOf(), date.valueOf());
+
+    model.today = '2014-11-13';
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), '2014-11-13T00:00:00.000Z');
+
+    t.end();
+});
