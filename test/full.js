@@ -264,6 +264,9 @@ test('should throw a type error for bad data types', function (t) {
     t.doesNotThrow(function () {
         new Foo({today: 1397631169892});
         new Foo({today: '1397631169892'});
+        new Foo({today: '2014-11-13'});
+        new Foo({today: '2014-11-13T21:01Z'});
+        new Foo({today: '2014-11-13T21:01:28.752Z'});
     });
     t.throws(function () {
         new Foo({list: 10});

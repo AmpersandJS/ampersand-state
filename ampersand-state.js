@@ -585,7 +585,11 @@ var dataTypes = {
             var newType;
             if (!_.isDate(newVal)) {
                 try {
-                    newVal = new Date(parseInt(newVal, 10));
+                    if (_.isString(newVal) && newVal.indexOf('T') !== -1) {
+                        newVal = new Date(newVal);
+                    } else {
+                        newVal = new Date(parseInt(newVal, 10));
+                    }
                     if (!_.isDate(newVal)) throw TypeError;
                     newVal = newVal.valueOf();
                     if (_.isNaN(newVal)) throw TypeError;
