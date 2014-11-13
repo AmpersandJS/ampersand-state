@@ -1424,7 +1424,7 @@ test("#96 - changedAttributes includes properties that are not direct model attr
     t.end();
 });
 
-test("#100 #101 - string dates can be parsed", function(t) {
+test("#99 #101 - string dates can be parsed", function(t) {
     var Today = State.extend({
         props: {
             today: 'date'
