@@ -1439,27 +1439,27 @@ test("#99 #101 - string dates can be parsed", function(t) {
 
     model.today = 1397631169892;
     t.ok(isDate(model.today));
-    t.equal(model.today.valueOf(), date.valueOf());
+    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept an integer');
 
     model.today = '1397631169892';
     t.ok(isDate(model.today));
-    t.equal(model.today.valueOf(), date.valueOf());
+    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept a string which will be parsed to an integer');
 
     model.today = isoString;
     t.ok(isDate(model.today));
-    t.equal(model.today.valueOf(), date.valueOf());
+    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept an iso string');
+
+    model.today = new Date(isoString);
+    t.ok(isDate(model.today));
+    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept a native date object');
 
     model.today = '2014-11-13';
     t.ok(isDate(model.today));
-    t.equal(model.today.toJSON(), '2014-11-13T00:00:00.000Z');
+    t.equal(model.today.toJSON(), '2014-11-13T00:00:00.000Z', 'date should accept YYYY-MM-DD');
 
     model.today = '2014-11-13T21:01Z';
     t.ok(isDate(model.today));
-    t.equal(model.today.toJSON(), '2014-11-13T21:01:00.000Z');
-
-    model.today = '2014-11-13T21:01:28.752Z';
-    t.ok(isDate(model.today));
-    t.equal(model.today.toJSON(), '2014-11-13T21:01:28.752Z');
+    t.equal(model.today.toJSON(), '2014-11-13T21:01:00.000Z', 'date should accept YYYY-MM-DDTHH:MMZ');
 
     t.end();
 });
