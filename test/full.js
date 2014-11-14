@@ -264,6 +264,9 @@ test('should throw a type error for bad data types', function (t) {
     t.doesNotThrow(function () {
         new Foo({today: 1397631169892});
         new Foo({today: '1397631169892'});
+        new Foo({today: '2014-11-13'});
+        new Foo({today: '2014-11-13T21:01Z'});
+        new Foo({today: '2014-11-13T21:01:28.752Z'});
     });
     t.throws(function () {
         new Foo({list: 10});
@@ -1417,6 +1420,46 @@ test("#96 - changedAttributes includes properties that are not direct model attr
     diff = model.changedAttributes({ a: 5, submodels: [] });
     t.ok(diff.hasOwnProperty('a'), 'should return the changed `a`');
     t.ok(!diff.hasOwnProperty('submodels'), 'should not return `submodels`');
+
+    t.end();
+});
+
+test("#99 #101 - string dates can be parsed", function(t) {
+    var Today = State.extend({
+        props: {
+            today: 'date'
+        }
+    });
+
+    var isDate = function (obj) { return Object.prototype.toString.call(obj) === '[object Date]'; };
+    var isoString = '2014-04-16T06:52:49.892Z';
+    var date = new Date(isoString);
+
+    var model = new Today();
+
+    model.today = 1397631169892;
+    t.ok(isDate(model.today));
+    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept an integer');
+
+    model.today = '1397631169892';
+    t.ok(isDate(model.today));
+    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept a string which will be parsed to an integer');
+
+    model.today = isoString;
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), isoString, 'date should accept an iso string');
+
+    model.today = new Date(isoString);
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), isoString, 'date should accept a native date object');
+
+    model.today = '2014-11-13';
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), '2014-11-13T00:00:00.000Z', 'date should accept YYYY-MM-DD');
+
+    model.today = '2014-11-13T21:01Z';
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), '2014-11-13T21:01:00.000Z', 'date should accept YYYY-MM-DDTHH:MMZ');
 
     t.end();
 });
