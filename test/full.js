@@ -1447,11 +1447,11 @@ test("#99 #101 - string dates can be parsed", function(t) {
 
     model.today = isoString;
     t.ok(isDate(model.today));
-    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept an iso string');
+    t.equal(model.today.toJSON(), isoString, 'date should accept an iso string');
 
     model.today = new Date(isoString);
     t.ok(isDate(model.today));
-    t.equal(model.today.valueOf(), date.valueOf(), 'date should accept a native date object');
+    t.equal(model.today.toJSON(), isoString, 'date should accept a native date object');
 
     model.today = '2014-11-13';
     t.ok(isDate(model.today));
