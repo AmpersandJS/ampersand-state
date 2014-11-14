@@ -272,7 +272,8 @@ person.bornOn = {julianDays : 1001};
 
 Other datatype methods: 
 
-`
+`get` : Define a custom getter for your type.  Defaults to just returning your type.
+`default` : Define the function that will return the default value of your type. 
 
 ### props `AmpersandView.extend({ props: { name: 'string' } })`
 
