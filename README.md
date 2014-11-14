@@ -218,14 +218,17 @@ Check if the state is currently in a valid state, it does this by calling the `v
 
 ### dataTypes  `datatypes = { customType : definition}`
 ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).  
+
 To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  For example, let's say your application uses a special type of date, "JulianDate".  You'd like to setup this as a type in state, but don't want to just use `any` or `object` as the type.  To define it:
 ```javascript
-// Julian Date is a 'class' defined elsewhere:  it has an 'equals' method and takes `{julianDays : number}` as a constructor
+// Julian Date is a 'class' defined elsewhere: 
+// it has an 'equals' method and takes `{julianDays : number}` as a constructor
 
 var Person = AmpersandState.extend({
    dataTypes : {
         julianDate : {
-           set : function(newVal){  // called every time someone tried to set a property of this datatype
+           // set called every time someone tried to set a property of this datatype
+           set : function(newVal){                 
                if(newVal instanceof JulianDate){
                    return {
                        val : newVal,
@@ -251,7 +254,8 @@ var Person = AmpersandState.extend({
            type : 'julianDate',
            required : 'true',
            default : function(){
-                  return this.bornOn.add('60','years');  // assuming an 'add' function on julian date which returns  a new date             
+                  // assuming an 'add' function on julian date which returns a new JulianDate
+                  return this.bornOn.add('60','years');               
                }
            }
    }
@@ -273,6 +277,7 @@ person.bornOn = {julianDays : 1001};
 Other datatype methods: 
 
 `get` : Define a custom getter for your type.  Defaults to just returning your type.
+
 `default` : Define the function that will return the default value of your type. 
 
 ### props `AmpersandView.extend({ props: { name: 'string' } })`
