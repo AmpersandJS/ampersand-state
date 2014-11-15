@@ -216,10 +216,18 @@ document.body.innerHTML = hacker.escape('name');
 Check if the state is currently in a valid state, it does this by calling the `validate` method, of your state if you've provided one.
 
 
-### dataTypes  `datatypes = { customType : definition}`
+### dataTypes  `datatypes = myCustomTypes`
 ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).  
 
-To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  For example, let's say your application uses a special type of date, "JulianDate".  You'd like to setup this as a type in state, but don't want to just use `any` or `object` as the type.  To define it:
+To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  
+
+`set : function(newVal){};  returns {type : type, val : newVal};`:  Called on every set, returns an object with two members : `val` and `type`.  If the 'type' value does not equal the name of the dataType you defined, a `TypeError` will be thrown.
+`compare : function(currentVal, newVal, attributeName){}; returns boolean`:  Called on every set, Should return true if `oldVal` and `newVal` are equal.  Non-equal values will eventually trigger `change` events (unless `{silent : true}` is an option sent to the state's `set` method (not to be confused with the `set` method of the dataType).
+`get : function(val){} returns val;`:  Overrides the default getter of this type.  Useful if you want to make defensive copies.  For example, the `date` dataType returns a clone of the internally saved `date` to keep the internal state consistent. 
+`default : function(){} returns val;`:  The returns the default value for this type.  
+ 
+
+For example, let's say your application uses a special type of date, "JulianDate".  You'd like to setup this as a type in state, but don't want to just use `any` or `object` as the type.  To define it:
 ```javascript
 // Julian Date is a 'class' defined elsewhere: 
 // it has an 'equals' method and takes `{julianDays : number}` as a constructor
@@ -234,11 +242,20 @@ var Person = AmpersandState.extend({
                        val : newVal,
                        type : 'julianDate'
                    };
-               }else{
-                   // try to parse it:
+               }
+               try{
+                   // try to parse it from passed in value:
+                   var newDate = new JulianDate(newVal);
+               
                    return {
-                       val : new JulianDate(newVal),
+                       val : newDate,
                        type : 'julianDate'
+                   };
+               }catch(parseError){
+                   // return the value with what we think it's type is
+                   return {
+                       val : newVal,
+                       type : typeof newVal
                    };
                }
            },
