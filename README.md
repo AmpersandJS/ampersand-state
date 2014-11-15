@@ -222,8 +222,11 @@ ampersand-state defines several built-in datatypes:  `string`, `number`, `boolea
 To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  
 
 `set : function(newVal){};  returns {type : type, val : newVal};`:  Called on every set, returns an object with two members : `val` and `type`.  If the 'type' value does not equal the name of the dataType you defined, a `TypeError` will be thrown.
+
 `compare : function(currentVal, newVal, attributeName){}; returns boolean`:  Called on every set, Should return true if `oldVal` and `newVal` are equal.  Non-equal values will eventually trigger `change` events (unless `{silent : true}` is an option sent to the state's `set` method (not to be confused with the `set` method of the dataType).
+
 `get : function(val){} returns val;`:  Overrides the default getter of this type.  Useful if you want to make defensive copies.  For example, the `date` dataType returns a clone of the internally saved `date` to keep the internal state consistent. 
+
 `default : function(){} returns val;`:  The returns the default value for this type.  
  
 
