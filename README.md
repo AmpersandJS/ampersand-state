@@ -216,7 +216,8 @@ document.body.innerHTML = hacker.escape('name');
 Check if the state is currently in a valid state, it does this by calling the `validate` method, of your state if you've provided one.
 
 
-### dataTypes  `datatypes = myCustomTypes`
+### dataTypes  `AmpersandState.extend({ datatypes: myCustomTypes })`
+
 ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).  
 
 To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  
@@ -295,7 +296,7 @@ person.bornOn = {julianDays : 1001};
 ```
 
 
-### props `AmpersandView.extend({ props: { name: 'string' } })`
+### props `AmpersandState.extend({ props: { name: 'string' } })`
 
 Pass **props** as an object to extend, describing the observable properties of your state class. The props properties should not be set on an instance, as this won't define new properties, they should only be passed to extend.
 
@@ -345,7 +346,7 @@ AmpersandModel.extend({
 
 It's worth noting that both `array` and `object` do this already: they default to empty versions of themselves.  You would only need to do this if you wanted to default to an array/object that wasn't empty.
 
-### session `AmpersandView.extend({ session: { name: 'string' } })`
+### session `AmpersandState.extend({ session: { name: 'string' } })`
 
 Session properties are defined and work in exactly the same way as [props](#ampersand-state-props), but generally only exist for the lifetime of the page. They would not typically be persisted to the server, and are not returned by calls to `toJSON()` or `serialize()`.
 
