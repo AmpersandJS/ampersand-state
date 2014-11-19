@@ -216,9 +216,87 @@ document.body.innerHTML = hacker.escape('name');
 Check if the state is currently in a valid state, it does this by calling the `validate` method, of your state if you've provided one.
 
 
-### dataTypes
+### dataTypes  `AmpersandState.extend({ datatypes: myCustomTypes })`
 
-### props `AmpersandView.extend({ props: { name: 'string' } })`
+ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).  
+
+To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  
+
+`set : function(newVal){};  returns {type : type, val : newVal};`:  Called on every set, returns an object with two members : `val` and `type`.  If the 'type' value does not equal the name of the dataType you defined, a `TypeError` will be thrown.
+
+`compare : function(currentVal, newVal, attributeName){}; returns boolean`:  Called on every set, Should return true if `oldVal` and `newVal` are equal.  Non-equal values will eventually trigger `change` events (unless `{silent : true}` is an option sent to the state's `set` method (not to be confused with the `set` method of the dataType).
+
+`get : function(val){} returns val;`:  Overrides the default getter of this type.  Useful if you want to make defensive copies.  For example, the `date` dataType returns a clone of the internally saved `date` to keep the internal state consistent. 
+
+`default : function(){} returns val;`:  The returns the default value for this type.  
+ 
+
+For example, let's say your application uses a special type of date, "JulianDate".  You'd like to setup this as a type in state, but don't want to just use `any` or `object` as the type.  To define it:
+```javascript
+// Julian Date is a 'class' defined elsewhere: 
+// it has an 'equals' method and takes `{julianDays : number}` as a constructor
+
+var Person = AmpersandState.extend({
+   dataTypes : {
+        julianDate : {
+           // set called every time someone tried to set a property of this datatype
+           set : function(newVal){                 
+               if(newVal instanceof JulianDate){
+                   return {
+                       val : newVal,
+                       type : 'julianDate'
+                   };
+               }
+               try{
+                   // try to parse it from passed in value:
+                   var newDate = new JulianDate(newVal);
+               
+                   return {
+                       val : newDate,
+                       type : 'julianDate'
+                   };
+               }catch(parseError){
+                   // return the value with what we think it's type is
+                   return {
+                       val : newVal,
+                       type : typeof newVal
+                   };
+               }
+           },
+           compare : function(currentVal, newVal, attributeName){
+               return currentVal.equals(newVal);
+           }
+       }
+           
+   }
+   props : {
+       bornOn : 'julianDate',
+       retiresOn : {
+           type : 'julianDate',
+           required : 'true',
+           default : function(){
+                  // assuming an 'add' function on julian date which returns a new JulianDate
+                  return this.bornOn.add('60','years');               
+               }
+           }
+   }
+});
+
+var person = new Person({ bornOn : new JulianDate({julianDays : 1000}); }
+// this will also work and will build a new JulianDate
+var person = new Person({bornOn : {julianDays : 1000}});
+
+// will construct a new julian date for us
+// and will also trigger a change event
+person.bornOn = {julianDays : 1001}; 
+
+// but this will not trigger a change event since the equals method would return true
+person.bornOn = {julianDays : 1001};
+   
+```
+
+
+### props `AmpersandState.extend({ props: { name: 'string' } })`
 
 Pass **props** as an object to extend, describing the observable properties of your state class. The props properties should not be set on an instance, as this won't define new properties, they should only be passed to extend.
 
@@ -268,7 +346,7 @@ AmpersandModel.extend({
 
 It's worth noting that both `array` and `object` do this already: they default to empty versions of themselves.  You would only need to do this if you wanted to default to an array/object that wasn't empty.
 
-### session `AmpersandView.extend({ session: { name: 'string' } })`
+### session `AmpersandState.extend({ session: { name: 'string' } })`
 
 Session properties are defined and work in exactly the same way as [props](#ampersand-state-props), but generally only exist for the lifetime of the page. They would not typically be persisted to the server, and are not returned by calls to `toJSON()` or `serialize()`.
 
