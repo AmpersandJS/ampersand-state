@@ -1474,3 +1474,22 @@ test("#99 #101 - string dates can be parsed", function(t) {
 
     t.end();
 });
+
+test('#68, #110 mixin props should not be deleted', function (t) {
+    var SelectedMixin = {
+      session : {
+        selected : 'boolean'
+      }
+    };
+
+    var Widget = State.extend(SelectedMixin,{});
+    t.deepEqual(SelectedMixin.session, { selected: 'boolean' });
+    var Sprocket = State.extend(SelectedMixin,{});
+
+    var widget = new Widget({selected : true});
+    var sprocket = new Sprocket({selected : true});
+
+    t.ok(widget.selected);
+    t.ok(sprocket.selected);
+    t.end();
+});
