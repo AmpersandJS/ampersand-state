@@ -720,43 +720,40 @@ function extend(protoProps) {
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
         args.forEach(function processArg(def) {
+            var omitFromExtend = [
+                'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
+            ];
             if (def.dataTypes) {
                 _.each(def.dataTypes, function (def, name) {
                     child.prototype._dataTypes[name] = def;
                 });
-                delete def.dataTypes;
             }
             if (def.props) {
                 _.each(def.props, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def);
                 });
-                delete def.props;
             }
             if (def.session) {
                 _.each(def.session, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def, true);
                 });
-                delete def.session;
             }
             if (def.derived) {
                 _.each(def.derived, function (def, name) {
                     createDerivedProperty(child.prototype, name, def);
                 });
-                delete def.derived;
             }
             if (def.collections) {
                 _.each(def.collections, function (constructor, name) {
                     child.prototype._collections[name] = constructor;
                 });
-                delete def.collections;
             }
             if (def.children) {
                 _.each(def.children, function (constructor, name) {
                     child.prototype._children[name] = constructor;
                 });
-                delete def.children;
             }
-            _.extend(child.prototype, def);
+            _.extend(child.prototype, _.omit(def, omitFromExtend));
         });
     }
 
