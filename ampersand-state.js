@@ -101,7 +101,7 @@ _.extend(Base.prototype, BBEvents, {
         var extraProperties = this.extraProperties;
         var triggers = [];
         var changing, changes, newType, newVal, def, cast, err, attr,
-            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
+            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual, onSet;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
         if (_.isObject(key) || key === null) {
@@ -156,11 +156,12 @@ _.extend(Base.prototype, BBEvents, {
             }
 
             isEqual = this._getCompareForType(def.type);
+            onSet = this._getOnSetForType(def.type);
             dataType = this._dataTypes[def.type];
 
             // check type if we have one
             if (dataType && dataType.set) {
-                cast = dataType.set(newVal);
+                cast = dataType.set.call(this, newVal, options);
                 newVal = cast.val;
                 newType = cast.type;
             }
@@ -202,6 +203,7 @@ _.extend(Base.prototype, BBEvents, {
             if (hasChanged) {
                 changes.push({prev: currentVal, val: newVal, key: attr});
                 self._changed[attr] = newVal;
+                onSet(newVal,currentVal, attr);
             } else {
                 delete self._changed[attr];
             }
@@ -333,6 +335,12 @@ _.extend(Base.prototype, BBEvents, {
         var dataType = this._dataTypes[type];
         if (dataType && dataType.compare) return _.bind(dataType.compare, this);
         return _.isEqual;
+    },
+
+    _getOnSetForType : function(type){
+        var dataType = this._dataTypes[type];
+        if (dataType && dataType.onSet) return _.bind(dataType.onSet, this);
+        return _.noop;
     },
 
     // Run validation against the next complete set of model attributes,
@@ -661,22 +669,21 @@ var dataTypes = {
                 };
             }
         },
-        compare: function (currentVal, newVal, attributeName) {
-            var isSame = currentVal === newVal;
+        compare: function (currentVal, newVal) {
+            return currentVal === newVal;
+        },
 
+        onSet : function(newVal, currentVal, attributeName){
             // if this has changed we want to also handle
             // event propagation
-            if (!isSame) {
-                if (currentVal) {
-                    this.stopListening(currentVal);
-                }
 
-                if (newVal != null) {
-                    this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
-                }
+            if (currentVal) {
+                this.stopListening(currentVal);
             }
 
-            return isSame;
+            if (newVal != null) {
+                this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
+            }
         }
     }
 };
@@ -720,43 +727,40 @@ function extend(protoProps) {
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
         args.forEach(function processArg(def) {
+            var omitFromExtend = [
+                'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
+            ];
             if (def.dataTypes) {
                 _.each(def.dataTypes, function (def, name) {
                     child.prototype._dataTypes[name] = def;
                 });
-                delete def.dataTypes;
             }
             if (def.props) {
                 _.each(def.props, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def);
                 });
-                delete def.props;
             }
             if (def.session) {
                 _.each(def.session, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def, true);
                 });
-                delete def.session;
             }
             if (def.derived) {
                 _.each(def.derived, function (def, name) {
                     createDerivedProperty(child.prototype, name, def);
                 });
-                delete def.derived;
             }
             if (def.collections) {
                 _.each(def.collections, function (constructor, name) {
                     child.prototype._collections[name] = constructor;
                 });
-                delete def.collections;
             }
             if (def.children) {
                 _.each(def.children, function (constructor, name) {
                     child.prototype._children[name] = constructor;
                 });
-                delete def.children;
             }
-            _.extend(child.prototype, def);
+            _.extend(child.prototype, _.omit(def, omitFromExtend));
         });
     }
 

@@ -1474,3 +1474,42 @@ test("#99 #101 - string dates can be parsed", function(t) {
 
     t.end();
 });
+
+test("#112 - should not set up events on child state if setOnce check fails", function(t){
+    var Person = State.extend({
+        props : {
+            birthday : {
+                type : 'state',
+                setOnce : true
+            }
+        }
+    });
+
+    var Birthday = State.extend({
+        props : {
+            day : 'date'
+        }
+    });
+    var p = new Person();
+    var bday = new Birthday({day : new Date()});
+    p.once('change:birthday', function() {
+        t.pass('birthday can change once');
+    });
+    p.birthday = bday;
+    var newBday = new Birthday({day : new Date()});
+    t.throws(function() {
+        p.birthday = newBday;
+
+    }, TypeError, 'Throws error on change of setOnce');
+
+    p.on('change:birthday.day', function() {
+        t.fail('should not trigger change event on old one');
+    });
+
+    newBday.day = new Date(1);
+
+
+    t.end();
+
+
+});
