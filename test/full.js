@@ -685,25 +685,41 @@ test('Values attribute basic functionality', function (t) {
     t.end();
 });
 
-test('Values attribute default works', function (t) {
+test('Values attribute default works and is called only once', function (t) {
+    var ran = 0;
     var Model = State.extend({
+        dataTypes: {
+            countryType: {
+                default: 'Atlantis'
+            }
+        },
         props: {
+            country: {
+                type: 'countryType',
+                required: true
+            },
             state: {
                 values: ['CA', 'WA', 'NV'],
-                default: 'CA'
+                default: function(){
+                    ran++;
+                    return 'CA';
+                }
             }
         }
     });
 
     var m = new Model();
-
     t.equal(m.state, 'CA', 'Should have applied the default');
-
+    t.equal(ran, 1, 'Should have been invoked only once');
+    t.equal(m.state, 'CA', 'Should have returned the same object');
+    t.equal(ran, 1, 'Should have been invoked only once');
+    t.equal(m.country, 'Atlantis');
     t.throws(function () {
         m.state = 'PR';
     }, TypeError, 'Throws exception when setting something not in list');
     t.end();
 });
+
 
 test('toggle() works on boolean and values properties.', function (t) {
     var Model = State.extend({
