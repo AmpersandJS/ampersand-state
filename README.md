@@ -185,7 +185,7 @@ badWidget.destroy(); // does a DELETE /api/widgets/47
 
 ### cid `state.cid`
 
-A special property of states, the **cid**, or a client id, is a unique identifier automatically assigned to all states when they are first created. Client ids are handy when the state has not been saved to the server, and so does not yet have it's true **id** but needs a unique id so it can be rendered in the UI etc.
+A special property of states, the **cid**, or a client id, is a unique identifier automatically assigned to all states when they are first created. Client ids are handy when the state has not been saved to the server, and so does not yet have its true **id** but needs a unique id so it can be rendered in the UI etc.
 
 ```javascript
 var userA = new User();
@@ -256,7 +256,7 @@ var Person = AmpersandState.extend({
                        type : 'julianDate'
                    };
                }catch(parseError){
-                   // return the value with what we think it's type is
+                   // return the value with what we think its type is
                    return {
                        val : newVal,
                        type : typeof newVal
@@ -548,7 +548,7 @@ person.unset('firstName')
 
 ### toggle `state.toggle('active')`
 
-Shortcut to toggle boolean properties, or cycle through "ENUM" type properties that have a `values` array in it's definition. Fires change events as you would expect from set.
+Shortcut to toggle boolean properties, or cycle through "ENUM" type properties that have a `values` array in its definition. Fires change events as you would expect from set.
 
 ```javascript
 var Person = AmpersandState.extend({
