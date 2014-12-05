@@ -81,7 +81,6 @@ function reset() {
 }
 
 test('should get the derived value', function (t) {
-    t.plan(2);
     var foo = new Foo({
         firstName: 'jim',
         lastName: 'tom'
@@ -95,7 +94,6 @@ test('should get the derived value', function (t) {
 });
 
 test('should have default values for properties', function (t) {
-    t.plan(2);
     var foo = new Foo({
         firstName: 'jim',
         lastName: 'tom'
@@ -106,7 +104,6 @@ test('should have default values for properties', function (t) {
 });
 
 test('should have default array/object properties', function (t) {
-    t.plan(4);
     var Bar = State.extend({
         props: {
             list: ['array', true],
@@ -154,7 +151,6 @@ test('should throw a useful error setting a default value to an object', functio
 });
 
 test('a default should be settable as a function which returns a value', function (t) {
-    t.plan(1);
     var Foo = State.extend({
         props: {
             anObject: ['object', true, function () { return {foo: 'bar'}; }]
@@ -185,7 +181,6 @@ test('Error when setting derived property should be helpful', function (t) {
 });
 
 test('should get correct defaults', function (t) {
-    t.plan(2);
     var foo = new Foo({});
     t.strictEqual(foo.firstName, 'defaults');
     t.strictEqual(foo.thing, 'hi');
@@ -193,7 +188,6 @@ test('should get correct defaults', function (t) {
 });
 
 test('Setting other properties when `extraProperties: "reject"` throws error', function (t) {
-    t.plan(1);
     var Foo = State.extend({
         extraProperties: 'reject'
     });
@@ -207,7 +201,6 @@ test('Setting other properties when `extraProperties: "reject"` throws error', f
 });
 
 test('Setting other properties ignores them by default', function (t) {
-    t.plan(1);
     var foo = new Foo();
     foo.set({
         craziness: 'new'
@@ -217,7 +210,6 @@ test('Setting other properties ignores them by default', function (t) {
 });
 
 test('Setting other properties is ok if extraProperties = "allow"', function (t) {
-    t.plan(1);
     var foo = new Foo();
     foo.extraProperties = 'allow';
     foo.set({
@@ -228,7 +220,6 @@ test('Setting other properties is ok if extraProperties = "allow"', function (t)
 });
 
 test('#11 - multiple instances of the same state class should be able to use extraProperties = "allow" as expected', function (t) {
-    t.plan(5);
     var Foo = State.extend({
         extraProperties: 'allow'
     });
@@ -247,7 +238,6 @@ test('#11 - multiple instances of the same state class should be able to use ext
 });
 
 test('extraProperties = "allow" properties should be defined entirely on the instance not the prototype', function (t) {
-    t.plan(1);
     var Foo = State.extend({
         extraProperties: 'allow'
     });
@@ -259,7 +249,6 @@ test('extraProperties = "allow" properties should be defined entirely on the ins
 });
 
 test('should throw a type error for bad data types', function (t) {
-    t.plan(6);
     t.throws(function () {
         new Foo({firstName: 3});
     }, TypeError);
@@ -283,7 +272,6 @@ test('should throw a type error for bad data types', function (t) {
 });
 
 test('should validate model', function (t) {
-    t.plan(2);
     var foo = new Foo();
     t.equal(foo._verifyRequired(), false);
 
@@ -296,7 +284,6 @@ test('should validate model', function (t) {
 });
 
 test('should store previous attributes', function (t) {
-    t.plan(3);
     var foo = new Foo({
         firstName: 'beau'
     });
@@ -309,7 +296,6 @@ test('should store previous attributes', function (t) {
 });
 
 test('should have data serialization methods', function (t) {
-    t.plan(2);
     var foo = new Foo({
         firstName: 'bob',
         lastName: 'tom',
@@ -335,7 +321,6 @@ test('should have data serialization methods', function (t) {
 });
 
 test('serialize should not include session properties no matter how they\'re defined.', function (t) {
-    t.plan(2);
     var Foo = State.extend({
         props: {
             name: 'string'
@@ -377,7 +362,6 @@ test('should fire events normally for properties defined on the fly', function (
 });
 
 test('should fire event on derived properties, even if dependent on ad hoc prop.', function (t) {
-    t.plan(1);
     var Foo = State.extend({
         extraProperties: 'allow',
         derived: {
@@ -423,7 +407,6 @@ test('should fire single change event for multiple attribute set', function (t) 
 });
 
 test('derived properties', function (t) {
-    t.plan(13);
     var ran = 0;
     var notCachedRan = 0;
     var Foo = State.extend({
@@ -589,7 +572,6 @@ test('Calling `previous` during change of derived property that is not cached, s
 });
 
 test('Should be able to define and use custom data types', function (t) {
-    t.plan(1);
     var Foo = State.extend({
         props: {
             silliness: 'crazyType'
@@ -616,7 +598,6 @@ test('Should be able to define and use custom data types', function (t) {
 });
 
 test('Uses dataType compare', function (t) {
-    t.plan(2);
     var compareRun;
 
     var Foo = State.extend({
@@ -653,7 +634,6 @@ test('Uses dataType compare', function (t) {
 });
 
 test('Should only allow nulls where specified', function (t) {
-    t.plan(2);
     var foo = new Foo({
         firstName: 'bob',
         lastName: 'vila',
@@ -667,7 +647,6 @@ test('Should only allow nulls where specified', function (t) {
 });
 
 test('Attribute test function works', function (t) {
-    t.plan(2);
     var foo = new Foo({good: 'good'});
     t.equal(foo.good, 'good');
 
@@ -678,7 +657,6 @@ test('Attribute test function works', function (t) {
 });
 
 test('Values attribute basic functionality', function (t) {
-    t.plan(3);
     var Model = State.extend({
         props: {
             state: {
@@ -702,7 +680,6 @@ test('Values attribute basic functionality', function (t) {
 });
 
 test('Values attribute default works', function (t) {
-    t.plan(2);
     var Model = State.extend({
         props: {
             state: {
@@ -723,7 +700,6 @@ test('Values attribute default works', function (t) {
 });
 
 test('toggle() works on boolean and values properties.', function (t) {
-    t.plan(7);
     var Model = State.extend({
         props: {
             isAwesome: 'boolean',
@@ -758,7 +734,6 @@ test('toggle() works on boolean and values properties.', function (t) {
 });
 
 test('property test function scope is correct.', function (t) {
-    t.plan(1);
     var m;
     var temp;
     var Model = State.extend({
@@ -780,7 +755,6 @@ test('property test function scope is correct.', function (t) {
 });
 
 test('should be able to inherit for use in other objects', function (t) {
-    t.plan(2);
     var StateObj = State.extend({
         props: {
             name: 'string'
@@ -804,7 +778,6 @@ test('should be able to inherit for use in other objects', function (t) {
 });
 
 test('extended state objects should maintain child collections of parents', function (t) {
-    t.plan(2);
     var State1 = State.extend({
         collections: {
             myStuff: Collection
@@ -822,7 +795,6 @@ test('extended state objects should maintain child collections of parents', func
 });
 
 test('`initialize` should have access to initialized child collections', function (t) {
-    t.plan(2);
     var StateObj = State.extend({
         initialize: function () {
             t.ok(this.myStuff);
@@ -837,7 +809,6 @@ test('`initialize` should have access to initialized child collections', functio
 });
 
 test('parent collection references should be maintained when adding/removing to a collection', function (t) {
-    t.plan(2);
     var StateObj = State.extend({
         props: {
             id: 'string'
@@ -853,7 +824,6 @@ test('parent collection references should be maintained when adding/removing to 
 });
 
 test('children and collections should be instantiated', function (t) {
-    t.plan(11);
     var GrandChild = State.extend({
         props: {
             id: 'string'
@@ -1293,7 +1263,6 @@ test('isValid', function (t) {
 });
 
 test('#1545 - `undefined` can be passed to a model constructor without coercion', function (t) {
-    t.plan(1);
     var Model = State.extend({
         defaults: { one: 1 },
         initialize : function (attrs) {
@@ -1368,7 +1337,6 @@ test('#1179 - isValid returns true in the absence of validate.', function(t) {
 });
 
 test('#1791 - `attributes` is available for `parse`', function(t) {
-    t.plan(1);
     var Model = State.extend({
         //Backbone test used this.has which was a this.get !== null test
         parse: function() { t.ok(this.get('a') !== null); } // shouldn't throw an error
