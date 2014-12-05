@@ -1348,3 +1348,32 @@ test("changing from defaults has correct previousAttributes", function (t) {
     t.deepEqual(model.previousAttributes(), {test1: false, test2: true, test3: undefined});
     t.end();
 });
+
+test.only("I can setOnce a required attribute", function (t) {
+    var Model = State.extend({
+        props: {
+            test1: {
+                type: 'string',
+                setOnce: true,
+                required: true
+            }
+        }
+    });
+
+    var model = new Model();
+    t.equal(model.test1, '');
+
+    t.doesNotThrow(function () {
+        model.test1 = "The string set once";
+    }, TypeError, "Setting once is okay");
+
+    t.equal(model.test1, "The string set once");
+
+    t.throws(function () {
+        model.test1 = "The string set twice";
+    }, TypeError, "Setting again throws an exception");
+
+    t.equal(model.test1, "The string set once");
+
+    t.end();
+});
