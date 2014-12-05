@@ -1338,7 +1338,7 @@ test("changing from defaults has correct previousAttributes", function (t) {
         props: {
             test1: ['boolean', true, true],
             test2: ['boolean', true, true],
-            test3: ['string']
+            test3: ['string', true]
         }
     });
     var model = new Model();
