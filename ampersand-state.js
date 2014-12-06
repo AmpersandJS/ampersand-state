@@ -450,6 +450,7 @@ _.extend(Base.prototype, BBEvents, {
         return _.bind(function (name, model, newValue) {
             if (changeRE.test(name)) {
                 this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
+                this.trigger('change:' + propertyName, model, newValue)
             } else if (name === 'change') {
                 this.trigger('change', this);
             }
