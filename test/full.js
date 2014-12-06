@@ -546,6 +546,130 @@ test('derived properties triggered with multiple instances', function (t) {
     t.end();
 });
 
+test('derived properties with `type` will use `dataType.get` and `dataType.compare`', function (t) {
+    var friendRan = 0;
+    var crazyRan = 0;
+    var compareCheck, coolCheck, changeCheck, thingCheck, weirdCheck;
+
+    var fooFriends = {};
+
+    var Foo = State.extend({
+        extraProperties: 'allow',
+        props: {
+            name: ['string', true],
+            friendName: 'string',
+            crazy: 'boolean',
+            cool: 'boolean'
+        },
+        derived: {
+            friend: {
+                deps: ['friendName'],
+                type: 'state',
+                init: true,
+                fn: function () {
+                    friendRan++;
+                    return fooFriends[this.friendName];
+                }
+            },
+            crazyFriend: {
+                deps: ['friend', 'friend.name', 'friend.crazy'],
+                type: 'crazyType',
+                fn: function () {
+                    crazyRan++;
+                    if (!this.friend) return '';
+                    return this.friend.name + ' is ' + (this.friend.crazy ? '' : 'not ');
+                }
+            }
+        },
+        dataTypes: {
+            crazyType: {
+                compare: function (oldVal, newVal, name) {
+                    compareCheck = true;
+                    return false;
+                },
+                set: function (newVal) {
+                    return {
+                        val: newVal,
+                        type: 'crazyType'
+                    };
+                },
+                get: function (val) {
+                    return val + 'crazy!';
+                }
+            }
+        }
+    });
+
+    fooFriends.mat = new Foo({
+        name: 'mat',
+        cool: false,
+        weird: false
+    });
+    t.equal(friendRan, 1);
+    t.equal(crazyRan, 0);
+    fooFriends.cat = new Foo({
+        name: 'cat',
+        cool: false,
+        weird: false
+    });
+    t.equal(friendRan, 2);
+
+    var foo = new Foo({
+        name: 'abe',
+        friendName: 'mat'
+    });
+    t.equal(friendRan, 3);
+
+    foo.on('change:friend.weird', function (model, value) {
+        t.ok(value, "Fires update for derived property attribute");
+        weirdCheck = true;
+    });
+    foo.on('change:friend.cool', function (model, value) {
+        t.ok(value, "Fires compare for derived state on init");
+        coolCheck = true;
+    });
+
+    foo.friend.cool = true;
+    foo.friend.weird = true;
+    t.ok(foo.friend.weird);
+    t.equal(friendRan, 3);
+
+    var bar = new Foo({
+        name: 'bob',
+        friendName: 'nobody'
+    });
+
+    bar.on('change:friend', function (model, value) {
+        t.ok(value, "Fires on change");
+        changeCheck = true;
+    });
+    bar.on('change:friend:thing', function (model, value) {
+        t.equal(value, 'thing', "Fires on change of derived child ad hoc properties");
+        thingCheck = true;
+    });
+
+    bar.friendName = 'cat';
+    t.equal(friendRan, 5);
+    t.equal(bar.friend.name, 'cat');
+    bar.friendName = 'mat';
+    t.equal(bar.friend.name, 'mat');
+    t.equal(friendRan, 6);
+
+    bar.friend.thing = 'thing';
+
+    t.equal(crazyRan, 6);
+    t.equal(bar.crazyFriend, 'mat is not crazy!', 'derived properties with dataType should use dataType.get');
+    bar.friend.crazy = true;
+    t.equal(bar.crazyFriend, 'mat is crazy!', 'derived result for dataType should change');
+    t.equal(crazyRan, 8);
+
+    t.ok(compareCheck, 'passed compareCheck');
+    t.ok(changeCheck, 'passed changeCheck');
+    t.ok(coolCheck, 'passed coolCheck');
+    t.ok(weirdCheck, 'passed weirdCheck');
+    t.end();
+});
+
 test('Calling `previous` during change of derived cached property should work', function (t) {
     var foo = new Foo({firstName: 'Henrik', lastName: 'Joreteg'});
     var ran = false;

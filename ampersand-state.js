@@ -382,16 +382,14 @@ _.extend(Base.prototype, BBEvents, {
     _initDerived: function () {
         var self = this;
 
-        _.each(this._derived, function (value, name) {
-            var def = self._derived[name];
+        _.each(this._derived, function (def, name) {
             def.deps = def.depList;
 
-            var update = function (options) {
-                options = options || {};
+            var isEqual = self._getCompareForType(def.type);
 
+            var update = function () {
                 var newVal = def.fn.call(self);
 
-                var isEqual = self._getCompareForType(def.type);
                 var currentVal = self._cache[name];
                 var hasChanged = !isEqual(currentVal, newVal, name);
 
@@ -407,6 +405,12 @@ _.extend(Base.prototype, BBEvents, {
             def.deps.forEach(function (propString) {
                 self._keyTree.add(propString, update);
             });
+
+            // init to set any listeners
+            if (def.init) {
+                self._getDerivedProperty(name);
+                isEqual(null, self._cache[name], name);
+            }
         });
 
         this.on('all', function (eventName) {
@@ -418,16 +422,17 @@ _.extend(Base.prototype, BBEvents, {
         }, this);
     },
 
-    _getDerivedProperty: function (name, flushCache) {
+    _getDerivedProperty: function (name) {
+        var def = this._derived[name];
         // is this a derived property that is cached
-        if (this._derived[name].cache) {
-            //set if this is the first time, or flushCache is set
-            if (flushCache || !this._cache.hasOwnProperty(name)) {
-                this._cache[name] = this._derived[name].fn.apply(this);
+        if (def.cache) {
+            // set if this is the first time
+            if (!this._cache.hasOwnProperty(name)) {
+                this._cache[name] = def.fn.apply(this);
             }
             return this._cache[name];
         } else {
-            return this._derived[name].fn.apply(this);
+            return def.fn.apply(this);
         }
     },
 
@@ -561,7 +566,8 @@ function createDerivedProperty(modelProto, name, definition) {
     var def = modelProto._derived[name] = {
         fn: _.isFunction(definition) ? definition : definition.fn,
         cache: (definition.cache !== false),
-        type: definition.type || 'any',
+        type: definition.type,
+        init: definition.init,
         depList: definition.deps || []
     };
 
@@ -573,7 +579,12 @@ function createDerivedProperty(modelProto, name, definition) {
     // defined a top-level getter for derived names
     Object.defineProperty(modelProto, name, {
         get: function () {
-            return this._getDerivedProperty(name);
+            var result = this._getDerivedProperty(name);
+            var typeDef = this._dataTypes[def.type];
+            if (typeDef && typeDef.get) {
+                result = typeDef.get(result);
+            }
+            return result;
         },
         set: function () {
             throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');

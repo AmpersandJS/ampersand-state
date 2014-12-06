@@ -156,6 +156,49 @@ test('uncached derived properties always fire events on dependency change', func
     person.name = 'different';
 });
 
+test('derived properties with type: `state` will be evented', function (t) {
+    var ran = 0;
+    var coolCheck;
+    var AwesomePerson = Person.extend({
+        props: {
+            awesomeness: 'number',
+            coolness: 'number'
+        }
+    });
+    var friend = new AwesomePerson({name: 'mat', awesomeness: 1, coolness: 1});
+    var NewPerson = Person.extend({
+        props: {
+            friendName: 'string'
+        },
+        derived: {
+            friend: {
+                deps: ['friendName'],
+                type: 'state',
+                init: true,
+                fn: function () {
+                    ran++;
+                    return this.friendName === 'mat' ? friend : null;
+                }
+            }
+        }
+    });
+    var person = new NewPerson({name: 'henrik', friendName: 'mat'});
+    person.on('change:friend.coolness', function (model, value) {
+        t.equal(value, 3, "listens to changes on derived property attribute at init");
+        coolCheck = true;
+    });
+    person.on('change:friend.awesomeness', function (model, value) {
+        t.equal(value, 7, "Fires update for derived property attribute");
+        t.end();
+    });
+    t.equal(ran, 1);
+    friend.coolness = 3;
+    t.ok(coolCheck, 'coolCheck');
+    t.equal(person.friend.awesomeness, 1);
+    person.friend.awesomeness = 7;
+    t.equal(ran, 1);
+});
+
 test('everything should work with a property called `type`. Issue #6.', function (t) {
     var Model = State.extend({
         props: {
