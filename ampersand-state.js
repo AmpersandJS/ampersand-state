@@ -391,9 +391,13 @@ _.extend(Base.prototype, BBEvents, {
 
                 var newVal = def.fn.call(self);
 
-                if (self._cache[name] !== newVal || !def.cache) {
+                var isEqual = self._getCompareForType(def.type);
+                var currentVal = self._cache[name];
+                var hasChanged = !isEqual(currentVal, newVal, name);
+
+                if (hasChanged || !def.cache) {
                     if (def.cache) {
-                        self._previousAttributes[name] = self._cache[name];
+                        self._previousAttributes[name] = currentVal;
                     }
                     self._cache[name] = newVal;
                     self.trigger('change:' + name, self, self._cache[name]);
@@ -557,6 +561,7 @@ function createDerivedProperty(modelProto, name, definition) {
     var def = modelProto._derived[name] = {
         fn: _.isFunction(definition) ? definition : definition.fn,
         cache: (definition.cache !== false),
+        type: definition.type || 'any',
         depList: definition.deps || []
     };
 
