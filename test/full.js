@@ -1509,3 +1509,25 @@ test('#68, #110 mixin props should not be deleted', function (t) {
     t.ok(sprocket.selected);
     t.end();
 });
+
+test('#114 setOnce allows values to be set once and only once', function (t) {
+    var Model = State.extend({
+        props: {
+            x: {
+                type: 'string',
+                setOnce: true,
+                required: true,
+            }
+        }
+    });
+
+    var model = new Model({ x: 'foo' });
+
+    t.equal(model.x, 'foo');
+
+    t.throws(function () {
+        model.x = 'bar';
+    }, /can only be set once/);
+
+    t.end();
+});
