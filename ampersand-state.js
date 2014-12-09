@@ -193,8 +193,8 @@ _.extend(Base.prototype, BBEvents, {
             hasChanged = !isEqual(currentVal, newVal, attr);
 
             // enforce `setOnce` for properties if set
-            if (def.setOnce && currentVal !== undefined && hasChanged) {
-                throw new TypeError('Property \'' + key + '\' can only be set once.');
+            if (def.setOnce && currentVal !== undefined && hasChanged && !initial) {
+                throw new TypeError('Property \'' + attr + '\' can only be set once.');
             }
 
             // keep track of changed attributes

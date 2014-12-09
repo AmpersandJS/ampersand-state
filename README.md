@@ -309,6 +309,8 @@ Properties can be defined in three different ways:
 * If `required` is true, one of two things will happen.  If a `default` is set for the property, the property will start with that value, and revert to it after a call to `unset(propertyName)`.  If a `default` is not set for the property, an error will be thrown after a call to `unset(propertyName)`.
 * If `values` array is passed, then you'll be able to change a property to one of those values only.
 * If `setOnce` is true, then you'll be able to set property only once.
+  * If used in combination with a `default` and you instantiate without that value, the default becomes the first value `set`. Thus cannot be set again. 
+  * If you don't have a default and don't set the value initially it can be set later, but only once.
 * Trying to set a property to an invalid type will raise an exception.
 
 * See [get](#ampersand-state-get) and [set](#ampersand-state-set) for more information about getting and setting properties.

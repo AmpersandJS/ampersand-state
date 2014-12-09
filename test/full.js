@@ -1531,3 +1531,53 @@ test('#114 setOnce allows values to be set once and only once', function (t) {
 
     t.end();
 });
+
+test('#118 setOnce can be used with default string', function (t) {
+    var TimeRange = State.extend({
+        props: {
+            timezone: {
+                type: 'string',
+                default: 'something that can only be set as the default',
+                setOnce: true
+            }
+        }
+    });
+
+    var tr = new TimeRange();
+
+    t.throws(function () {
+        tr.timezone = 'new thing';
+    }, 'since it has a default, this should throw'); 
+    
+
+    var tr2;
+
+    t.doesNotThrow(function () {
+        tr2 = new TimeRange({timezone: 'my thing'});
+    }, 'if we set on init, should overwrite default');
+    
+    t.throws(function () {
+        tr.timezone = 'new thing';  
+    }, 'should now fail since its been set'); 
+    
+    var OtherTimeRange = State.extend({
+        props: {
+            timezone: {
+                type: 'string',
+                setOnce: true
+            }
+        }
+    });
+
+    tr = new OtherTimeRange();
+
+    t.doesNotThrow(function () {
+        tr.timezone = 'thing';
+    }, 'should not throw first time'); 
+
+    t.throws(function () {
+        tr.timezone = 'other thing';
+    }, 'throws second time');
+
+    t.end();
+});
