@@ -1096,6 +1096,97 @@ test('Should be able to declare derived properties that have nested deps', funct
     first.child.grandChild.name = 'something';
 });
 
+test('collections will update data when set by assignment', function (t) {
+    var Child = State.extend({
+        props: {
+            id: 'string'
+        },
+        collections: {
+            nicknames: Collection
+        }
+    });
+
+    var StateObj = State.extend({
+        props: {
+            id: 'string'
+        },
+        children: {
+            child: Child
+        }
+    });
+
+    var data = {
+        id: 'parent',
+        child: {
+            id: 'child',
+            nicknames: [
+                {name: 'munchkin'},
+                {name: 'kiddo'}
+            ]
+        }
+    };
+
+    var obj = new StateObj(data);
+
+    var originalCollection = obj.child.nicknames;
+
+    // assigning array to collection should call through to .set
+    obj.child.nicknames = [{name: 'runt'}, {name: 'tot'}];
+    t.ok(obj.child.nicknames instanceof Collection, 'and should still be instanceof');
+    t.equal(obj.child.nicknames, originalCollection, 'and should be the same instance');
+    t.equal(obj.child.nicknames.length, 4, 'and the collection should have been updated');
+
+    t.end();
+});
+
+test('children will update data when set by assignment', function (t) {
+    var Child = State.extend({
+        props: {
+            id: 'string'
+        }
+    });
+
+    var StateObj = State.extend({
+        props: {
+            id: 'string'
+        },
+        children: {
+            child: Child
+        }
+    });
+
+    var data = {
+        id: 'parent',
+        child: {
+            id: 'child',
+            grandChild: {
+                id: 'grandChild',
+                nicknames: [
+                    {name: 'munchkin'},
+                    {name: 'kiddo'}
+                ]
+            }
+        }
+    };
+
+    var obj = new StateObj(data);
+
+    var originalChild = obj.child;
+
+    // assigning object to child should call through to .set
+    obj.child = {
+        id: 'bar',
+        grandChild: {
+            nicknames: [{name: 'runt'}]
+        }
+    };
+    t.ok(obj.child instanceof Child, 'and should still be instanceof');
+    t.equal(obj.child, originalChild, 'and should be the same instance');
+    t.equal(obj.child.id, 'bar', 'and the change should have been applied');
+
+    t.end();
+});
+
 test('`state` properties', function (t) {
     var Person = State.extend({
         props: {

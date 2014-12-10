@@ -10,6 +10,8 @@ function Base(attrs, options) {
     this.cid || (this.cid = _.uniqueId('state'));
     this._events = {};
     this._values = {};
+    this._childInstances = {};
+    this._collectionInstances = {};
     this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);
     this.parent = options.parent;
@@ -431,7 +433,7 @@ _.extend(Base.prototype, BBEvents, {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll](null, {parent: this});
+            this._collectionInstances[coll] = new this._collections[coll](null, {parent: this});
         }
     },
 
@@ -439,8 +441,8 @@ _.extend(Base.prototype, BBEvents, {
         var child;
         if (!this._children) return;
         for (child in this._children) {
-            this[child] = new this._children[child]({}, {parent: this});
-            this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
+            this._childInstances[child] = new this._children[child]({}, {parent: this});
+            this.listenTo(this._childInstances[child], 'all', this._getEventBubblingHandler(child));
         }
     },
 
@@ -574,6 +576,30 @@ function createDerivedProperty(modelProto, name, definition) {
         },
         set: function () {
             throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');
+        }
+    });
+}
+
+// helper for creating appropriate getters/setters for collections
+function createCollectionProperty(object, name) {
+    Object.defineProperty(object, name, {
+        set: function (val) {
+            this.set(name, val);
+        },
+        get: function () {
+            return this._collectionInstances[name];
+        }
+    });
+}
+
+// helper for creating appropriate getters/setters for children
+function createChildProperty(object, name) {
+    Object.defineProperty(object, name, {
+        set: function (val) {
+            this.set(name, val);
+        },
+        get: function () {
+            return this._childInstances[name];
         }
     });
 }
@@ -748,11 +774,13 @@ function extend(protoProps) {
             if (def.collections) {
                 _.each(def.collections, function (constructor, name) {
                     child.prototype._collections[name] = constructor;
+                    createCollectionProperty(child.prototype, name);
                 });
             }
             if (def.children) {
                 _.each(def.children, function (constructor, name) {
                     child.prototype._children[name] = constructor;
+                    createChildProperty(child.prototype, name);
                 });
             }
             _.extend(child.prototype, _.omit(def, omitFromExtend));
