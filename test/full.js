@@ -940,6 +940,23 @@ test('children and collections should be instantiated', function (t) {
     t.end();
 });
 
+test('children should not have changes when data is set during parent instantiation', function (t) {
+    var Widget = State.extend({
+        props: {
+            title: 'string'
+        }
+    });
+    var Parent = State.extend({
+        children: {
+            widget: Widget
+        }
+    });
+    var parent = new Parent({ widget: { title: 'foo' } });
+
+    t.equal(parent.widget.hasChanged(), false, 'should not have changed');
+    t.end();
+});
+
 test('issue #82, child collections should not be cleared if they add data to themselves when instantiated', function (t) {
     var Widget = State.extend({
         props: {

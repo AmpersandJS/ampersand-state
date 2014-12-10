@@ -201,7 +201,9 @@ _.extend(Base.prototype, BBEvents, {
             // and push to changes array
             if (hasChanged) {
                 changes.push({prev: currentVal, val: newVal, key: attr});
-                self._changed[attr] = newVal;
+                if (!initial) {
+                    self._changed[attr] = newVal;
+                }
             } else {
                 delete self._changed[attr];
             }
