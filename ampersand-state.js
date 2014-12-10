@@ -385,11 +385,11 @@ _.extend(Base.prototype, BBEvents, {
         _.each(this._derived, function (def, name) {
             def.deps = def.depList;
 
-            var isEqual = self._getCompareForType(def.type);
-
             var update = function () {
                 var newVal = def.fn.call(self);
 
+                var isEqual = self._getCompareForType(def.type);
+                var dataType = def.type && self._dataTypes[def.type];
                 var currentVal = self._cache[name];
                 var hasChanged = !isEqual(currentVal, newVal, name);
 
@@ -397,8 +397,20 @@ _.extend(Base.prototype, BBEvents, {
                     if (def.cache) {
                         self._previousAttributes[name] = currentVal;
                     }
+                    // cast newVal if there is a type set
+                    if (dataType && dataType.set) {
+                        newVal = dataType.set(newVal).val;
+                    }
                     self._cache[name] = newVal;
-                    self.trigger('change:' + name, self, self._cache[name]);
+
+                    // check for default or get for the change event value
+                    if (typeof newVal === 'undefined') {
+                        newVal = _.result(def, 'default');
+                    }
+                    else if (dataType && dataType.get) {
+                        newVal = dataType.get(newVal);
+                    }
+                    self.trigger('change:' + name, self, newVal);
                 }
             };
 
@@ -407,10 +419,7 @@ _.extend(Base.prototype, BBEvents, {
             });
 
             // init to set any listeners
-            if (def.init) {
-                self._getDerivedProperty(name);
-                isEqual(null, self._cache[name], name);
-            }
+            if (def.init) update();
         });
 
         this.on('all', function (eventName) {
@@ -568,9 +577,12 @@ function createDerivedProperty(modelProto, name, definition) {
         cache: (definition.cache !== false),
         type: definition.type,
         init: definition.init,
+        default: definition.default,
         depList: definition.deps || []
     };
 
+    if (def.type && _.isUndefined(def.default))
+        def.default = modelProto._getDefaultForType(def.type);
     // add to our shared dependency list
     _.each(def.depList, function (dep) {
         modelProto._deps[dep] = _(modelProto._deps[dep] || []).union([name]);
@@ -581,10 +593,13 @@ function createDerivedProperty(modelProto, name, definition) {
         get: function () {
             var result = this._getDerivedProperty(name);
             var typeDef = this._dataTypes[def.type];
-            if (typeDef && typeDef.get) {
-                result = typeDef.get(result);
+            if (typeof result !== 'undefined') {
+                if (typeDef && typeDef.get) {
+                    result = typeDef.get(result);
+                }
+                return result;
             }
-            return result;
+            return _.result(def, 'default');
         },
         set: function () {
             throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');

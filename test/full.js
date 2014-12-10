@@ -546,7 +546,7 @@ test('derived properties triggered with multiple instances', function (t) {
     t.end();
 });
 
-test('derived properties with `type` will use `dataType.get` and `dataType.compare`', function (t) {
+test('derived properties with `type` will use dataType functions', function (t) {
     var friendRan = 0;
     var crazyRan = 0;
     var compareCheck, coolCheck, changeCheck, thingCheck, weirdCheck;
@@ -566,6 +566,7 @@ test('derived properties with `type` will use `dataType.get` and `dataType.compa
                 deps: ['friendName'],
                 type: 'state',
                 init: true,
+                default: 'no friend',
                 fn: function () {
                     friendRan++;
                     return fooFriends[this.friendName];
@@ -576,8 +577,9 @@ test('derived properties with `type` will use `dataType.get` and `dataType.compa
                 type: 'crazyType',
                 fn: function () {
                     crazyRan++;
-                    if (!this.friend) return '';
-                    return this.friend.name + ' is ' + (this.friend.crazy ? '' : 'not ');
+                    if (this.friend.name) {
+                        return this.friend.name + ' is ' + (this.friend.crazy ? '' : 'not ');
+                    }
                 }
             }
         },
@@ -595,6 +597,9 @@ test('derived properties with `type` will use `dataType.get` and `dataType.compa
                 },
                 get: function (val) {
                     return val + 'crazy!';
+                },
+                default: function () {
+                    return 'crazy!';
                 }
             }
         }
@@ -606,19 +611,21 @@ test('derived properties with `type` will use `dataType.get` and `dataType.compa
         weird: false
     });
     t.equal(friendRan, 1);
-    t.equal(crazyRan, 0);
+    t.equal(fooFriends.mat.friend, 'no friend', 'apply derived default when undefined');
+    t.equal(fooFriends.mat.crazyFriend, 'crazy!', 'apply dataType default when undefined');
+    t.equal(crazyRan, 1);
     fooFriends.cat = new Foo({
         name: 'cat',
         cool: false,
         weird: false
     });
-    t.equal(friendRan, 2);
+    t.equal(friendRan, 3);
 
     var foo = new Foo({
         name: 'abe',
         friendName: 'mat'
     });
-    t.equal(friendRan, 3);
+    t.equal(friendRan, 4);
 
     foo.on('change:friend.weird', function (model, value) {
         t.ok(value, "Fires update for derived property attribute");
@@ -632,7 +639,7 @@ test('derived properties with `type` will use `dataType.get` and `dataType.compa
     foo.friend.cool = true;
     foo.friend.weird = true;
     t.ok(foo.friend.weird);
-    t.equal(friendRan, 3);
+    t.equal(friendRan, 4);
 
     var bar = new Foo({
         name: 'bob',
@@ -649,19 +656,19 @@ test('derived properties with `type` will use `dataType.get` and `dataType.compa
     });
 
     bar.friendName = 'cat';
-    t.equal(friendRan, 5);
+    t.equal(friendRan, 6);
     t.equal(bar.friend.name, 'cat');
     bar.friendName = 'mat';
     t.equal(bar.friend.name, 'mat');
-    t.equal(friendRan, 6);
+    t.equal(friendRan, 7);
 
     bar.friend.thing = 'thing';
 
-    t.equal(crazyRan, 6);
+    t.equal(crazyRan, 7);
     t.equal(bar.crazyFriend, 'mat is not crazy!', 'derived properties with dataType should use dataType.get');
     bar.friend.crazy = true;
     t.equal(bar.crazyFriend, 'mat is crazy!', 'derived result for dataType should change');
-    t.equal(crazyRan, 8);
+    t.equal(crazyRan, 9);
 
     t.ok(compareCheck, 'passed compareCheck');
     t.ok(changeCheck, 'passed changeCheck');
