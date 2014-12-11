@@ -940,10 +940,16 @@ test('children and collections should be instantiated', function (t) {
     t.end();
 });
 
-test('children should not have changes when data is set during parent instantiation', function (t) {
+test('parent instantiation with children', function (t) {
     var Widget = State.extend({
         props: {
-            title: 'string'
+            title: 'string',
+            size: 'string'
+        },
+        parse: function(attrs) {
+            attrs.title = attrs.serverTitle;
+            delete attrs.serverTitle;
+            return attrs;
         }
     });
     var Parent = State.extend({
@@ -951,9 +957,39 @@ test('children should not have changes when data is set during parent instantiat
             widget: Widget
         }
     });
-    var parent = new Parent({ widget: { title: 'foo' } });
+    var parent = new Parent({ widget: { serverTitle: 'foo', size: 'lg' } }, { parse: true });
 
-    t.equal(parent.widget.hasChanged(), false, 'should not have changed');
+    t.equal(parent.hasChanged(), false, 'parent should not register as having changes');
+    t.equal(parent.widget.hasChanged(), false, 'child should not register as having changes');
+    t.equal(parent.widget.title, 'foo', 'child should be instantiated with parse option same as parent');
+    t.end();
+});
+
+test('parent instantiation with collections', function (t) {
+    var Widget = State.extend({
+        props: {
+            title: 'string',
+            size: 'string'
+        },
+        parse: function(attrs) {
+            attrs.title = attrs.serverTitle;
+            delete attrs.serverTitle;
+            return attrs;
+        }
+    });
+    var WidgetCollection = Collection.extend({
+        model: Widget
+    });
+    var Parent = State.extend({
+        collections: {
+            widgets: WidgetCollection
+        }
+    });
+    var parent = new Parent({ widgets: [{ serverTitle: 'foo', size: 'lg' }] }, { parse: true });
+
+    t.equal(parent.hasChanged(), false, 'parent should not register as having changes');
+    t.equal(parent.widgets.at(0).hasChanged(), false, 'collection models should not register as having changes');
+    t.equal(parent.widgets.at(0).title, 'foo', 'collection models should be instantiated with same parse option as parent');
     t.end();
 });
 
