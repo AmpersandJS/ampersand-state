@@ -984,7 +984,7 @@ test('listens to child events', function (t) {
         }
     });
 
-    t.plan(7);
+    t.plan(8);
 
     //Change property
     first.once('change:name', function (model, newVal) {
@@ -1014,6 +1014,12 @@ test('listens to child events', function (t) {
         t.equal(model, first);
     });
     first.firstChild.grandChild.name = 'Bob';
+
+    //Propagates change events from specific children
+    first.once('change:firstChild', function (model) {
+        t.equal(model, first.firstChild);
+    });
+    first.firstChild.name = 'newer-first-child-name';
 });
 
 test('#66 - listens to child events on collections', function (t) {
