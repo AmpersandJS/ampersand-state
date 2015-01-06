@@ -4,6 +4,8 @@ var BBEvents = require('backbone-events-standalone');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
 var changeRE = /^change:/;
+var timezoneRE = /Z|[-+]\d\d:\d\d/;
+var localDate = new Date(2014, 0, 6);
 
 function Base(attrs, options) {
     options || (options = {});
@@ -594,6 +596,11 @@ var dataTypes = {
                         // If the newVal cant be parsed, then try parseInt first
                         dateVal = new Date(parseInt(newVal, 10)).valueOf();
                         if (isNaN(dateVal)) throw TypeError;
+                    } else if (isNaN(Number(newVal)) && !timezoneRE.test(newVal)) {
+                      // Interpret ISO 8601 Date strings that do not specify a
+                      // time zone in the local system time zone, as per ECMAScript 6:
+                      // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-date-time-string-format
+                      dateVal -= new Date('2014-01-06') - localDate;
                     }
                     newVal = dateVal;
                     newType = 'date';
