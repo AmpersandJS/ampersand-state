@@ -586,7 +586,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
     // add to our shared dependency list
     each(def.depList, function (dep) {
-        modelProto._deps[dep] = unique(flatten.apply((modelProto._deps[dep] || []), true, true, []), [name]);
+        modelProto._deps[dep] = unique(flatten.call((modelProto._deps[dep] || []), true, true, []), [name]);
     });
 
     // defined a top-level getter for derived names
