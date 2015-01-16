@@ -1,16 +1,18 @@
 /*$AMPERSAND_VERSION*/
-var _ = require('underscore');
 var uniqueId = require('amp-unique-id');
 var extend = require('amp-extend');
 var escape = require('amp-escape');
 var each = require('amp-each');
 var clone = require('amp-clone');
 var bind = require('amp-bind');
+var unique = require('amp-unique');
+var flatten = require('amp-result');
 var result = require('amp-result');
 var has = require('amp-has');
 var keys = require('amp-keys');
 var contains = require('amp-contains');
 var defaults = require('amp-defaults');
+var omit = require('amp-omit');
 var isObject = require('amp-is-object');
 var isArray = require('amp-is-array');
 var isString = require('amp-is-string');
@@ -584,7 +586,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
     // add to our shared dependency list
     each(def.depList, function (dep) {
-        modelProto._deps[dep] = _(modelProto._deps[dep] || []).union([name]);
+        modelProto._deps[dep] = unique(flatten.apply((modelProto._deps[dep] || [])), [name]);
     });
 
     // defined a top-level getter for derived names
@@ -775,7 +777,7 @@ function extendPrototype(protoProps) {
                     child.prototype._children[name] = constructor;
                 });
             }
-            extend(child.prototype, _.omit(def, omitFromExtend));
+            extend(child.prototype, omit(def, omitFromExtend));
         });
     }
 
