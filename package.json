@@ -19,8 +19,10 @@
     "underscore": "^1.6.0"
   },
   "devDependencies": {
+    "6to5ify": "^3.1.2",
     "ampersand-collection": "^1.3.2",
     "ampersand-registry": "0.x.x",
+    "benchmark": "^1.0.0",
     "browserify": "^5.9.1",
     "jshint": "^2.5.3",
     "phantomjs": "^1.9.7-15",
@@ -43,9 +45,10 @@
     "url": "git://github.com/ampersandjs/ampersand-state"
   },
   "scripts": {
-    "test": "browserify test/index.js | tape-run | tap-spec",
+    "test": "browserify -t [ 6to5ify --extensions .es6 ] test/index.js | tape-run | tap-spec",
     "validate": "jshint .",
-    "start": "run-browser test/index.js"
+    "start": "run-browser test/index.js",
+    "benchmark": "browserify -t [6to5ify --extensions .es6] test/benchmark.es6 | node"
   },
   "testling": {
     "files": "test/*.js",

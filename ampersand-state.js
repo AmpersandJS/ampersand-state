@@ -5,12 +5,18 @@ var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
 var changeRE = /^change:/;
 
+var CONFIGURATION_PROPS = [ 'dataTypes', 'props', 'session', 'derived', 'collections', 'children' ];
+
 function Base(attrs, options) {
     options || (options = {});
     this.cid || (this.cid = _.uniqueId('state'));
     this._events = {};
     this._values = {};
-    this._definition = Object.create(this._definition);
+    if (!this.constructor.prototype.hasOwnProperty('_ampersandConstructed')) {
+        copyDefinitionToTarget(this, this);
+    } else {
+        this._definition = Object.create(this._definition);
+    }
     if (options.parse) attrs = this.parse(attrs, options);
     this.parent = options.parent;
     this.collection = options.collection;
@@ -465,6 +471,10 @@ _.extend(Base.prototype, BBEvents, {
             }
         }
         return true;
+    },
+
+    _mergeProps: function (/*...propObjects*/) {
+        return _.extend.apply(_, arguments);
     }
 });
 
@@ -683,6 +693,49 @@ var dataTypes = {
     }
 };
 
+
+function copyDefinitionToTarget(target, def) {
+    target._deps = target._deps || {};
+    target._definition = target._definition || {};
+    target._derived = target._derived || {};
+    target._collections = target._collections || {};
+    target._children = target._children || {};
+    if (!target._dataTypes) {
+        target._dataTypes = _.extend({}, dataTypes);
+    }
+
+    if (def.dataTypes) {
+        _.each(def.dataTypes, function (def, name) {
+            target._dataTypes[name] = def;
+        });
+    }
+    if (def.props) {
+        _.each(_.result(def, 'props'), function (def, name) {
+            createPropertyDefinition(target, name, def);
+        });
+    }
+    if (def.session) {
+        _.each(_.result(def, 'session'), function (def, name) {
+            createPropertyDefinition(target, name, def, true);
+        });
+    }
+    if (def.derived) {
+        _.each(_.result(def, 'derived'), function (def, name) {
+            createDerivedProperty(target, name, def);
+        });
+    }
+    if (def.collections) {
+        _.each(_.result(def, 'collections'), function (constructor, name) {
+            target._collections[name] = constructor;
+        });
+    }
+    if (def.children) {
+        _.each(_.result(def, 'children'), function (constructor, name) {
+            target._children[name] = constructor;
+        });
+    }
+}
+
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.
 function extend(protoProps) {
@@ -710,6 +763,7 @@ function extend(protoProps) {
     var Surrogate = function () { this.constructor = child; };
     Surrogate.prototype = parent.prototype;
     child.prototype = new Surrogate();
+    child.prototype._ampersandConstructed = true;
 
     // set prototype level objects
     child.prototype._derived =  _.extend({}, parent.prototype._derived);
@@ -722,40 +776,8 @@ function extend(protoProps) {
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
         args.forEach(function processArg(def) {
-            var omitFromExtend = [
-                'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
-            ];
-            if (def.dataTypes) {
-                _.each(def.dataTypes, function (def, name) {
-                    child.prototype._dataTypes[name] = def;
-                });
-            }
-            if (def.props) {
-                _.each(def.props, function (def, name) {
-                    createPropertyDefinition(child.prototype, name, def);
-                });
-            }
-            if (def.session) {
-                _.each(def.session, function (def, name) {
-                    createPropertyDefinition(child.prototype, name, def, true);
-                });
-            }
-            if (def.derived) {
-                _.each(def.derived, function (def, name) {
-                    createDerivedProperty(child.prototype, name, def);
-                });
-            }
-            if (def.collections) {
-                _.each(def.collections, function (constructor, name) {
-                    child.prototype._collections[name] = constructor;
-                });
-            }
-            if (def.children) {
-                _.each(def.children, function (constructor, name) {
-                    child.prototype._children[name] = constructor;
-                });
-            }
-            _.extend(child.prototype, _.omit(def, omitFromExtend));
+            copyDefinitionToTarget(child.prototype, def);
+            _.extend(child.prototype, _.omit(def, CONFIGURATION_PROPS));
         });
     }
 
@@ -769,6 +791,13 @@ function extend(protoProps) {
 }
 
 Base.extend = extend;
+Base.seal = function () {
+    if (!this.prototype.hasOwnProperty('_sealed')) {
+        copyDefinitionToTarget(this.prototype, this.prototype);
+        this.prototype._ampersandConstructed = true;
+        this.prototype._sealed = true;
+    }
+};
 
 // Our main exports
 module.exports = Base;
