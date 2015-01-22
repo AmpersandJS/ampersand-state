@@ -9,7 +9,6 @@ var dataTypes = require('./data-types');
 function Base(attrs, options) {
     options || (options = {});
     this.cid || (this.cid = _.uniqueId('state'));
-    this._events = {};
     this._values = {};
     this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);
