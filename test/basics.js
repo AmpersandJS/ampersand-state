@@ -986,3 +986,41 @@ test("#1122 - unset does not alter options.", function (t) {
     t.ok(!options.unset);
     t.end();
 });
+
+test('#53 - previousAttributes set correctly when it was a default', function (t) {
+    var MyState = State.extend({
+        props: {
+            test1: ['boolean', true, true],
+            test2: ['boolean', true, true]
+        }
+    });
+
+    var a = new MyState();
+    a.on('change:test1', function () {
+        t.deepEqual(a.previousAttributes(), {
+            test1: true,
+            test2: true
+        });
+        t.end();
+    });
+    a.test1 = false;
+});
+
+
+test('#74 - ensure default array/object types are mutable', function (t) {
+    var MyState = State.extend({
+        props: {
+            anArray: ['array', true],
+            anObject: ['object', true]
+        }
+    });
+
+    var s = new MyState();
+    s.anArray.push(1);
+    t.equal(s.anArray.length, 1);
+    t.equal(s.anArray[0], 1);
+
+    s.anObject.foo = 'bar';
+    t.equal(s.anObject.foo, 'bar');
+    t.end();
+});
