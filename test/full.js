@@ -1491,6 +1491,18 @@ test("#99 #101 - string dates can be parsed", function(t) {
     t.end();
 });
 
+test('#128 don\'t coerce null date as 0', function (t) {
+    var Day = State.extend({
+        props: {
+            theDate: 'date'
+        }
+    });
+
+    var day = new Day({ theDate: null });
+    t.notOk(day.theDate);
+    t.end();
+});
+
 test('#68, #110 mixin props should not be deleted', function (t) {
     var SelectedMixin = {
       session : {
