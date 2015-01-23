@@ -613,7 +613,7 @@ var dataTypes = {
             };
         },
         get: function (val) {
-            if (val == null ) {
+            if (val == null) {
                 return undefined;
             } else {
                 return new Date(val);
