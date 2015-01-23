@@ -1500,6 +1500,11 @@ test('#128 don\'t coerce null date as 0', function (t) {
 
     var day = new Day({ theDate: null });
     t.notOk(day.theDate, 'date should not be set if null');
+    t.equal(day.theDate, null);
+
+    day = new Day({ theDate: undefined });
+    t.notOk(day.theDate, 'date should not be set if undefined');
+    t.equal(day.theDate, undefined);
 
     var Day2 = State.extend({
         props: {

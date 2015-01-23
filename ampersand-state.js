@@ -613,11 +613,8 @@ var dataTypes = {
             };
         },
         get: function (val) {
-            if (val == null) {
-                return undefined;
-            } else {
-                return new Date(val);
-            }
+            if (val == null) { return val; }
+            return new Date(val);
         },
         default: function () {
             return new Date();
