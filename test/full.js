@@ -1499,7 +1499,22 @@ test('#128 don\'t coerce null date as 0', function (t) {
     });
 
     var day = new Day({ theDate: null });
-    t.notOk(day.theDate);
+    t.notOk(day.theDate, 'date should not be set if null');
+
+    var Day2 = State.extend({
+        props: {
+            theDate: {
+                type: 'date',
+                required: true,
+                allowNull: false
+            }
+        }
+    });
+
+    t.throws(function () {
+        new Day2({ theDate: null });
+    }, /cannot be null/, 'if allowNull:false, and required:true should still throw');
+
     t.end();
 });
 
