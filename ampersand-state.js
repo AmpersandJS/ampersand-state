@@ -22,7 +22,7 @@ var isUndefined = require('amp-is-undefined');
 var isFunction = require('amp-is-function');
 var isObjectEqual = require('amp-is-object-equal');
 var isEmpty = require('amp-is-empty');
-var BBEvents = require('backbone-events-standalone');
+var AmpEvents = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
 var changeRE = /^change:/;
@@ -48,7 +48,7 @@ function Base(attrs, options) {
 }
 
 
-extend(Base.prototype, BBEvents, {
+extend(Base.prototype, AmpEvents, {
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 

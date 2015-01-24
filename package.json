@@ -35,9 +35,9 @@
     "amp-result": "^1.1.0",
     "amp-unique": "^1.0.1",
     "amp-unique-id": "^1.0.2",
+    "ampersand-events": "^1.0.1",
     "ampersand-version": "^1.0.0",
     "array-next": "~0.0.1",
-    "backbone-events-standalone": "0.2.2",
     "key-tree-store": "~0.1.0"
   },
   "devDependencies": {
