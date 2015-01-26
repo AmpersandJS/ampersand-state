@@ -25,6 +25,7 @@
     "amp-is-date": "^1.0.1",
     "amp-is-empty": "^1.0.2",
     "amp-is-function": "^1.0.1",
+    "amp-is-nan": "^1.0.1",
     "amp-is-null": "^1.0.1",
     "amp-is-object": "^1.0.1",
     "amp-is-object-equal": "^1.0.1",

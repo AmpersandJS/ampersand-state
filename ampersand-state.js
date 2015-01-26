@@ -17,6 +17,7 @@ var isObject = require('amp-is-object');
 var isArray = require('amp-is-array');
 var isString = require('amp-is-string');
 var isNull = require('amp-is-null');
+var isNan = require('amp-is-nan');
 var isDate = require('amp-is-date');
 var isUndefined = require('amp-is-undefined');
 var isFunction = require('amp-is-function');
@@ -612,10 +613,10 @@ var dataTypes = {
             if (!isDate(newVal)) {
                 try {
                     var dateVal = new Date(newVal).valueOf();
-                    if (isNaN(dateVal)) {
+                    if (isNan(dateVal)) {
                         // If the newVal cant be parsed, then try parseInt first
                         dateVal = new Date(parseInt(newVal, 10)).valueOf();
-                        if (isNaN(dateVal)) throw TypeError;
+                        if (isNan(dateVal)) throw TypeError;
                     }
                     newVal = dateVal;
                     newType = 'date';
