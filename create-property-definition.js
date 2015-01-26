@@ -37,6 +37,7 @@ module.exports = function createPropertyDefinition(object, name, desc, isSession
         if (def.required && _.isUndefined(def.default) && !def.setOnce) def.default = object._getDefaultForType(type);
         def.test = desc.test;
         def.values = desc.values;
+        def.parse = desc.parse;
     }
     if (isSession) def.session = true;
 
@@ -55,7 +56,11 @@ module.exports = function createPropertyDefinition(object, name, desc, isSession
                 }
                 return result;
             }
-            result = _.result(def, 'default');
+            if (_.isFunction(def.default)) {
+                result = def.default.call(this);   
+            } else {
+                result = _.result(def, 'default');
+            }
             this._values[name] = result;
             return result;
         }

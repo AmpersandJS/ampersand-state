@@ -7,6 +7,8 @@ var changeRE = /^change:/;
 var dataTypes = require('./data-types');
 var createDerivedProperty = require('./create-derived-property');
 var createPropertyDefinition = require('./create-property-definition');
+var createChildProperty = require('./create-child-property');
+var E = require('./errors');
 
 function Base(attrs, options) {
     options || (options = {});
@@ -18,7 +20,6 @@ function Base(attrs, options) {
     this.collection = options.collection;
     this._keyTree = new KeyTree();
     this._initCollections();
-    this._initChildren();
     this._cache = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
@@ -135,11 +136,13 @@ _.extend(Base.prototype, BBEvents, {
 
         // For each `set` attribute...
         for (attr in attrs) {
+            def = this._definition[attr];
             newVal = attrs[attr];
+            if (def && def.parse) {
+                newVal = def.parse.call(this, newVal);
+            }
             newType = typeof newVal;
             currentVal = this._values[attr];
-            def = this._definition[attr];
-
 
             if (!def) {
                 // if this is a child model or collection
@@ -160,6 +163,10 @@ _.extend(Base.prototype, BBEvents, {
             isEqual = this._getCompareForType(def.type);
             dataType = this._dataTypes[def.type];
 
+            if (!dataType && def.type !== 'any' && def.type) {
+                throw new E.UnregisteredDataTypeError(attr, def.type + JSON.stringify(def));
+            }
+
             // check type if we have one
             if (dataType && dataType.set) {
                 cast = dataType.set(newVal);
@@ -171,7 +178,7 @@ _.extend(Base.prototype, BBEvents, {
             if (def.test) {
                 err = def.test.call(this, newVal, newType);
                 if (err) {
-                    throw new TypeError('Property \'' + attr + '\' failed validation with error: ' + err);
+                    throw new E.PropertyValidationError(attr, err);
                 }
             }
 
@@ -180,28 +187,31 @@ _.extend(Base.prototype, BBEvents, {
             // If we have a defined type and the new type doesn't match, and we are not null, throw error.
 
             if (_.isUndefined(newVal) && def.required) {
-                throw new TypeError('Required property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
+                throw new E.PropertyRequiredError(attr, def.type, newVal);
             }
             if (_.isNull(newVal) && def.required && !def.allowNull) {
-                throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + ' (cannot be null). Tried to set ' + newVal);
+                throw new E.PropertyNullError(attr, def.type, newVal);
             }
             if ((def.type && def.type !== 'any' && def.type !== newType) && !_.isNull(newVal) && !_.isUndefined(newVal)) {
-                throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
+                throw new E.PropertyTypeError(attr, def.type, newVal, newType);
             }
             if (def.values && !_.contains(def.values, newVal)) {
-                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', ') + '. Tried to set ' + newVal);
+                throw new E.PropertyValuesError(attr, def.values, newVal);
             }
 
             hasChanged = !isEqual(currentVal, newVal, attr);
 
             // enforce `setOnce` for properties if set
             if (def.setOnce && currentVal !== undefined && hasChanged && !initial) {
-                throw new TypeError('Property \'' + attr + '\' can only be set once.');
+                throw new E.PropertyAlreadySetError(attr);
             }
 
             // keep track of changed attributes
             // and push to changes array
             if (hasChanged) {
+                if (def.onSet) {
+                    def.onSet.call(this, newVal, newType);
+                }
                 changes.push({prev: currentVal, val: newVal, key: attr});
                 self._changed[attr] = newVal;
             } else {
@@ -288,6 +298,7 @@ _.extend(Base.prototype, BBEvents, {
         for (var attr in diff) {
             def = this._definition[attr];
             if (!def) continue;
+            if (this._children[attr]) continue;
             isEqual = this._getCompareForType(def.type);
             if (isEqual(old[attr], (val = diff[attr]))) continue;
             (changed || (changed = {}))[attr] = val;
@@ -304,7 +315,11 @@ _.extend(Base.prototype, BBEvents, {
         var type = def.type;
         var val;
         if (def.required) {
-            val = _.result(def, 'default');
+            if (_.isFunction(def.default)) {
+                val = def.default.call(this);
+            } else {
+                val = _.result(def, 'default');
+            }
             return this.set(attr, val, options);
         } else {
             return this.set(attr, val, _.extend({}, options, {unset: true}));
@@ -371,7 +386,13 @@ _.extend(Base.prototype, BBEvents, {
             def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = (raw) ? this._values[item] : this[item];
-                if (typeof val === 'undefined') val = _.result(def, 'default');
+                if (typeof val === 'undefined') {
+                    if (_.isFunction(def.default)) {
+                        val = def.default.call(this);
+                    } else {
+                        val = _.result(def, 'default');
+                    }
+                }
                 if (typeof val !== 'undefined') res[item] = val;
             }
         }
@@ -434,15 +455,6 @@ _.extend(Base.prototype, BBEvents, {
         if (!this._collections) return;
         for (coll in this._collections) {
             this[coll] = new this._collections[coll](null, {parent: this});
-        }
-    },
-
-    _initChildren: function () {
-        var child;
-        if (!this._children) return;
-        for (child in this._children) {
-            this[child] = new this._children[child]({}, {parent: this});
-            this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
         }
     },
 
@@ -561,6 +573,9 @@ function extend(protoProps) {
             }
             if (def.children) {
                 _.each(def.children, function (constructor, name) {
+                    createChildProperty(child.prototype, name, {
+                        constructor: constructor
+                    });
                     child.prototype._children[name] = constructor;
                 });
             }
@@ -581,3 +596,4 @@ Base.extend = extend;
 
 // Our main exports
 module.exports = Base;
+module.exports.Errors = E;

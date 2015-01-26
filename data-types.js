@@ -6,6 +6,10 @@ module.exports = {
             return '';
         }
     },
+    number: {
+    },
+    boolean: {
+    },
     date: {
         set: function (newVal) {
             var newType;
