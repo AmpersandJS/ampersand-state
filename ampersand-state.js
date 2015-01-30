@@ -586,7 +586,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
     // add to our shared dependency list
     each(def.depList, function (dep) {
-        modelProto._deps[dep] = union.call(modelProto._deps[dep] || [], [name]);
+        modelProto._deps[dep] = union(modelProto._deps[dep], [name]);
     });
 
     // defined a top-level getter for derived names
