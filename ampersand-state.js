@@ -5,8 +5,7 @@ var escape = require('amp-escape');
 var each = require('amp-each');
 var clone = require('amp-clone');
 var bind = require('amp-bind');
-var unique = require('amp-unique');
-var flatten = require('amp-flatten');
+var union = require('amp-union');
 var result = require('amp-result');
 var has = require('amp-has');
 var keys = require('amp-keys');
@@ -587,7 +586,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
     // add to our shared dependency list
     each(def.depList, function (dep) {
-        modelProto._deps[dep] = unique(flatten.call((modelProto._deps[dep] || []), true, true, []), [name]);
+        modelProto._deps[dep] = union.call(modelProto._deps[dep] || [], [name]);
     });
 
     // defined a top-level getter for derived names
