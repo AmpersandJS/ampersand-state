@@ -548,6 +548,14 @@ If the attribute being unset is `required` and has a `default` value as defined 
 person.unset('firstName')
 ```
 
+### clear `state.clear([options])`
+
+Clear all the attributes from the state object, by calling the `unset` function for each attribute, with the options provided. 
+
+```javascript
+person.clear()
+```
+
 ### toggle `state.toggle('a')`
 
 Shortcut to toggle boolean properties, or cycle through “ENUM” type properties with a `values` array in their definition. Fires `"change"` events, as you would expect from `set()`.
