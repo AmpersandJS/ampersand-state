@@ -411,8 +411,19 @@ assign(Base.prototype, BBEvents, {
                 options = options || {};
 
                 var newVal = def.fn.call(self);
+                var newValToCompare, cachedValToCompare;
 
-                if (self._cache[name] !== newVal || !def.cache) {
+                // in case the data has a toJSON val, e.g. a Model, use that for comparison
+                if (newVal.toJSON && self._cache[name].toJSON) {
+                    newValToCompare = newVal.toJSON();
+                    cachedValToCompare = self._cache[name].toJSON();
+                }
+                else {
+                    newValToCompare = newVal;
+                    cachedValToCompare = self._cache[name];
+                }
+
+                if (!_.isEqual(newValToCompare, cachedValToCompare) || !def.cache) {
                     if (def.cache) {
                         self._previousAttributes[name] = self._cache[name];
                     }
