@@ -432,6 +432,9 @@ _.extend(Base.prototype, BBEvents, {
         if (!this._collections) return;
         for (coll in this._collections) {
             this[coll] = new this._collections[coll](null, {parent: this});
+            this.listenTo(this[coll], 'all', this._getEventBubblingHandler(coll, function (model) {
+                return !!this[coll].get(model);
+            }));
         }
     },
 
@@ -440,17 +443,22 @@ _.extend(Base.prototype, BBEvents, {
         if (!this._children) return;
         for (child in this._children) {
             this[child] = new this._children[child]({}, {parent: this});
-            this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
+            this.listenTo(this[child], 'all', this._getEventBubblingHandler(child, function (model) {
+                return model === this[child];
+            }));
         }
     },
 
     // Returns a bound handler for doing event bubbling while
     // adding a name to the change string.
-    _getEventBubblingHandler: function (propertyName) {
+    _getEventBubblingHandler: function (propertyName, isChildOrCollection) {
         return _.bind(function (name, model, newValue) {
             if (changeRE.test(name)) {
                 this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
             } else if (name === 'change') {
+                if (isChildOrCollection && isChildOrCollection.call(this, model)) {
+                    this.trigger('change:' + propertyName, model);
+                }
                 this.trigger('change', this);
             }
         }, this);
