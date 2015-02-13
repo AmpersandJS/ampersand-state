@@ -99,7 +99,6 @@ _.extend(Base.prototype, BBEvents, {
     set: function (key, value, options) {
         var self = this;
         var extraProperties = this.extraProperties;
-        var triggers = [];
         var changing, changes, newType, newVal, def, cast, err, attr,
             attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
 
@@ -299,7 +298,6 @@ _.extend(Base.prototype, BBEvents, {
 
     unset: function (attr, options) {
         var def = this._definition[attr];
-        var type = def.type;
         var val;
         if (def.required) {
             val = _.result(def, 'default');
@@ -693,7 +691,6 @@ function extend(protoProps) {
     var parent = this;
     var child;
     var args = [].slice.call(arguments);
-    var prop, item;
 
     // The constructor function for the new subclass is either defined by you
     // (the "constructor" property in your `extend` definition), or defaulted
@@ -762,8 +759,6 @@ function extend(protoProps) {
             _.extend(child.prototype, _.omit(def, omitFromExtend));
         });
     }
-
-    var toString = Object.prototype.toString;
 
     // Set a convenience property in case the parent's prototype is needed
     // later.

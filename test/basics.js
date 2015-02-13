@@ -127,7 +127,7 @@ test('cached derived properties fire events if result is different', function (t
         }
     });
     var person = new NewPerson({name: 'henrik'});
-    person.on('change:greeting', function (model, value) {
+    person.on('change:greeting', function () {
         t.ok(false, "shouldn't fire if value if derived value is unchanged");
     });
     person.name = 'henrik';
@@ -517,7 +517,7 @@ test("validate on unset and clear", function (t) {
 
 
 test("validate with error callback", function (t) {
-    var lastError, boundError;
+    var boundError;
     var Model = State.extend({
         props: {
             a: 'number',
@@ -528,7 +528,7 @@ test("validate with error callback", function (t) {
     model.validate = function (attrs) {
         if (attrs.admin) return "Can't change admin status.";
     };
-    model.on('invalid', function (model, error) {
+    model.on('invalid', function () {
         boundError = true;
     });
     var result = model.set({a: 100}, {validate: true});

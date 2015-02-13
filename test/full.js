@@ -171,6 +171,7 @@ test('should throw an error setting a derived prop', function (t) {
 });
 
 test('Error when setting derived property should be helpful', function (t) {
+    t.plan(1);
     var foo = new Foo();
     try { foo.name = 'bob'; }
     catch (err) {
@@ -241,7 +242,6 @@ test('extraProperties = "allow" properties should be defined entirely on the ins
         extraProperties: 'allow'
     });
 
-    var one = new Foo({ a: 'one.a', b: 'one.b' });
     var two = new Foo();
 
     t.deepEqual(two._definition, {});
@@ -352,6 +352,7 @@ test('serialize should not include session properties no matter how they\'re def
 });
 
 test('should fire events normally for properties defined on the fly', function (t) {
+    t.plan(1);
     var foo = new Foo();
     foo.extraProperties = 'allow';
     foo.on('change:crazyPerson', function () {
@@ -397,6 +398,7 @@ test('throw error on invalid extraProperties', function (t) {
 });
 
 test('should fire general change event on single attribute', function (t) {
+    t.plan(1);
     var foo = new Foo({firstName: 'coffee'});
     foo.on('change', function () {
         t.ok(true);
@@ -406,6 +408,7 @@ test('should fire general change event on single attribute', function (t) {
 });
 
 test('should fire single change event for multiple attribute set', function (t) {
+    t.plan(1);
     var foo = new Foo({firstName: 'coffee'});
     foo.on('change', function () {
         t.ok(true);
@@ -461,6 +464,7 @@ test('derived properties', function (t) {
 });
 
 test('cached, derived properties should only fire change event if they\'ve actually changed', function (t) {
+    t.plan(3);
     var changed = 0;
     var Foo = State.extend({
         props: {
@@ -489,6 +493,7 @@ test('cached, derived properties should only fire change event if they\'ve actua
 });
 
 test('derived properties with derived dependencies', function (t) {
+    t.plan(5);
     var ran = 0;
     var Foo = State.extend({
         props: {
@@ -532,6 +537,7 @@ test('derived properties with derived dependencies', function (t) {
 });
 
 test('derived properties triggered with multiple instances', function (t) {
+    t.plan(2);
     var foo = new Foo({firstName: 'Silly', lastName: 'Fool'});
     var bar = new Foo({firstName: 'Bar', lastName: 'Man'});
 
@@ -547,6 +553,7 @@ test('derived properties triggered with multiple instances', function (t) {
 });
 
 test('Calling `previous` during change of derived cached property should work', function (t) {
+    t.plan(2);
     var foo = new Foo({firstName: 'Henrik', lastName: 'Joreteg'});
     var ran = false;
     foo.on('change:name', function () {
@@ -564,6 +571,7 @@ test('Calling `previous` during change of derived cached property should work', 
 });
 
 test('Calling `previous` during change of derived property that is not cached, should be `undefined`', function (t) {
+    t.plan(1);
     var foo = new Foo({firstName: 'Henrik', lastName: 'Joreteg'});
 
     // the initials property is explicitly not cached
@@ -612,7 +620,7 @@ test('Uses dataType compare', function (t) {
         },
         dataTypes: {
             crazyType: {
-                compare: function (oldVal, newVal) {
+                compare: function () {
                     compareRun = true;
                     return false;
                 },
@@ -827,7 +835,7 @@ test('`initialize` should have access to initialized child collections', functio
             myStuff: Collection
         }
     });
-    var thing = new StateObj();
+    new StateObj();
 });
 
 test('parent collection references should be maintained when adding/removing to a collection', function (t) {
@@ -1086,6 +1094,8 @@ test('Should be able to declare derived properties that have nested deps', funct
         name: 'henrik'
     });
 
+    t.plan(2);
+
     t.equal(first.relationship, 'henrik has grandchild ', 'basics properties working');
 
     first.on('change:relationship', function () {
@@ -1220,7 +1230,8 @@ test('`state` properties should invalidate dependent derived properties when cha
     });
 
     var sub1 = new SubState({id: '1'});
-    var sub2 = new SubState({id: '2'});
+
+    t.plan(6);
 
     t.equal(p.subId, undefined, 'should be undefined to start');
 
@@ -1239,7 +1250,7 @@ test('`state` properties should invalidate dependent derived properties when cha
     sub1.id = 'newId';
 });
 
-test("#1664 - Changing from one value, silently to another, back to original triggers a change.", function (t) {
+test('#1664 - Changing from one value, silently to another, back to original triggers a change.', function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -1252,7 +1263,7 @@ test("#1664 - Changing from one value, silently to another, back to original tri
     model.set({x: 1});
 });
 
-test("#1664 - multiple silent changes nested inside a change event", function (t) {
+test('#1664 - multiple silent changes nested inside a change event', function (t) {
     var changes = [];
     var Model = State.extend({
         props: {
@@ -1274,7 +1285,7 @@ test("#1664 - multiple silent changes nested inside a change event", function (t
     t.end();
 });
 
-test("silent changes in last `change` event back to original triggers change", function (t) {
+test('silent changes in last `change` event back to original triggers change', function (t) {
     var changes = [];
     var Model = State.extend({
         props: {
@@ -1293,7 +1304,7 @@ test("silent changes in last `change` event back to original triggers change", f
     t.end();
 });
 
-test("#1943 change calculations should use _.isEqual", function (t) {
+test('#1943 change calculations should use _.isEqual', function (t) {
     var Model = State.extend({
         props: {
             a: 'object'
@@ -1305,7 +1316,7 @@ test("#1943 change calculations should use _.isEqual", function (t) {
     t.end();
 });
 
-test("#1964 - final `change` event is always fired, regardless of interim changes", function (t) {
+test('#1964 - final `change` event is always fired, regardless of interim changes', function (t) {
     var Model = State.extend({
         props: {
             property: 'string'
@@ -1322,7 +1333,7 @@ test("#1964 - final `change` event is always fired, regardless of interim change
     model.set('property', 'foo');
 });
 
-test("isValid", function (t) {
+test('isValid', function (t) {
     var Model = State.extend({
         props: {
             valid: 'boolean'
@@ -1341,19 +1352,20 @@ test("isValid", function (t) {
     t.end();
 });
 
-test("#1545 - `undefined` can be passed to a model constructor without coersion", function (t) {
+test('#1545 - `undefined` can be passed to a model constructor without coercion', function (t) {
     var Model = State.extend({
         defaults: { one: 1 },
-        initialize : function (attrs, opts) {
+        initialize : function (attrs) {
             t.equal(attrs, undefined);
         }
     });
-    var emptyattrs = new Model();
-    var undefinedattrs = new Model(undefined);
+
+    new Model();
+
     t.end();
 });
 
-test("#1961 - Creating a model with {validate: true} will call validate and use the error callback", function (t) {
+test('#1961 - Creating a model with {validate: true} will call validate and use the error callback', function (t) {
     var Model = State.extend({
         props: {
             id: 'number'
@@ -1367,7 +1379,7 @@ test("#1961 - Creating a model with {validate: true} will call validate and use 
     t.end();
 });
 
-test("#2034 - nested set with silent only triggers one change", function (t) {
+test('#2034 - nested set with silent only triggers one change', function (t) {
     var Model = State.extend({
         props: {
             a: 'boolean',
@@ -1383,7 +1395,7 @@ test("#2034 - nested set with silent only triggers one change", function (t) {
     model.set({a: true});
 });
 
-test("#2030 - set with failed validate, followed by another set triggers change", function (t) {
+test('#2030 - set with failed validate, followed by another set triggers change', function (t) {
     var attr = 0, main = 0, error = 0;
     var Model = State.extend({
         props: {
@@ -1405,7 +1417,7 @@ test("#2030 - set with failed validate, followed by another set triggers change"
     t.end();
 });
 
-test("#1179 - isValid returns true in the absence of validate.", function(t) {
+test('#1179 - isValid returns true in the absence of validate.', function(t) {
     var Model = State.extend({
         validate: null
     });
@@ -1414,12 +1426,12 @@ test("#1179 - isValid returns true in the absence of validate.", function(t) {
     t.end();
 });
 
-test("#1791 - `attributes` is available for `parse`", function(t) {
+test('#1791 - `attributes` is available for `parse`', function(t) {
     var Model = State.extend({
         //Backbone test used this.has which was a this.get !== null test
-        parse: function() { this.get('a') !== null; } // shouldn't throw an error
+        parse: function() { t.ok(this.get('a') !== null); } // shouldn't throw an error
     });
-    var model = new Model(null, {parse: true});
+    new Model(null, {parse: true});
     t.end();
 });
 
