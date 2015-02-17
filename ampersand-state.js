@@ -609,7 +609,9 @@ var dataTypes = {
     date: {
         set: function (newVal) {
             var newType;
-            if (!isDate(newVal)) {
+            if (newVal == null) {
+                newType = typeof null;
+            } else if (!isDate(newVal)) {
                 try {
                     var dateVal = new Date(newVal).valueOf();
                     if (isNan(dateVal)) {
@@ -626,12 +628,14 @@ var dataTypes = {
                 newType = 'date';
                 newVal = newVal.valueOf();
             }
+
             return {
                 val: newVal,
                 type: newType
             };
         },
         get: function (val) {
+            if (val == null) { return val; }
             return new Date(val);
         },
         default: function () {
