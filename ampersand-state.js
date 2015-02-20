@@ -194,8 +194,8 @@ _.extend(Base.prototype, BBEvents, {
             hasChanged = !isEqual(currentVal, newVal, attr);
 
             // enforce `setOnce` for properties if set
-            if (def.setOnce && currentVal !== undefined && hasChanged) {
-                throw new TypeError('Property \'' + key + '\' can only be set once.');
+            if (def.setOnce && currentVal !== undefined && hasChanged && !initial) {
+                throw new TypeError('Property \'' + attr + '\' can only be set once.');
             }
 
             // keep track of changed attributes
@@ -532,7 +532,7 @@ function createPropertyDefinition(object, name, desc, isSession) {
 
         def.allowNull = desc.allowNull ? desc.allowNull : false;
         if (desc.setOnce) def.setOnce = true;
-        if (def.required && _.isUndefined(def.default)) def.default = object._getDefaultForType(type);
+        if (def.required && _.isUndefined(def.default) && !def.setOnce) def.default = object._getDefaultForType(type);
         def.test = desc.test;
         def.values = desc.values;
     }
@@ -553,7 +553,9 @@ function createPropertyDefinition(object, name, desc, isSession) {
                 }
                 return result;
             }
-            return _.result(def, 'default');
+            result = _.result(def, 'default');
+            this._values[name] = result;
+            return result;
         }
     });
 
@@ -593,7 +595,9 @@ var dataTypes = {
     date: {
         set: function (newVal) {
             var newType;
-            if (!_.isDate(newVal)) {
+            if (newVal == null) {
+                newType = typeof null;
+            } else if (!_.isDate(newVal)) {
                 try {
                     var dateVal = new Date(newVal).valueOf();
                     if (isNaN(dateVal)) {
@@ -610,12 +614,14 @@ var dataTypes = {
                 newType = 'date';
                 newVal = newVal.valueOf();
             }
+
             return {
                 val: newVal,
                 type: newType
             };
         },
         get: function (val) {
+            if (val == null) { return val; }
             return new Date(val);
         },
         default: function () {
