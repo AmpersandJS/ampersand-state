@@ -15,11 +15,16 @@ function Base(attrs, options) {
     this.parent = options.parent;
     this.collection = options.collection;
     this._keyTree = new KeyTree();
-    this._initCollections();
-    this._initChildren();
+    this._initCollections(attrs, _.pick(options, 'parse'));
+    this._initChildren(attrs, _.pick(options, 'parse'));
     this._cache = {};
     this._previousAttributes = {};
-    if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
+    if (attrs) {
+        // omit children and collection attributes since we instantiate
+        // them with attrs during _initCollections and _initChildren
+        attrs = _.omit(attrs, function(attr, name) { return (name in this._collections) || (name in this._children); }, this);
+        this.set(attrs, _.extend({silent: true, initial: true}, options));
+    }
     this._changed = {};
     if (this._derived) this._initDerived();
     if (options.init !== false) this.initialize.apply(this, arguments);
@@ -427,19 +432,21 @@ _.extend(Base.prototype, BBEvents, {
         }
     },
 
-    _initCollections: function () {
+    _initCollections: function (attrs, options) {
         var coll;
         if (!this._collections) return;
+        options || (options = {});
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll](null, {parent: this});
+            this[coll] = new this._collections[coll](attrs ? attrs[coll] : null, _.extend({parent: this}, options));
         }
     },
 
-    _initChildren: function () {
+    _initChildren: function (attrs, options) {
         var child;
         if (!this._children) return;
+        options || (options = {});
         for (child in this._children) {
-            this[child] = new this._children[child]({}, {parent: this});
+            this[child] = new this._children[child](attrs ? attrs[child] : null, _.extend({parent: this}, options));
             this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
         }
     },
