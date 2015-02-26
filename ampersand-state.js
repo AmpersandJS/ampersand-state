@@ -114,6 +114,10 @@ _.extend(Base.prototype, BBEvents, {
 
         options = options || {};
 
+        if (options.parse) {
+            attrs = this.parse(attrs, options);
+        }
+
         if (!this._validate(attrs, options)) return false;
 
         // Extract attributes and options.
