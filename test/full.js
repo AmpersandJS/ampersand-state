@@ -1613,3 +1613,63 @@ test('#118 setOnce can be used with default string', function (t) {
 
     t.end();
 });
+
+test('#146 consistently apply parse for children and collections', function (t) {
+    var Person = State.extend({
+        props: {
+            name: 'string',
+            parsed: {
+                type: 'number',
+                default: 0
+            }
+        },
+        // parse counts itself as parsed when ran
+        parse: function (attrs) {
+            if (typeof attrs.parsed !== 'number') {
+                attrs.parsed = 0;    
+            }
+            attrs.parsed += 1;
+            return attrs;
+        }
+    });
+
+    var Friends = Collection.extend({
+        model: Person
+    });
+
+    var ParentObj = State.extend({
+        children: {
+            child: Person
+        },
+        collections: {
+            friends: Friends
+        }
+    });
+
+    var Parents = Collection.extend({
+        model: ParentObj
+    });
+
+    var parents = new Parents();
+
+    parents.add([
+        {
+            name: 'first',
+            child: {
+                name: 'mary'
+            },
+            friends: [
+                {
+                    name: 'bob'
+                }
+            ]
+        }
+    ], {parse: true});
+
+    console.log(parents.at(0).friends.length);
+
+    t.equal(parents.at(0).child.parsed, 1, 'child should have been parsed');
+    t.equal(parents.at(0).friends.at(0).parsed, 1, 'friend collection items should have been parsed');
+
+    t.end();
+});
