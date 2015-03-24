@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "ampersand-version": "^1.0.0",
+    "amp-is-object-equal": "^1.0.2",
     "array-next": "~0.0.1",
     "backbone-events-standalone": "0.2.2",
     "key-tree-store": "~0.1.0",
