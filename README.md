@@ -112,7 +112,7 @@ Get ID of state per `idAttribute` configuration. Should *always* be how ID is de
 
 ### namespaceAttribute `state.namespaceAttribute`
 
-The property name that should be used as a namespace. Namespaces are completely optional, but exist in case you need to make an additionl distinction between states, that may be of the same type, with potentially conflicting IDs but are in fact different.
+The property name that should be used as a namespace. Namespaces are completely optional, but exist in case you need to make an additional distinction between states, that may be of the same type, with potentially conflicting IDs but are in fact different.
 
 Defaults to `'namespace'`.
 
@@ -363,7 +363,7 @@ var Person = AmpersandState.extend({
 );
 ```
 
-### derived
+### derived `AmpersandState.extend({ derived: { derivedProperties }})`
 
 Derived properties (also known as computed properties) are properties of the state object that depend on other properties (from `props`, `session`,  or even `derived`) to determine their value. Best demonstrated with an example:
 
