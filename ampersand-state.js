@@ -24,9 +24,6 @@ var union = require("lodash.union");
 var BBEvents = require('backbone-events-standalone');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
-var BBEvents = require('backbone-events-standalone');
-var KeyTree = require('key-tree-store');
-var arrayNext = require('array-next');
 var changeRE = /^change:/;
 
 function Base(attrs, options) {
