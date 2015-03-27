@@ -195,7 +195,7 @@ test('Setting other properties when `extraProperties: "reject"` throws error', f
         foo.set({
             craziness: 'new'
         });
-    }, Error, 'Throws exception if set to rejcet');
+    }, Error, 'Throws exception if set to reject');
     t.end();
 });
 
@@ -329,7 +329,7 @@ test('serialize should not include session properties no matter how they\'re def
             name: 'string'
         },
         session: {
-            // simple definintion
+            // simple definition
             active: 'boolean'
         }
     });
@@ -447,12 +447,12 @@ test('derived properties', function (t) {
     t.equal(foo.greeting, 'hi, henrik');
     t.equal(foo.greeting, 'hi, henrik');
     t.equal(ran, 1, 'cached derived should only run once');
-    t.equal(notCachedRan, 0, 'shold not have been run yet');
+    t.equal(notCachedRan, 0, 'should not have been run yet');
     foo.name = 'someone';
     t.equal(foo.greeting, 'hi, someone');
     t.equal(foo.greeting, 'hi, someone');
     t.equal(ran, 2, 'cached derived should have been cleared and run once again');
-    t.equal(notCachedRan, 1, 'shold have been run once because it was triggered');
+    t.equal(notCachedRan, 1, 'should have been run once because it was triggered');
     t.equal(foo.notCached, 'hi, someone');
     t.equal(notCachedRan, 2, 'incremented again');
     t.equal(foo.notCached, 'hi, someone');
@@ -648,7 +648,7 @@ test('Should only allow nulls where specified', function (t) {
     t.equal(foo.someNumber, null);
     t.throws(function () {
         foo.firstName = null;
-    }, TypeError, 'Throws exception when setting unallowed null');
+    }, TypeError, 'Throws exception when setting disallowed null');
     t.end();
 });
 
@@ -737,7 +737,7 @@ test('toggle() works on boolean and values properties.', function (t) {
 
     t.throws(function () {
         m.toggle('someNumber');
-    }, TypeError, 'Throws exception when toggling a non-togglable property.');
+    }, TypeError, 'Throws exception when toggling a non-toggleable property.');
 
     m.toggle('state');
     t.equal(m.state, 'WA', 'Should go to next');
@@ -1129,7 +1129,7 @@ test('`state` properties', function (t) {
     p.sub = sub;
 
     p.on('change:sub', function () {
-        t.fail('shouldnt fire if same instance');
+        t.fail('shouldn\'t fire if same instance');
     });
 
     p.sub = sub;
@@ -1341,7 +1341,7 @@ test("isValid", function (t) {
     t.end();
 });
 
-test("#1545 - `undefined` can be passed to a model constructor without coersion", function (t) {
+test("#1545 - `undefined` can be passed to a model constructor without coercion", function (t) {
     var Model = State.extend({
         defaults: { one: 1 },
         initialize : function (attrs, opts) {
@@ -1579,19 +1579,19 @@ test('#118 setOnce can be used with default string', function (t) {
 
     t.throws(function () {
         tr.timezone = 'new thing';
-    }, 'since it has a default, this should throw'); 
-    
+    }, 'since it has a default, this should throw');
+
 
     var tr2;
 
     t.doesNotThrow(function () {
         tr2 = new TimeRange({timezone: 'my thing'});
     }, 'if we set on init, should overwrite default');
-    
+
     t.throws(function () {
-        tr.timezone = 'new thing';  
-    }, 'should now fail since its been set'); 
-    
+        tr.timezone = 'new thing';
+    }, 'should now fail since its been set');
+
     var OtherTimeRange = State.extend({
         props: {
             timezone: {
@@ -1605,7 +1605,7 @@ test('#118 setOnce can be used with default string', function (t) {
 
     t.doesNotThrow(function () {
         tr.timezone = 'thing';
-    }, 'should not throw first time'); 
+    }, 'should not throw first time');
 
     t.throws(function () {
         tr.timezone = 'other thing';

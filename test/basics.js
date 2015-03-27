@@ -135,6 +135,58 @@ test('cached derived properties fire events if result is different', function (t
     t.end();
 });
 
+test('cached && accessed derived properties do not fire events if result has not changed', function (t) {
+    t.plan(2);
+    var SomeNumber = State.extend({
+        props: {
+            num: 'number'
+        },
+        derived: {
+            isEven: {
+                cache: true,
+                deps: ['num'],
+                fn: function () {
+                    return this.num % 2 === 0;
+                }
+            }
+        }
+    });
+    var num = new SomeNumber({ num: 8 });
+    num.on('change:isEven', function (model, value) {
+        t.ok(false, "shouldn't fire if derived value is unchanged");
+    });
+    t.equal(num.isEven, true);
+    num.num = 10;
+    t.equal(num.isEven, true);
+    t.end();
+});
+
+test('uncached & accessed derived properties fire events even if result has not changed', function (t) {
+    t.plan(3);
+    var SomeNumber = State.extend({
+        props: {
+            num: 'number'
+        },
+        derived: {
+            isEven: {
+                cache: false,
+                deps: ['num'],
+                fn: function () {
+                    return this.num % 2 === 0;
+                }
+            }
+        }
+    });
+    var num = new SomeNumber({ num: 8 });
+    num.on('change:isEven', function (model, value) {
+        t.equal(num.isEven, true, "should fire even if derived value is unchanged");
+    });
+    t.equal(num.isEven, true);
+    num.num = 10;
+    t.equal(num.isEven, true);
+    t.end();
+});
+
 test('uncached derived properties always fire events on dependency change', function (t) {
     t.plan(1);
     var NewPerson = Person.extend({
