@@ -1,5 +1,29 @@
 /*$AMPERSAND_VERSION*/
-var _ = require('underscore');
+var uniqueId = require("lodash.uniqueid");
+var assign = require("lodash.assign");
+var omit = require("lodash.omit");
+var contains = require("lodash.contains");
+var escape = require("lodash.escape");
+var forEach = require("lodash.foreach");
+var isString = require("lodash.isstring");
+var isObject = require("lodash.isobject");
+var isArray = require("lodash.isarray");
+var isDate = require("lodash.isdate");
+var isUndefined = require("lodash.isundefined");
+var isFunction = require("lodash.isfunction");
+var isNull = require("lodash.isnull");
+var isEmpty = require("lodash.isempty");
+var isEqual = require("lodash.isequal");
+var clone = require("lodash.clone");
+var has = require("lodash.has");
+var result = require("lodash.result");
+var keys = require("lodash.keys");
+var bind = require("lodash.bind");
+var defaults = require("lodash.defaults");
+var union = require("lodash.union");
+var BBEvents = require('backbone-events-standalone');
+var KeyTree = require('key-tree-store');
+var arrayNext = require('array-next');
 var BBEvents = require('backbone-events-standalone');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
@@ -7,7 +31,7 @@ var changeRE = /^change:/;
 
 function Base(attrs, options) {
     options || (options = {});
-    this.cid || (this.cid = _.uniqueId('state'));
+    this.cid || (this.cid = uniqueId('state'));
     this._events = {};
     this._values = {};
     this._definition = Object.create(this._definition);
@@ -19,14 +43,14 @@ function Base(attrs, options) {
     this._initChildren();
     this._cache = {};
     this._previousAttributes = {};
-    if (attrs) this.set(attrs, _.extend({silent: true, initial: true}, options));
+    if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
     this._changed = {};
     if (this._derived) this._initDerived();
     if (options.init !== false) this.initialize.apply(this, arguments);
 }
 
 
-_.extend(Base.prototype, BBEvents, {
+assign(Base.prototype, BBEvents, {
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 
@@ -66,12 +90,12 @@ _.extend(Base.prototype, BBEvents, {
 
     // get HTML-escaped value of attribute
     escape: function (attr) {
-        return _.escape(this.get(attr));
+        return escape(this.get(attr));
     },
 
     // Check if the model is currently in a valid state.
     isValid: function (options) {
-        return this._validate({}, _.extend(options || {}, { validate: true }));
+        return this._validate({}, assign(options || {}, { validate: true }));
     },
 
     // Parse can be used remap/restructure/rename incoming properties
@@ -84,10 +108,10 @@ _.extend(Base.prototype, BBEvents, {
     // on the way out. Before, sending to server, for example.
     serialize: function () {
         var res = this.getAttributes({props: true}, true);
-        _.each(this._children, function (value, key) {
+        forEach(this._children, function (value, key) {
             res[key] = this[key].serialize();
         }, this);
-        _.each(this._collections, function (value, key) {
+        forEach(this._collections, function (value, key) {
             res[key] = this[key].serialize();
         }, this);
         return res;
@@ -104,7 +128,7 @@ _.extend(Base.prototype, BBEvents, {
             attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
-        if (_.isObject(key) || key === null) {
+        if (isObject(key) || key === null) {
             attrs = key;
             options = value;
         } else {
@@ -177,16 +201,16 @@ _.extend(Base.prototype, BBEvents, {
             // If we are null and are not allowing null, throw error
             // If we have a defined type and the new type doesn't match, and we are not null, throw error.
 
-            if (_.isUndefined(newVal) && def.required) {
+            if (isUndefined(newVal) && def.required) {
                 throw new TypeError('Required property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
-            if (_.isNull(newVal) && def.required && !def.allowNull) {
+            if (isNull(newVal) && def.required && !def.allowNull) {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + ' (cannot be null). Tried to set ' + newVal);
             }
-            if ((def.type && def.type !== 'any' && def.type !== newType) && !_.isNull(newVal) && !_.isUndefined(newVal)) {
+            if ((def.type && def.type !== 'any' && def.type !== newType) && !isNull(newVal) && !isUndefined(newVal)) {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
-            if (def.values && !_.contains(def.values, newVal)) {
+            if (def.values && !contains(def.values, newVal)) {
                 throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', ') + '. Tried to set ' + newVal);
             }
 
@@ -208,7 +232,7 @@ _.extend(Base.prototype, BBEvents, {
         }
 
         // actually update our values
-        _.each(changes, function (change) {
+        forEach(changes, function (change) {
             self._previousAttributes[change.key] = change.prev;
             if (unset) {
                 delete self._values[change.key];
@@ -219,7 +243,7 @@ _.extend(Base.prototype, BBEvents, {
 
         if (!silent && changes.length) self._pending = true;
         if (!silent) {
-            _.each(changes, function (change) {
+            forEach(changes, function (change) {
                 self.trigger('change:' + change.key, self, change.val, options);
             });
         }
@@ -262,14 +286,14 @@ _.extend(Base.prototype, BBEvents, {
     // Get all of the attributes of the model at the time of the previous
     // `"change"` event.
     previousAttributes: function () {
-        return _.clone(this._previousAttributes);
+        return clone(this._previousAttributes);
     },
 
     // Determine if the model has changed since the last `"change"` event.
     // If you specify an attribute name, determine if that attribute has changed.
     hasChanged: function (attr) {
-        if (attr == null) return !_.isEmpty(this._changed);
-        return _.has(this._changed, attr);
+        if (attr == null) return !isEmpty(this._changed);
+        return has(this._changed, attr);
     },
 
     // Return an object containing all the attributes that have changed, or
@@ -279,7 +303,7 @@ _.extend(Base.prototype, BBEvents, {
     // You can also pass an attributes object to diff against the model,
     // determining if there *would be* a change.
     changedAttributes: function (diff) {
-        if (!diff) return this.hasChanged() ? _.clone(this._changed) : false;
+        if (!diff) return this.hasChanged() ? clone(this._changed) : false;
         var val, changed = false;
         var old = this._changing ? this._previousAttributes : this.attributes;
         var def, isEqual;
@@ -302,16 +326,16 @@ _.extend(Base.prototype, BBEvents, {
         var type = def.type;
         var val;
         if (def.required) {
-            val = _.result(def, 'default');
+            val = result(def, 'default');
             return this.set(attr, val, options);
         } else {
-            return this.set(attr, val, _.extend({}, options, {unset: true}));
+            return this.set(attr, val, assign({}, options, {unset: true}));
         }
     },
 
     clear: function (options) {
         var self = this;
-        _.each(_.keys(this.attributes), function (key) {
+        forEach(keys(this.attributes), function (key) {
             self.unset(key, options);
         });
         return this;
@@ -331,18 +355,18 @@ _.extend(Base.prototype, BBEvents, {
     // Determine which comparison algorithm to use for comparing a property
     _getCompareForType: function (type) {
         var dataType = this._dataTypes[type];
-        if (dataType && dataType.compare) return _.bind(dataType.compare, this);
-        return _.isEqual;
+        if (dataType && dataType.compare) return bind(dataType.compare, this);
+        return isEqual;
     },
 
     // Run validation against the next complete set of model attributes,
     // returning `true` if all is well. Otherwise, fire an `"invalid"` event.
     _validate: function (attrs, options) {
         if (!options.validate || !this.validate) return true;
-        attrs = _.extend({}, this.attributes, attrs);
+        attrs = assign({}, this.attributes, attrs);
         var error = this.validationError = this.validate(attrs, options) || null;
         if (!error) return true;
-        this.trigger('invalid', this, error, _.extend(options || {}, {validationError: error}));
+        this.trigger('invalid', this, error, assign(options || {}, {validationError: error}));
         return false;
     },
 
@@ -353,12 +377,12 @@ _.extend(Base.prototype, BBEvents, {
     // just makes friendlier errors when trying to define a new model
     // only used when setting up original property definitions
     _ensureValidType: function (type) {
-        return _.contains(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(_.keys(this._dataTypes)), type) ? type : undefined;
+        return contains(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(keys(this._dataTypes)), type) ? type : undefined;
     },
 
     getAttributes: function (options, raw) {
         options || (options = {});
-        _.defaults(options, {
+        defaults(options, {
             session: false,
             props: false,
             derived: false
@@ -369,7 +393,7 @@ _.extend(Base.prototype, BBEvents, {
             def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = (raw) ? this._values[item] : this[item];
-                if (typeof val === 'undefined') val = _.result(def, 'default');
+                if (typeof val === 'undefined') val = result(def, 'default');
                 if (typeof val !== 'undefined') res[item] = val;
             }
         }
@@ -382,7 +406,7 @@ _.extend(Base.prototype, BBEvents, {
     _initDerived: function () {
         var self = this;
 
-        _.each(this._derived, function (value, name) {
+        forEach(this._derived, function (value, name) {
             var def = self._derived[name];
             def.deps = def.depList;
 
@@ -447,7 +471,7 @@ _.extend(Base.prototype, BBEvents, {
     // Returns a bound handler for doing event bubbling while
     // adding a name to the change string.
     _getEventBubblingHandler: function (propertyName) {
-        return _.bind(function (name, model, newValue) {
+        return bind(function (name, model, newValue) {
             if (changeRE.test(name)) {
                 this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
             } else if (name === 'change') {
@@ -496,14 +520,14 @@ function createPropertyDefinition(object, name, desc, isSession) {
     var def = object._definition[name] = {};
     var type, descArray;
 
-    if (_.isString(desc)) {
+    if (isString(desc)) {
         // grab our type if all we've got is a string
         type = object._ensureValidType(desc);
         if (type) def.type = type;
     } else {
 
         //Transform array of ['type', required, default] to object form
-        if (_.isArray(desc)) {
+        if (isArray(desc)) {
             descArray = desc;
             desc = {
                 type: descArray[0],
@@ -524,7 +548,7 @@ function createPropertyDefinition(object, name, desc, isSession) {
 
         def.allowNull = desc.allowNull ? desc.allowNull : false;
         if (desc.setOnce) def.setOnce = true;
-        if (def.required && _.isUndefined(def.default) && !def.setOnce) def.default = object._getDefaultForType(type);
+        if (def.required && isUndefined(def.default) && !def.setOnce) def.default = object._getDefaultForType(type);
         def.test = desc.test;
         def.values = desc.values;
     }
@@ -537,17 +561,17 @@ function createPropertyDefinition(object, name, desc, isSession) {
             this.set(name, val);
         },
         get: function () {
-            var result = this._values[name];
+            var value = this._values[name];
             var typeDef = this._dataTypes[def.type];
-            if (typeof result !== 'undefined') {
+            if (typeof value !== 'undefined') {
                 if (typeDef && typeDef.get) {
-                    result = typeDef.get(result);
+                    value = typeDef.get(value);
                 }
-                return result;
+                return value;
             }
-            result = _.result(def, 'default');
-            this._values[name] = result;
-            return result;
+            value = result(def, 'default');
+            this._values[name] = value;
+            return value;
         }
     });
 
@@ -557,14 +581,14 @@ function createPropertyDefinition(object, name, desc, isSession) {
 // helper for creating derived property definitions
 function createDerivedProperty(modelProto, name, definition) {
     var def = modelProto._derived[name] = {
-        fn: _.isFunction(definition) ? definition : definition.fn,
+        fn: isFunction(definition) ? definition : definition.fn,
         cache: (definition.cache !== false),
         depList: definition.deps || []
     };
 
     // add to our shared dependency list
-    _.each(def.depList, function (dep) {
-        modelProto._deps[dep] = _(modelProto._deps[dep] || []).union([name]);
+    forEach(def.depList, function (dep) {
+        modelProto._deps[dep] = union(modelProto._deps[dep] || [], [name]);
     });
 
     // defined a top-level getter for derived names
@@ -589,7 +613,7 @@ var dataTypes = {
             var newType;
             if (newVal == null) {
                 newType = typeof null;
-            } else if (!_.isDate(newVal)) {
+            } else if (!isDate(newVal)) {
                 try {
                     var dateVal = new Date(newVal).valueOf();
                     if (isNaN(dateVal)) {
@@ -624,7 +648,7 @@ var dataTypes = {
         set: function (newVal) {
             return {
                 val: newVal,
-                type: _.isArray(newVal) ? 'array' : typeof newVal
+                type: isArray(newVal) ? 'array' : typeof newVal
             };
         },
         default: function () {
@@ -637,7 +661,7 @@ var dataTypes = {
             // we have to have a way of supporting "missing" objects.
             // Null is an object, but setting a value to undefined
             // should work too, IMO. We just override it, in that case.
-            if (newType !== 'object' && _.isUndefined(newVal)) {
+            if (newType !== 'object' && isUndefined(newVal)) {
                 newVal = null;
                 newType = 'object';
             }
@@ -707,7 +731,7 @@ function extend(protoProps) {
     }
 
     // Add static properties to the constructor function from parent
-    _.extend(child, parent);
+    assign(child, parent);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
@@ -716,12 +740,12 @@ function extend(protoProps) {
     child.prototype = new Surrogate();
 
     // set prototype level objects
-    child.prototype._derived =  _.extend({}, parent.prototype._derived);
-    child.prototype._deps = _.extend({}, parent.prototype._deps);
-    child.prototype._definition = _.extend({}, parent.prototype._definition);
-    child.prototype._collections = _.extend({}, parent.prototype._collections);
-    child.prototype._children = _.extend({}, parent.prototype._children);
-    child.prototype._dataTypes = _.extend({}, parent.prototype._dataTypes || dataTypes);
+    child.prototype._derived =  assign({}, parent.prototype._derived);
+    child.prototype._deps = assign({}, parent.prototype._deps);
+    child.prototype._definition = assign({}, parent.prototype._definition);
+    child.prototype._collections = assign({}, parent.prototype._collections);
+    child.prototype._children = assign({}, parent.prototype._children);
+    child.prototype._dataTypes = assign({}, parent.prototype._dataTypes || dataTypes);
 
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
@@ -730,36 +754,36 @@ function extend(protoProps) {
                 'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
             ];
             if (def.dataTypes) {
-                _.each(def.dataTypes, function (def, name) {
+                forEach(def.dataTypes, function (def, name) {
                     child.prototype._dataTypes[name] = def;
                 });
             }
             if (def.props) {
-                _.each(def.props, function (def, name) {
+                forEach(def.props, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def);
                 });
             }
             if (def.session) {
-                _.each(def.session, function (def, name) {
+                forEach(def.session, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def, true);
                 });
             }
             if (def.derived) {
-                _.each(def.derived, function (def, name) {
+                forEach(def.derived, function (def, name) {
                     createDerivedProperty(child.prototype, name, def);
                 });
             }
             if (def.collections) {
-                _.each(def.collections, function (constructor, name) {
+                forEach(def.collections, function (constructor, name) {
                     child.prototype._collections[name] = constructor;
                 });
             }
             if (def.children) {
-                _.each(def.children, function (constructor, name) {
+                forEach(def.children, function (constructor, name) {
                     child.prototype._children[name] = constructor;
                 });
             }
-            _.extend(child.prototype, _.omit(def, omitFromExtend));
+            assign(child.prototype, omit(def, omitFromExtend));
         });
     }
 
