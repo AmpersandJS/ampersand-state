@@ -3,6 +3,9 @@
   "description": "An observable, extensible state object with derived watchable properties.",
   "version": "4.4.4",
   "author": "Henrik Joreteg <henrik@andyet.net>",
+  "files": [
+      "ampersand-state.js"
+  ],
   "browserify": {
     "transform": [
       "ampersand-version"
