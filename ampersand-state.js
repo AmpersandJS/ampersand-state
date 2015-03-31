@@ -318,16 +318,19 @@ assign(Base.prototype, BBEvents, {
         return this.serialize();
     },
 
-    unset: function (attr, options) {
-        var def = this._definition[attr];
-        var type = def.type;
-        var val;
-        if (def.required) {
-            val = result(def, 'default');
-            return this.set(attr, val, options);
-        } else {
-            return this.set(attr, val, assign({}, options, {unset: true}));
-        }
+    unset: function (attrs, options) {
+        attrs = Array.isArray(attrs) ? attrs : [attrs];
+        forEach(attrs, function (key) {
+            var def = this._definition[key];
+            var type = def.type;
+            var val;
+            if (def.required) {
+                val = result(def, 'default');
+                return this.set(key, val, options);
+            } else {
+                return this.set(key, val, assign({}, options, {unset: true}));
+            }
+        }, this);
     },
 
     clear: function (options) {

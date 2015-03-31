@@ -500,6 +500,19 @@ test("multiple unsets", function (t) {
     t.end();
 });
 
+test("unset with array", function (t) {
+    var Model = State.extend({
+        props: {
+            a: ['string', true, 'first'],
+            b: ['string', true, 'second']
+        }
+    });
+    var model = new Model({a: 'a', b: 'b'});
+    model.unset(['a', 'b']);
+    t.equal(model.a, 'first');
+    t.equal(model.b, 'second');
+    t.end();
+});
 
 test("unset and changedAttributes", function (t) {
     var Model = State.extend({

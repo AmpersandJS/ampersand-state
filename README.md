@@ -538,14 +538,20 @@ Possible options (when using `state.set()`):
 * `silent` {Boolean} - prevents triggering of any change events as a result of the set operation.
 * `unset` {Boolean} - `unset` the attributes keyed in the attributes object instead of setting them.
 
-### unset `state.unset(attribute, [options])`
+### unset `state.unset(attribute|attributes[], [options])`
 
-Clear the named attribute from the state object. Fires a `"change"` event and a `"change:attributeName"` event unless `silent` is passed as an option.
+Clear the named attribute or an array of named attributes from the state object. Fires a `"change"` event and a `"change:attributeName"` event unless `silent` is passed as an option.
 
 If the attribute being unset is `required` and has a `default` value as defined in either `props` or `session`, it will be set to that value, otherwise it will be `undefined`.
 
 ```javascript
+// unset a single attribute
 person.unset('firstName')
+```
+
+```javascript
+// unset multiple attributes
+person.unset(['firstName', 'lastName'])
 ```
 
 ### clear `state.clear([options])`
