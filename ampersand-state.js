@@ -21,7 +21,7 @@ var keys = require('lodash.keys');
 var bind = require('lodash.bind');
 var defaults = require('lodash.defaults');
 var union = require('lodash.union');
-var BBEvents = require('backbone-events-standalone');
+var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
 var changeRE = /^change:/;
@@ -47,7 +47,7 @@ function Base(attrs, options) {
 }
 
 
-assign(Base.prototype, BBEvents, {
+assign(Base.prototype, Events, {
     // can be allow, ignore, reject
     extraProperties: 'ignore',
 
