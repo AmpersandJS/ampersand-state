@@ -1,7 +1,7 @@
 {
   "name": "ampersand-state",
   "description": "An observable, extensible state object with derived watchable properties.",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "author": "Henrik Joreteg <henrik@andyet.net>",
   "files": [
     "ampersand-state.js"
@@ -18,15 +18,15 @@
     "ampersand-events": "^1.1.1",
     "ampersand-version": "^1.0.0",
     "array-next": "~0.0.1",
-    "key-tree-store": "~0.1.0",
+    "key-tree-store": "^1.2.0",
     "lodash.assign": "^3.0.0",
     "lodash.bind": "^3.1.0",
     "lodash.clone": "^3.0.1",
-    "lodash.contains": "^2.4.1",
     "lodash.defaults": "^3.1.0",
     "lodash.escape": "^3.0.0",
     "lodash.foreach": "^3.0.2",
     "lodash.has": "^3.0.0",
+    "lodash.includes": "^3.1.0",
     "lodash.isarray": "^3.0.1",
     "lodash.isdate": "^3.0.1",
     "lodash.isempty": "^3.0.1",
