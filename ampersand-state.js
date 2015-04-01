@@ -2,9 +2,9 @@
 var uniqueId = require('lodash.uniqueid');
 var assign = require('lodash.assign');
 var omit = require('lodash.omit');
-var contains = require('lodash.contains');
 var escape = require('lodash.escape');
 var forEach = require('lodash.foreach');
+var includes = require('lodash.includes');
 var isString = require('lodash.isstring');
 var isObject = require('lodash.isobject');
 var isArray = require('lodash.isarray');
@@ -207,7 +207,7 @@ assign(Base.prototype, BBEvents, {
             if ((def.type && def.type !== 'any' && def.type !== newType) && !isNull(newVal) && !isUndefined(newVal)) {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
-            if (def.values && !contains(def.values, newVal)) {
+            if (def.values && !includes(def.values, newVal)) {
                 throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', ') + '. Tried to set ' + newVal);
             }
 
@@ -376,7 +376,7 @@ assign(Base.prototype, BBEvents, {
     // just makes friendlier errors when trying to define a new model
     // only used when setting up original property definitions
     _ensureValidType: function (type) {
-        return contains(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(keys(this._dataTypes)), type) ? type : undefined;
+        return includes(['string', 'number', 'boolean', 'array', 'object', 'date', 'any'].concat(keys(this._dataTypes)), type) ? type : undefined;
     },
 
     getAttributes: function (options, raw) {
