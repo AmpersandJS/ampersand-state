@@ -1,26 +1,26 @@
 /*$AMPERSAND_VERSION*/
-var uniqueId = require("lodash.uniqueid");
-var assign = require("lodash.assign");
-var omit = require("lodash.omit");
-var includes = require("lodash.includes");
-var escape = require("lodash.escape");
-var forEach = require("lodash.foreach");
-var isString = require("lodash.isstring");
-var isObject = require("lodash.isobject");
-var isArray = require("lodash.isarray");
-var isDate = require("lodash.isdate");
-var isUndefined = require("lodash.isundefined");
-var isFunction = require("lodash.isfunction");
-var isNull = require("lodash.isnull");
-var isEmpty = require("lodash.isempty");
-var isEqual = require("lodash.isequal");
-var clone = require("lodash.clone");
-var has = require("lodash.has");
-var result = require("lodash.result");
-var keys = require("lodash.keys");
-var bind = require("lodash.bind");
-var defaults = require("lodash.defaults");
-var union = require("lodash.union");
+var uniqueId = require('lodash.uniqueid');
+var assign = require('lodash.assign');
+var omit = require('lodash.omit');
+var escape = require('lodash.escape');
+var forEach = require('lodash.foreach');
+var includes = require('lodash.includes');
+var isString = require('lodash.isstring');
+var isObject = require('lodash.isobject');
+var isArray = require('lodash.isarray');
+var isDate = require('lodash.isdate');
+var isUndefined = require('lodash.isundefined');
+var isFunction = require('lodash.isfunction');
+var isNull = require('lodash.isnull');
+var isEmpty = require('lodash.isempty');
+var isEqual = require('lodash.isequal');
+var clone = require('lodash.clone');
+var has = require('lodash.has');
+var result = require('lodash.result');
+var keys = require('lodash.keys');
+var bind = require('lodash.bind');
+var defaults = require('lodash.defaults');
+var union = require('lodash.union');
 var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
@@ -98,6 +98,7 @@ assign(Base.prototype, Events, {
     // Parse can be used remap/restructure/rename incoming properties
     // before they are applied to attributes.
     parse: function (resp, options) {
+        //jshint unused:false
         return resp;
     },
 
@@ -120,7 +121,6 @@ assign(Base.prototype, Events, {
     set: function (key, value, options) {
         var self = this;
         var extraProperties = this.extraProperties;
-        var triggers = [];
         var changing, changes, newType, newVal, def, cast, err, attr,
             attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
 
@@ -322,7 +322,6 @@ assign(Base.prototype, Events, {
         attrs = Array.isArray(attrs) ? attrs : [attrs];
         forEach(attrs, function (key) {
             var def = this._definition[key];
-            var type = def.type;
             var val;
             if (def.required) {
                 val = result(def, 'default');
@@ -717,7 +716,6 @@ function extend(protoProps) {
     var parent = this;
     var child;
     var args = [].slice.call(arguments);
-    var prop, item;
 
     // The constructor function for the new subclass is either defined by you
     // (the "constructor" property in your `extend` definition), or defaulted
@@ -749,10 +747,10 @@ function extend(protoProps) {
 
     // Mix in all prototype properties to the subclass if supplied.
     if (protoProps) {
+        var omitFromExtend = [
+            'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
+        ];
         args.forEach(function processArg(def) {
-            var omitFromExtend = [
-                'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
-            ];
             if (def.dataTypes) {
                 forEach(def.dataTypes, function (def, name) {
                     child.prototype._dataTypes[name] = def;
@@ -786,8 +784,6 @@ function extend(protoProps) {
             assign(child.prototype, omit(def, omitFromExtend));
         });
     }
-
-    var toString = Object.prototype.toString;
 
     // Set a convenience property in case the parent's prototype is needed
     // later.
