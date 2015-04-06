@@ -620,6 +620,43 @@ me.toJSON() //=> { firstName: 'Phil', lastName: 'Roberts' }
 JSON.stringify(me) //=> "{\"firstName\":\"Phil\",\"lastName\":\"Roberts\"}"
 ```
 
+### getAttributes `state.getAttributes([options])`
+
+Returns a shallow copy of the state's attributes while only including the types (props, session, derived) specified by the `options` parameter. The desired keys should be set to `true` on `options` (`props`, `session`, `derived`) if attributes of that type should be returned by `getAttributes`.
+
+```javascript
+var Person = AmpersandState.extend({
+    props: {
+        firstName: 'string',
+        lastName: 'string'
+    },
+    session: {
+      active: 'boolean'
+    },
+    derived: {
+      fullName: {
+        deps: ['firstName', 'lastName'],
+        fn: function () {
+          return this.firstName + ' ' + this.lastName;
+        }
+      }
+    }
+  }
+});
+
+var me = new Person({ firstName: 'Luke', lastName: 'Karrys', active: true });
+
+me.getAttributes({derived: true}) //=> { fullName: 'Luke Karrys' }
+
+me.getAttributes({session: true}) //=> { active: true }
+
+me.getAttributes({
+  props: true,
+  session: true,
+  derived: true
+}) //=> { firstName: 'Luke', lastName: 'Karrys', active: true, fullName: 'Luke Karrys' }
+```
+
 ## Changelog
 
 <!-- starthide -->
