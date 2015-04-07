@@ -622,7 +622,9 @@ JSON.stringify(me) //=> "{\"firstName\":\"Phil\",\"lastName\":\"Roberts\"}"
 
 ### getAttributes `state.getAttributes([options, raw])`
 
-Returns a shallow copy of the state's attributes while only including the types (props, session, derived) specified by the `options` parameter. The desired keys should be set to `true` on `options` (`props`, `session`, `derived`) if attributes of that type should be returned by `getAttributes`. The second parameter, `raw`, is a boolean that specifies whether returned values should be the raw value or should instead use the getter associated with its data type.
+Returns a shallow copy of the state's attributes while only including the types (props, session, derived) specified by the `options` parameter. The desired keys should be set to `true` on `options` (`props`, `session`, `derived`) if attributes of that type should be returned by `getAttributes`.
+
+The second parameter, `raw`, is a boolean that specifies whether returned values should be the raw value or should instead use the getter associated with its data type. If you are using `getAttributes` to pass data to a template, most of the time you will not want to use the `raw` parameter, since you will want to take advantage of any built-in and custom data types on your state instance.
 
 ```javascript
 var Person = AmpersandState.extend({
