@@ -620,41 +620,42 @@ me.toJSON() //=> { firstName: 'Phil', lastName: 'Roberts' }
 JSON.stringify(me) //=> "{\"firstName\":\"Phil\",\"lastName\":\"Roberts\"}"
 ```
 
-### getAttributes `state.getAttributes([options])`
+### getAttributes `state.getAttributes([options, raw])`
 
-Returns a shallow copy of the state's attributes while only including the types (props, session, derived) specified by the `options` parameter. The desired keys should be set to `true` on `options` (`props`, `session`, `derived`) if attributes of that type should be returned by `getAttributes`.
+Returns a shallow copy of the state's attributes while only including the types (props, session, derived) specified by the `options` parameter. The desired keys should be set to `true` on `options` (`props`, `session`, `derived`) if attributes of that type should be returned by `getAttributes`. The second parameter, `raw`, is a boolean that specifies whether returned values should be the raw value or should instead use the getter associated with its data type.
 
 ```javascript
 var Person = AmpersandState.extend({
-    props: {
-        firstName: 'string',
-        lastName: 'string'
-    },
-    session: {
-      active: 'boolean'
-    },
-    derived: {
-      fullName: {
-        deps: ['firstName', 'lastName'],
-        fn: function () {
-          return this.firstName + ' ' + this.lastName;
-        }
+  props: {
+      firstName: 'string',
+      lastName: 'string'
+  },
+  session: {
+    lastSeen: 'date',
+    active: 'boolean'
+  },
+  derived: {
+    fullName: {
+      deps: ['firstName', 'lastName'],
+      fn: function () {
+        return this.firstName + ' ' + this.lastName;
       }
     }
   }
 });
 
-var me = new Person({ firstName: 'Luke', lastName: 'Karrys', active: true });
+var me = new Person({ firstName: 'Luke', lastName: 'Karrys', active: true, lastSeen: 1428430444479 });
 
 me.getAttributes({derived: true}) //=> { fullName: 'Luke Karrys' }
 
-me.getAttributes({session: true}) //=> { active: true }
+me.getAttributes({session: true}) //=> { active: true, lastSeen: Tue Apr 07 2015 11:14:04 GMT-0700 (MST) }
+me.getAttributes({session: true}, true) //=> { active: true, lastSeen: 1428430444479 }
 
 me.getAttributes({
   props: true,
   session: true,
   derived: true
-}) //=> { firstName: 'Luke', lastName: 'Karrys', active: true, fullName: 'Luke Karrys' }
+}) //=> { firstName: 'Luke', lastName: 'Karrys', active: true, lastSeen: Tue Apr 07 2015 11:14:04 GMT-0700 (MST), fullName: 'Luke Karrys' }
 ```
 
 ## Changelog
