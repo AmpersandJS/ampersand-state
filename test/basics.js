@@ -135,6 +135,58 @@ test('cached derived properties fire events if result is different', function (t
     t.end();
 });
 
+test('cached && accessed derived properties do not fire events if result has not changed', function (t) {
+    t.plan(2);
+    var SomeNumber = State.extend({
+        props: {
+            num: 'number'
+        },
+        derived: {
+            isEven: {
+                cache: true,
+                deps: ['num'],
+                fn: function () {
+                    return this.num % 2 === 0;
+                }
+            }
+        }
+    });
+    var num = new SomeNumber({ num: 8 });
+    num.on('change:isEven', function (model, value) {
+        t.ok(false, "shouldn't fire if derived value is unchanged");
+    });
+    t.equal(num.isEven, true);
+    num.num = 10;
+    t.equal(num.isEven, true);
+    t.end();
+});
+
+test('uncached & accessed derived properties fire events even if result has not changed', function (t) {
+    t.plan(3);
+    var SomeNumber = State.extend({
+        props: {
+            num: 'number'
+        },
+        derived: {
+            isEven: {
+                cache: false,
+                deps: ['num'],
+                fn: function () {
+                    return this.num % 2 === 0;
+                }
+            }
+        }
+    });
+    var num = new SomeNumber({ num: 8 });
+    num.on('change:isEven', function (model, value) {
+        t.equal(num.isEven, true, "should fire even if derived value is unchanged");
+    });
+    t.equal(num.isEven, true);
+    num.num = 10;
+    t.equal(num.isEven, true);
+    t.end();
+});
+
 test('uncached derived properties always fire events on dependency change', function (t) {
     t.plan(1);
     var NewPerson = Person.extend({
@@ -491,6 +543,19 @@ test("multiple unsets", function (t) {
     t.end();
 });
 
+test("unset with array", function (t) {
+    var Model = State.extend({
+        props: {
+            a: ['string', true, 'first'],
+            b: ['string', true, 'second']
+        }
+    });
+    var model = new Model({a: 'a', b: 'b'});
+    model.unset(['a', 'b']);
+    t.equal(model.a, 'first');
+    t.equal(model.b, 'second');
+    t.end();
+});
 
 test("unset and changedAttributes", function (t) {
     var Model = State.extend({
@@ -1027,5 +1092,43 @@ test("#1122 - unset does not alter options.", function (t) {
     var options = {};
     model.unset('x', options);
     t.ok(!options.unset);
+    t.end();
+});
+
+test('#53 - previousAttributes set correctly when it was a default', function (t) {
+    var MyState = State.extend({
+        props: {
+            test1: ['boolean', true, true],
+            test2: ['boolean', true, true]
+        }
+    });
+
+    var a = new MyState();
+    a.on('change:test1', function () {
+        t.deepEqual(a.previousAttributes(), {
+            test1: true,
+            test2: true
+        });
+        t.end();
+    });
+    a.test1 = false;
+});
+
+
+test('#74 - ensure default array/object types are mutable', function (t) {
+    var MyState = State.extend({
+        props: {
+            anArray: ['array', true],
+            anObject: ['object', true]
+        }
+    });
+
+    var s = new MyState();
+    s.anArray.push(1);
+    t.equal(s.anArray.length, 1);
+    t.equal(s.anArray[0], 1);
+
+    s.anObject.foo = 'bar';
+    t.equal(s.anObject.foo, 'bar');
     t.end();
 });
