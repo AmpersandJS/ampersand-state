@@ -609,13 +609,13 @@ var dataTypes = {
         }
     },
     boolean: {
-	    set: function (newVal) {
-		    if (isNumber(newVal)) newVal = Boolean(newVal);
-		    return {
-			    val: newVal,
-			    type: typeof newVal
-			};
-	    }
+        set: function (newVal) {
+            if (isNumber(newVal)) newVal = Boolean(newVal);
+            return {
+                val: newVal,
+                type: typeof newVal
+            };
+        }
     },
     date: {
         set: function (newVal) {
