@@ -348,7 +348,7 @@ assign(Base.prototype, Events, {
     // Get default values for a certain type
     _getDefaultForType: function (type) {
         var dataType = this._dataTypes[type];
-        return dataType && dataType.default;
+        return dataType && dataType['default'];
     },
 
     // Determine which comparison algorithm to use for comparing a property
@@ -531,7 +531,7 @@ function createPropertyDefinition(object, name, desc, isSession) {
             desc = {
                 type: descArray[0],
                 required: descArray[1],
-                default: descArray[2]
+                'default': descArray[2]
             };
         }
 
@@ -540,14 +540,15 @@ function createPropertyDefinition(object, name, desc, isSession) {
 
         if (desc.required) def.required = true;
 
-        if (desc.default && typeof desc.default === 'object') {
+        if (desc['default'] && typeof desc['default'] === 'object') {
             throw new TypeError('The default value for ' + name + ' cannot be an object/array, must be a value or a function which returns a value/object/array');
         }
-        def.default = desc.default;
+        
+        def['default'] = desc['default'];
 
         def.allowNull = desc.allowNull ? desc.allowNull : false;
         if (desc.setOnce) def.setOnce = true;
-        if (def.required && isUndefined(def.default) && !def.setOnce) def.default = object._getDefaultForType(type);
+        if (def.required && isUndefined(def['default']) && !def.setOnce) def['default'] = object._getDefaultForType(type);
         def.test = desc.test;
         def.values = desc.values;
     }
@@ -603,7 +604,7 @@ function createDerivedProperty(modelProto, name, definition) {
 
 var dataTypes = {
     string: {
-        default: function () {
+        'default': function () {
             return '';
         }
     },
@@ -639,7 +640,7 @@ var dataTypes = {
             if (val == null) { return val; }
             return new Date(val);
         },
-        default: function () {
+        'default': function () {
             return new Date();
         }
     },
@@ -650,7 +651,7 @@ var dataTypes = {
                 type: isArray(newVal) ? 'array' : typeof newVal
             };
         },
-        default: function () {
+        'default': function () {
             return [];
         }
     },
@@ -669,7 +670,7 @@ var dataTypes = {
                 type: newType
             };
         },
-        default: function () {
+        'default': function () {
             return {};
         }
     },
