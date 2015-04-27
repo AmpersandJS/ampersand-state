@@ -12,11 +12,6 @@ Ampersand-state serves as a base object for [ampersand-model](http://github.com/
 
 For further explanation see the [learn ampersand-state](http://ampersandjs.com/learn/state) guide.
 
-## browser support
-
-[![browser support](https://ci.testling.com/ampersandjs/ampersand-state.png)
-](https://ci.testling.com/ampersandjs/ampersand-state)
-
 ## Install
 
 ```
