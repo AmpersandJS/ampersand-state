@@ -32,7 +32,6 @@ function Base(attrs, options) {
     this._events = {};
     this._values = {};
     this._definition = Object.create(this._definition);
-    if (options.parse) attrs = this.parse(attrs, options);
     this.parent = options.parent;
     this.collection = options.collection;
     this._keyTree = new KeyTree();
@@ -134,6 +133,10 @@ assign(Base.prototype, Events, {
         }
 
         options = options || {};
+
+        if (options.parse) {
+            attrs = this.parse(attrs, options);
+        }
 
         if (!this._validate(attrs, options)) return false;
 

@@ -1613,3 +1613,32 @@ test('#118 setOnce can be used with default string', function (t) {
 
     t.end();
 });
+
+test('#106 #84 - set accepts options.parse', function (t) {
+    var me;
+    var Person = State.extend({
+        props: {
+            id: 'number',
+            name: 'string'
+        },
+        parse: function (attrs) {
+            attrs.id = attrs.personID;
+            delete attrs.personID;
+            return attrs;
+        }
+    });
+
+    me = new Person();
+    me.set({ personID: 123, name: 'Phil' });
+    t.equal(me.id, undefined, 'does not parse attributes if not passed');
+
+    me = new Person();
+    me.set({ personID: 123, name: 'Phil' },{ parse: false });
+    t.equal(me.id, undefined, 'does not parse attributes if options.parse is false');
+
+    me = new Person();
+    me.set({ personID: 123, name: 'Phil' },{ parse: true });
+    t.equal(me.id, 123, 'parses attributes if options.parse is true');
+
+    t.end();
+});
