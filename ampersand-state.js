@@ -122,7 +122,7 @@ assign(Base.prototype, Events, {
         var self = this;
         var extraProperties = this.extraProperties;
         var changing, changes, newType, newVal, def, cast, err, attr,
-            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual;
+            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual, onSet;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
         if (isObject(key) || key === null) {
@@ -177,11 +177,12 @@ assign(Base.prototype, Events, {
             }
 
             isEqual = this._getCompareForType(def.type);
+            onSet = this._getOnSetForType(def.type);
             dataType = this._dataTypes[def.type];
 
             // check type if we have one
             if (dataType && dataType.set) {
-                cast = dataType.set(newVal);
+                cast = dataType.set.call(this, newVal, options);
                 newVal = cast.val;
                 newType = cast.type;
             }
@@ -223,6 +224,7 @@ assign(Base.prototype, Events, {
             if (hasChanged) {
                 changes.push({prev: currentVal, val: newVal, key: attr});
                 self._changed[attr] = newVal;
+                onSet(newVal,currentVal, attr);
             } else {
                 delete self._changed[attr];
             }
@@ -356,6 +358,12 @@ assign(Base.prototype, Events, {
         var dataType = this._dataTypes[type];
         if (dataType && dataType.compare) return bind(dataType.compare, this);
         return isEqual;
+    },
+
+    _getOnSetForType : function(type){
+        var dataType = this._dataTypes[type];
+        if (dataType && dataType.onSet) return _.bind(dataType.onSet, this);
+        return _.noop;
     },
 
     // Run validation against the next complete set of model attributes,
@@ -691,22 +699,21 @@ var dataTypes = {
                 };
             }
         },
-        compare: function (currentVal, newVal, attributeName) {
-            var isSame = currentVal === newVal;
+        compare: function (currentVal, newVal) {
+            return currentVal === newVal;
+        },
 
+        onSet : function(newVal, currentVal, attributeName){
             // if this has changed we want to also handle
             // event propagation
-            if (!isSame) {
-                if (currentVal) {
-                    this.stopListening(currentVal);
-                }
 
-                if (newVal != null) {
-                    this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
-                }
+            if (currentVal) {
+                this.stopListening(currentVal);
             }
 
-            return isSame;
+            if (newVal != null) {
+                this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
+            }
         }
     }
 };
