@@ -1613,3 +1613,23 @@ test('#118 setOnce can be used with default string', function (t) {
 
     t.end();
 });
+
+test('#24 validate date properties can now be set to null', function (t) {
+    var Thing = State.extend({
+        props: {
+            date: {
+                type: 'date',
+                allowNull: true
+            }
+        }
+    });
+
+    var thing = new Thing();
+    var date = new Date();
+    thing.date = date;
+    t.equal(thing.date.valueOf(), date.valueOf());
+    thing.date = null;
+    t.equal(thing.date, null);
+
+    t.end();
+});
