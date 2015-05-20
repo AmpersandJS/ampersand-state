@@ -692,8 +692,6 @@ me.getAttributes({
 }) //=> { firstName: 'Luke', lastName: 'Karrys', active: true, lastSeen: Tue Apr 07 2015 11:14:04 GMT-0700 (MST), fullName: 'Luke Karrys' }
 ```
 
-## Changelog
-
 <!-- starthide -->
 ## Credits
 
