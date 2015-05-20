@@ -631,11 +631,15 @@ Return a copy of the object's previous attributes (the state before the last `"c
 
 Determine if the state has been modified since the last `"change"` event. If an attribute name is passed, determine if that one attribute has changed.
 
+**note:** that this will only be `true` if checked inside a handler while the various `change` events are firing. Once the change events are done this will always return `false`. This has nothing to do with determining whether a property has changed since the last time it was saved to the server.
+
 ### changedAttributes `state.changedAttributes([objectToDiff])`
 
 Return an object containing all the attributes that have changed, or `false` if there are no changed attributes. Useful for determining what parts of a view need to be updated and/or what attributes need to be persisted to the server. Unset attributes will be set to undefined.  You can also pass an attributes object to diff against the state, determining if there *would be* a change.
 
-Note that if passing an attributes object to diff against, only changes to properties defined on the model will be detected. This means that changes to children or collections will *not* be returned as changes by this method.
+**note:** that if passing an attributes object to diff against, only changes to properties defined on the model will be detected. This means that changes to children or collections will *not* be returned as changes by this method.
+
+**note:** that this will only return values if checked inside a handler while the various `change` events are firing. Once the change events are done this will always be return an empty object. This has nothing to do with determining which properties have been changed since the last time it was saved to the server.
 
 ### toJSON `state.toJSON()`
 
