@@ -437,6 +437,35 @@ me.set({ hat: { color: 'green' } });
 console.log(me.hat) //=> Hat{color: 'green'}
 ```
 
+**note:** If you want to be able to swap out and get a `change` event from a child model, don't use `children` instead, define a prop in `props` of type `state`.
+
+`children` and `collections` are not just a property of the parent, they're *part* of the parent. When you create the parent, an instance of any children or collections will be instantiated as part of instantiating the parent, whether they have any data or not.
+
+Calling `.set()` on the parent with a nested object will automatically `set()` them on children and collections too. This is super handy for APIs [like this one](https://developer.github.com/v3/repos/#response) that return nested JSON structures.
+
+Also, there will be no `change` events triggered if you replace a child with something else after you've instantiated the parent because it's not a true property in the `props` sense. If you need a prop that stores a state instance, define it as such, don't use `children`.
+
+The distinction is important because without it, the following would be problemmatic:
+
+```
+var Person = State.extend({
+    props: {
+        child: {
+            type: 'state'
+        }
+    }
+});
+
+var person = new Person()
+
+// throws type error because `{}` isn't a state object
+person.child = {};
+// should this work? What should happen if the `child` prop isn't defined yet?
+person.set({child: {name: 'mary'}});
+```
+
+So, while having `children` in addition to props of type `state` may feel redundant they both exist to help disambiguate how they're meant to be used.
+
 ### collections `AmpersandState.extend({ collections: { widgets: Widgets } })`
 
 Define child collection objects to attach to the object. Attributes passed to the constructor or to `set()` will be proxied to the collections.
