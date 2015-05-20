@@ -48,7 +48,7 @@ var Person = AmpersandState.extend({
 });
 ```
 
-`AmpersandState.extend` does more than just copy attributes from one prototype to another. As such it is incompatible with Coffeescript's class-based extend. TypeScript users may have similar issues. 
+`AmpersandState.extend` does more than just copy attributes from one prototype to another. As such it is incompatible with Coffeescript's class-based extend. TypeScript users may have similar issues.
 
 For instance, this will not work since it never actually calls `AmpersandState.extend`:
 
@@ -213,26 +213,26 @@ Check if the state is currently valid. It does this by calling the state's `vali
 
 ### dataTypes  `AmpersandState.extend({ datatypes: myCustomTypes })`
 
-ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).  
+ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).
 
-To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.  
+To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.
 
 * `set : function(newVal){};  returns {type : type, val : newVal};`:  Called on every set. Should return an object with two members: `val` and `type`.  If the `type` value does not equal the name of the dataType you defined, a `TypeError` should be thrown.
 * `compare : function(currentVal, newVal, attributeName){}; returns boolean`:  Called on every `set`. Should return `true` if `oldVal` and `newVal` are equal.  Non-equal values will eventually trigger `change` events, unless the state's `set` (not the dataTypes's!) is called with the option `{silent : true}`.
-* `get : function(val){} returns val;`:  Overrides the default getter of this type.  Useful if you want to make defensive copies.  For example, the `date` dataType returns a clone of the internally saved `date` to keep the internal state consistent. 
-* `default : function(){} returns val;`:  Returns the default value for this type.  
- 
+* `get : function(val){} returns val;`:  Overrides the default getter of this type.  Useful if you want to make defensive copies.  For example, the `date` dataType returns a clone of the internally saved `date` to keep the internal state consistent.
+* `default : function(){} returns val;`:  Returns the default value for this type.
+
 
 For example, let's say your application uses a special type of date, `JulianDate`.  You'd like to setup this as a type in state, but don't want to just use `any` or `object` as the type.  To define it:
 ```javascript
-// Julian Date is a 'class' defined elsewhere: 
+// Julian Date is a 'class' defined elsewhere:
 // it has an 'equals' method and takes `{julianDays : number}` as a constructor
 
 var Person = AmpersandState.extend({
    dataTypes : {
         julianDate : {
            // set called every time someone tried to set a property of this datatype
-           set : function(newVal){                 
+           set : function(newVal){
                if(newVal instanceof JulianDate){
                    return {
                        val : newVal,
@@ -242,7 +242,7 @@ var Person = AmpersandState.extend({
                try{
                    // try to parse it from passed in value:
                    var newDate = new JulianDate(newVal);
-               
+
                    return {
                        val : newDate,
                        type : 'julianDate'
@@ -259,7 +259,7 @@ var Person = AmpersandState.extend({
                return currentVal.equals(newVal);
            }
        }
-           
+
    }
    props : {
        bornOn : 'julianDate',
@@ -268,7 +268,7 @@ var Person = AmpersandState.extend({
            required : 'true',
            default : function(){
                   // assuming an 'add' function on julian date which returns a new JulianDate
-                  return this.bornOn.add('60','years');               
+                  return this.bornOn.add('60','years');
                }
            }
    }
@@ -280,11 +280,11 @@ var person = new Person({bornOn : {julianDays : 1000}});
 
 // will construct a new julian date for us
 // and will also trigger a change event
-person.bornOn = {julianDays : 1001}; 
+person.bornOn = {julianDays : 1001};
 
 // but this will not trigger a change event since the equals method would return true
 person.bornOn = {julianDays : 1001};
-   
+
 ```
 
 
@@ -299,11 +299,11 @@ Properties can be defined in three different ways:
 * An object `{ type: 'string', required: true, default: '' , values: [], allowNull: false, setOnce: false }`
 * `default` will be the value that the property will be set to if it is `undefined` (either by not being set during initialization, or by being explicit set to `undefined`).
 * If `required` is `true`, one of two things will happen
-    * If the property has a `default`, it will start with that value, and revert to it after a call to `unset(propertyName)`.  
+    * If the property has a `default`, it will start with that value, and revert to it after a call to `unset(propertyName)`.
     * If the property does not have a `default`, calls to `unset(propertyName)` will throw an error.
 * If `values` array is passed, then you'll be able to change a property to one of those values only.
 * If `setOnce` is `true`, then you'll be able to set property only once.
-    * If the property has a `default`, and you don't set the value initially, the property will be permanently set to the default value.  
+    * If the property has a `default`, and you don't set the value initially, the property will be permanently set to the default value.
     * If the property doesn't have a `default`, and you don't set the value initially, it can be set later, but only once.
 
 Trying to set a property to an invalid type will throw an error.
@@ -323,6 +323,14 @@ var Person = AmpersandState.extend({
     }
 });
 ```
+
+#### reserved prop, session names
+
+The following should not be used as `prop` names for any state object. This of course includes things based on state such as ampersand-model and ampersand-view.
+
+If you're consuming an API you don't control, you can re-name keys by overwriting `parse` and `serialize` methods.
+
+`bind`, `changedAttributes`, `cid`, `clear`, `collection`, `constructor`, `createEmitter`, `escape`, `extraProperties`, `get`, `getAttributes`, `getId`, `getNamespace`, `getType`, `hasChanged`, `idAttribute`, `initialize`, `isNew`, `isValid`, `listenTo`, `listenToAndRun`, `listenToOnce`, `namespaceAttribute`, `off`, `on`, `once`, `parent`, `parse`, `previous`, `previousAttributes`, `serialize`, `set`, `stopListening`, `toJSON`, `toggle`, `trigger`, `typeAttribute`, `unbind`, `unset`, `url`
 
 #### defaulting to objects/arrays
 
@@ -431,7 +439,7 @@ console.log(me.hat) //=> Hat{color: 'green'}
 
 ### collections `AmpersandState.extend({ collections: { widgets: Widgets } })`
 
-Define child collection objects to attach to the object. Attributes passed to the constructor or to `set()` will be proxied to the collections. 
+Define child collection objects to attach to the object. Attributes passed to the constructor or to `set()` will be proxied to the collections.
 
 **Note:** Currently, events *don't* automatically proxy from collections to parent. This is for efficiency reasons. But there are ongoing discussions about how to best handle this.
 
@@ -460,7 +468,7 @@ var Person = AmpersandState.extend({
 });
 
 var me = new Person({
-    name: 'Henrik', 
+    name: 'Henrik',
     widgets: [
         { name: 'rc car', funLevel: 8 },
         { name: 'skis', funLevel: 11 }
@@ -551,7 +559,7 @@ person.unset(['firstName', 'lastName'])
 
 ### clear `state.clear([options])`
 
-Clear all the attributes from the state object, by calling the `unset` function for each attribute, with the options provided. 
+Clear all the attributes from the state object, by calling the `unset` function for each attribute, with the options provided.
 
 ```javascript
 person.clear()
