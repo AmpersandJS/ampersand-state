@@ -543,7 +543,7 @@ function createPropertyDefinition(object, name, desc, isSession) {
         if (desc['default'] && typeof desc['default'] === 'object') {
             throw new TypeError('The default value for ' + name + ' cannot be an object/array, must be a value or a function which returns a value/object/array');
         }
-        
+
         def['default'] = desc['default'];
 
         def.allowNull = desc.allowNull ? desc.allowNull : false;
@@ -561,6 +561,9 @@ function createPropertyDefinition(object, name, desc, isSession) {
             this.set(name, val);
         },
         get: function () {
+            if (!this._values) {
+                throw Error('You may be trying to `extend` a state object with "' + name + '" which has been defined in `props` on the object being extended');
+            }
             var value = this._values[name];
             var typeDef = this._dataTypes[def.type];
             if (typeof value !== 'undefined') {

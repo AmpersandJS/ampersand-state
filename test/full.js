@@ -1633,3 +1633,23 @@ test('#24 validate date properties can now be set to null', function (t) {
 
     t.end();
 });
+
+test('throw helpful error if trying to extend with `prop` that already is defined', function (t) {
+    t.plan(3);
+    var Parent = State.extend({
+        props: {
+            model: 'state'
+        }
+    });
+    try {
+        var Item = Parent.extend({
+            model: {}
+        });
+    } catch (e) {
+        t.ok(e.message.indexOf('extend') !== -1, 'message should contain "extend"');
+        t.ok(e.message.indexOf('model') !== -1, 'message should contain name of prop being extended over');
+        t.ok(e.message.indexOf('props') !== -1, 'message should say it has been defined in props');
+    }
+
+    t.end();
+});
