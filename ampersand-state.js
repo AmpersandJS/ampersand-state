@@ -6,7 +6,7 @@ var escape = require('lodash.escape');
 var forEach = require('lodash.foreach');
 var includes = require('lodash.includes');
 var isString = require('lodash.isstring');
-var isNumber = require('lodash.isnumber');
+var isFiniteNumber = require('lodash.isfinite');
 var isObject = require('lodash.isobject');
 var isArray = require('lodash.isarray');
 var isDate = require('lodash.isdate');
@@ -610,7 +610,7 @@ var dataTypes = {
     },
     boolean: {
         set: function (newVal) {
-            if (isNumber(newVal)) newVal = Boolean(newVal);
+            if (isFiniteNumber(newVal)) newVal = Boolean(newVal);
             return {
                 val: newVal,
                 type: typeof newVal
