@@ -186,6 +186,17 @@ test('should get correct defaults', function (t) {
     t.end();
 });
 
+test('should cast integers to booleans', function (t) {
+    var foo = new Foo({});
+    foo.myBool = 1;
+    t.equal(true, foo.myBool);
+    foo.myBool = 0;
+    t.equal(false, foo.myBool);
+    foo.myBool ^= true;//XOR on itself
+    t.equal(true, foo.myBool);
+    t.end();
+});
+
 test('Setting other properties when `extraProperties: "reject"` throws error', function (t) {
     var Foo = State.extend({
         extraProperties: 'reject'
