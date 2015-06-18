@@ -1653,3 +1653,44 @@ test('throw helpful error if trying to extend with `prop` that already is define
 
     t.end();
 });
+
+test('#175 - calling toJSON-func from child-models and -collections in stead of theirs serialize-func', function (t) {
+    var testChild = false;
+    var testCollection = false;
+    var MyChild = State.extend({
+        props: {
+            test1: ['boolean', true, true],
+        },
+        toJSON: function () {
+            testChild = true;
+            return this.serialize();
+        }
+    });
+    var MyCollection = Collection.extend({
+        model: MyChild,
+        toJSON: function () {
+            testCollection = true;
+            return this.serialize();
+        }
+    });
+    var MyState = State.extend({
+        props: {
+            test1: ['boolean', true, true]
+        },
+        children: {
+            myChild: MyChild
+        },
+        collections: {
+            myCollection: MyCollection
+        }
+    });
+
+    var a = new MyState();
+    var obj = a.toJSON();
+
+    t.equal(testChild, true);
+    t.equal(testCollection, true);
+
+    t.end();
+});
+
