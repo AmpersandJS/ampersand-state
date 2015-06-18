@@ -1685,11 +1685,27 @@ test('#175 - calling toJSON-func from child-models and -collections in stead of 
         }
     });
 
-    var a = new MyState();
-    var obj = a.toJSON();
+    var a = new MyState({
+        test1: true,
+        myChild: {
+            test1: true
+        },
+        myCollection: [{
+            test1: true
+        },{
+            test1: true
+        }]
+    });
+    var json = a.toJSON();
+    var serialized = a.serialize();
 
     t.equal(testChild, true);
     t.equal(testCollection, true);
+    t.deepEqual(json,serialized);
+    t.deepEqual(a.myChild.toJSON(),a.myChild.serialize());
+    t.deepEqual(json.myChild,a.myChild.serialize());
+    t.deepEqual(json.myChild,a.myChild.toJSON());
+    t.deepEqual(json.myCollection[0],a.myCollection.models[0].serialize());
 
     t.end();
 });
