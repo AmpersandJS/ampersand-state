@@ -80,6 +80,48 @@ Available options:
 * `[parse]` {Boolean} - whether to call the class's [parse](#ampersand-state-parse) function with the initial attributes. _Defaults to `false`_.
 * `[parent]` {AmpersandState} - pass a reference to a state's parent to store on the state.
 
+### postInitialize `state.postInitialize()`
+
+If you have defined a `postInitialize` function for your subclass of State, it will be invoked at creation time, just after it's parent or (parent-)collection `initialize` functions has been triggerd.
+
+```
+var DateOfBirth = AmpsersandModel.extend({
+    props: {
+        day: 'number',
+        month: 'number',
+        year: 'number'
+    },
+    postInitialize: function() {
+        console.log('run code AFTER the initialize function of this.parent');
+    }
+});
+
+var Siblings = AmpserandCollection.extend({
+    model: Person,
+    postInitialize: function() {
+        console.log('run code AFTER the initialize function of this.parent');
+    }
+});
+
+var Person = AmpersandModel.extend({
+    props: {
+        name: 'string'
+    },
+    child: {
+        dateOfBirth: DateOfBirth
+    },
+    collections: {
+        siblings: Siblings
+    },
+    initalize: function() {
+        console.log('run code that can be used in the postInitialize-function of my children');
+    }
+});
+
+var me = new Person({ name: 'John', dateOfBirth: { day: 6, month: 10, year: 1981 }, siblings: [{...},{...},{...}] });
+
+```
+
 ### idAttribute `state.idAttribute`
 
 The attribute that should be used as the unique id of the state. `getId` uses this to determine the `id` for use when constructing a model's `url` for saving to the server.

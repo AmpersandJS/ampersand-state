@@ -1653,3 +1653,67 @@ test('throw helpful error if trying to extend with `prop` that already is define
 
     t.end();
 });
+
+test('Add a postInitialize-functionality over States and Collections, Children and subCollections', function (t) {
+    var result = [];
+    /**** Model Test *****/
+    var MyModel = State.extend({
+        props: {
+            val: 'number'
+        },
+        initialize: function() {
+            result.push(this.val);
+        },
+        postInitialize: function() {
+            result.push(this.val);
+        }
+    });
+
+    /**** Collection Test *****/
+    var MyCollection = Collection.extend({
+        model: MyModel,
+        initialize: function() {
+            result.push(-1);
+        },
+        postInitialize: function() {
+            result.push(-1);
+        }
+    });
+
+    var App = State.extend({
+        props: {
+            val: 'number'
+        },
+        children: {
+            myChild: MyModel
+        },
+        collections: {
+            myColl: MyCollection
+        },
+        initialize: function(props) {
+            result.push(this.val);
+        },
+        postInitialize: function() {
+            result.push(this.val);
+        }
+    });
+
+    var a = new App({
+        val: 0,
+        myChild: {
+            val: 1
+        },
+        myColl: [{
+            val: 2
+        }, {
+            val: 3
+        }, {
+            val: 4
+        }]
+    });
+    t.deepEqual(result, [ -1, 2, 3, 4, 1, 0, 1, 2, 3, 4, -1, 0 ]);
+
+    t.end();
+});
+
+

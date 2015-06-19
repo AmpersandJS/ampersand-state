@@ -36,14 +36,19 @@ function Base(attrs, options) {
     this.parent = options.parent;
     this.collection = options.collection;
     this._keyTree = new KeyTree();
-    this._initCollections();
-    this._initChildren();
+    this._initCollections(attrs);
+    this._initChildren(attrs);
     this._cache = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
     this._changed = {};
     if (this._derived) this._initDerived();
     if (options.init !== false) this.initialize.apply(this, arguments);
+    if (options.postInit !== false) {
+        this._postInitChildren();
+        this._postInitCollections();
+        this.postInitialize.apply(this);
+    }
 }
 
 
@@ -59,6 +64,11 @@ assign(Base.prototype, Events, {
 
     // Stubbed out to be overwritten
     initialize: function () {
+        return this;
+    },
+
+    // Stubbed out to be overwritten
+    postInitialize: function () {
         return this;
     },
 
@@ -450,20 +460,41 @@ assign(Base.prototype, Events, {
         }
     },
 
-    _initCollections: function () {
+    _initCollections: function (attrs) {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll](null, {parent: this});
+            this[coll] = new this._collections[coll](attrs?attrs[coll]:null, {parent: this, postInit:false});
+            if(attrs) delete attrs[coll];
         }
     },
 
-    _initChildren: function () {
+    _postInitCollections: function () {
+        var coll;
+        if (!this._collections) return;
+        for (coll in this._collections) {
+            this[coll].forEach(function(model) {
+                if(model.postInitialize) model.postInitialize.apply(model);
+            });
+            if(this[coll].postInitialize) this[coll].postInitialize.apply(this[coll]);
+        }
+    },
+
+    _initChildren: function (attrs) {
         var child;
         if (!this._children) return;
         for (child in this._children) {
-            this[child] = new this._children[child]({}, {parent: this});
+            this[child] = new this._children[child](attrs && attrs[child]?attrs[child]:{}, {parent: this, postInit:false});
+            if(attrs && attrs[child]) delete attrs[child];
             this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
+        }
+    },
+
+    _postInitChildren: function () {
+        var child;
+        if (!this._children) return;
+        for (child in this._children) {
+            this[child].postInitialize.apply(this[child]);
         }
     },
 
