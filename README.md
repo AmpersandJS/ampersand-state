@@ -85,40 +85,57 @@ Available options:
 If you have defined a `postInitialize` function for your subclass of State, it will be invoked at creation time, just after it's parent or (parent-)collection `initialize` functions has been triggerd.
 
 ```
-var DateOfBirth = AmpsersandModel.extend({
+var State = require('ampersand-state');
+var Collection = require('ampersand-collection');
+
+var Widget = State.extend({
     props: {
-        day: 'number',
-        month: 'number',
-        year: 'number'
+        name: 'string',
+        funLevel: 'number'
     },
     postInitialize: function() {
-        console.log('run code AFTER the initialize function of this.parent');
+        console.log('code to run just AFTER this.parent.initialize has been invoked');
     }
 });
 
-var Siblings = AmpserandCollection.extend({
-    model: Person,
+var Hat = State.extend({
+    props: {
+        color: 'string'
+    },
     postInitialize: function() {
-        console.log('run code AFTER the initialize function of this.parent');
+        console.log('code to run just AFTER this.parent.initialize has been invoked');
     }
 });
 
-var Person = AmpersandModel.extend({
+var WidgetCollection = Collection.extend({
+    model: Widget,
+    postInitialize: function() {
+        console.log('code to run just AFTER this.parent.initialize has been invoked');
+    }
+});
+
+var Person = AmpersandState.extend({
     props: {
         name: 'string'
     },
-    child: {
-        dateOfBirth: DateOfBirth
-    },
+    children: {
+        hat: Hat
+    }
     collections: {
-        siblings: Siblings
-    },
-    initalize: function() {
-        console.log('run code that can be used in the postInitialize-function of my children');
+        widgets: WidgetCollection
     }
 });
 
-var me = new Person({ name: 'John', dateOfBirth: { day: 6, month: 10, year: 1981 }, siblings: [{...},{...},{...}] });
+var me = new Person({
+    name: 'Bob',
+    hat: {
+        color: 'red'
+    }
+    widgets: [
+        { name: 'music', funLevel: 10 },
+        { name: 'coding', funLevel: 10 }
+    ]
+});
 
 ```
 
