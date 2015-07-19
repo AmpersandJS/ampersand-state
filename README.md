@@ -445,7 +445,7 @@ Calling `.set()` on the parent with a nested object will automatically `set()` t
 
 Also, there will be no `change` events triggered if you replace a child with something else after you've instantiated the parent because it's not a true property in the `props` sense. If you need a prop that stores a state instance, define it as such, don't use `children`.
 
-The distinction is important because without it, the following would be problemmatic:
+The distinction is important because without it, the following would be problematic:
 
 ```
 var Person = State.extend({
