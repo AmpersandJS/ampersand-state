@@ -52,7 +52,7 @@ var Person = AmpersandState.extend({
 
 For instance, this will not work since it never actually calls `AmpersandState.extend`:
 
-```
+```javascript
 class Foo extends AmpersandView
      constructor: (options)->
          @special = options.special
@@ -86,7 +86,7 @@ The attribute that should be used as the unique id of the state. `getId` uses th
 
 Defaults to `'id'`.
 
-```
+```javascript
 var Person = AmpersandModel.extend({
     idAttribute: 'personId',
     urlRoot: '/people',
@@ -198,7 +198,7 @@ Has this state been saved to the server yet? If the state does not yet have an `
 
 Similar to `get`, but returns the HTML-escaped version of a state's attribute. If you're interpolating data from the state into HTML, use `escape` when retrieving attributes to help prevent XSS attacks.
 
-```
+```javascript
 var hacker = new PersonModel({
     name: "<script>alert('xss')</script>"
 });
@@ -447,7 +447,7 @@ Also, there will be no `change` events triggered if you replace a child with som
 
 The distinction is important because without it, the following would be problematic:
 
-```
+```javascript
 var Person = State.extend({
     props: {
         child: {
