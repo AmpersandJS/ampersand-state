@@ -107,10 +107,10 @@ assign(Base.prototype, Events, {
     serialize: function () {
         var res = this.getAttributes({props: true}, true);
         forEach(this._children, function (value, key) {
-            res[key] = this[key].serialize();
+            res[key] = this[key].toJSON();
         }, this);
         forEach(this._collections, function (value, key) {
-            res[key] = this[key].serialize();
+            res[key] = this[key].toJSON();
         }, this);
         return res;
     },
