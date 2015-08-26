@@ -46,7 +46,6 @@ function Base(attrs, options) {
     if (options.init !== false) this.initialize.apply(this, arguments);
 }
 
-
 assign(Base.prototype, Events, {
     // can be allow, ignore, reject
     extraProperties: 'ignore',
@@ -158,7 +157,6 @@ assign(Base.prototype, Events, {
             newType = typeof newVal;
             currentVal = this._values[attr];
             def = this._definition[attr];
-
 
             if (!def) {
                 // if this is a child model or collection
@@ -454,7 +452,7 @@ assign(Base.prototype, Events, {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this[coll] = new this._collections[coll](null, {parent: this});
+            this._safeSet(coll, new this._collections[coll](null, {parent: this}));
         }
     },
 
@@ -462,7 +460,7 @@ assign(Base.prototype, Events, {
         var child;
         if (!this._children) return;
         for (child in this._children) {
-            this[child] = new this._children[child]({}, {parent: this});
+            this._safeSet(child, new this._children[child]({}, {parent: this}));
             this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
         }
     },
@@ -488,6 +486,15 @@ assign(Base.prototype, Events, {
             }
         }
         return true;
+    },
+
+    // expose safeSet method
+    _safeSet: function safeSet(property, value) {
+        if (property in this) {
+            throw new Error('Encountered namespace collision while setting instance property `' + property + '`');
+        }
+        this[property] = value;
+        return this;
     }
 });
 

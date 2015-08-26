@@ -1653,3 +1653,58 @@ test('throw helpful error if trying to extend with `prop` that already is define
 
     t.end();
 });
+
+// https://github.com/AmpersandJS/ampersand-view/issues/96
+test('Provide namespace collision error on collection with property already defined', function (t) {
+    var Parent = State.extend({
+        collections: {
+            items: Collection
+        },
+        items: true
+    });
+
+    var Parent2 = State.extend({
+        props: {
+            items: 'boolean'
+        },
+        collections: {
+            items: Collection
+        }
+    });
+
+    t.throws(function () {
+        var item = new Parent();
+    }, Error, 'Throws collision error on property and collections');
+
+    t.throws(function () {
+        var item = new Parent2();
+    }, Error, 'Throws collision error on collections and props');
+    t.end();
+});
+
+test('Provide namespace collision error on children with property already defined', function (t) {
+    var Parent = State.extend({
+        children: {
+            items: State
+        },
+        items: true
+    });
+
+    var Parent2 = State.extend({
+        props: {
+            items: 'boolean'
+        },
+        children: {
+            items: Collection
+        }
+    });
+
+    t.throws(function () {
+        var item = new Parent();
+    }, Error, 'Throws collision error on property and children');
+
+    t.throws(function () {
+        var item = new Parent2();
+    }, Error, 'Throws collision error on children and props');
+    t.end();
+});
