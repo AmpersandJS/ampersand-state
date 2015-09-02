@@ -80,6 +80,65 @@ Available options:
 * `[parse]` {Boolean} - whether to call the class's [parse](#ampersand-state-parse) function with the initial attributes. _Defaults to `false`_.
 * `[parent]` {AmpersandState} - pass a reference to a state's parent to store on the state.
 
+### postInitialize `state.postInitialize()`
+
+If you have defined a `postInitialize` function for your subclass of State, it will be invoked at creation time, just after it's parent or (parent-)collection `initialize` functions has been triggerd.
+
+```
+var State = require('ampersand-state');
+var Collection = require('ampersand-collection');
+
+var Widget = State.extend({
+    props: {
+        name: 'string',
+        funLevel: 'number'
+    },
+    postInitialize: function() {
+        console.log('code to run just AFTER this.parent.initialize has been invoked');
+    }
+});
+
+var Hat = State.extend({
+    props: {
+        color: 'string'
+    },
+    postInitialize: function() {
+        console.log('code to run just AFTER this.parent.initialize has been invoked');
+    }
+});
+
+var WidgetCollection = Collection.extend({
+    model: Widget,
+    postInitialize: function() {
+        console.log('code to run just AFTER this.parent.initialize has been invoked');
+    }
+});
+
+var Person = AmpersandState.extend({
+    props: {
+        name: 'string'
+    },
+    children: {
+        hat: Hat
+    }
+    collections: {
+        widgets: WidgetCollection
+    }
+});
+
+var me = new Person({
+    name: 'Bob',
+    hat: {
+        color: 'red'
+    }
+    widgets: [
+        { name: 'music', funLevel: 10 },
+        { name: 'coding', funLevel: 10 }
+    ]
+});
+
+```
+
 ### idAttribute `state.idAttribute`
 
 The attribute that should be used as the unique id of the state. `getId` uses this to determine the `id` for use when constructing a model's `url` for saving to the server.
