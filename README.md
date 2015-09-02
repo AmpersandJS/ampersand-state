@@ -536,9 +536,9 @@ console.log(me.personID) //=> undefined
 
 **parse** is arguably more useful in ampersand-model, where data typically comes from the server.
 
-### serialize `state.serialize()`
+### serialize `state.serialize([options])`
 
-Serialize the state object into a plain object, ready for sending to the server (typically called via [toJSON](#ampersand-state-tojson)). Of the state's properties, only `props` is returned, `session` and `derived` are omitted. Will also serialize any `children` or `collections` by calling their serialize methods.
+Serialize the state object into a plain object, ready for sending to the server (typically called via [toJSON](#ampersand-state-tojson)). By default, of the state's properties only `props` is returned, while `session` and `derived` are omitted.  You can serialize  `session` or `derived` attributes as well by passing in a options object.  The options object should match that accepted by `.getAttributes(...)`. This method will also serialize any `children` or `collections` by calling their serialize methods.
 
 
 ### get `state.get(attribute); state[attribute]; state.firstName`

@@ -104,8 +104,9 @@ assign(Base.prototype, Events, {
 
     // Serialize is the inverse of `parse` it lets you massage data
     // on the way out. Before, sending to server, for example.
-    serialize: function () {
-        var res = this.getAttributes({props: true}, true);
+    serialize: function (options) {
+        var attrOpts = assign({props: true}, options);
+        var res = this.getAttributes(attrOpts, true);
         forEach(this._children, function (value, key) {
             res[key] = this[key].serialize();
         }, this);

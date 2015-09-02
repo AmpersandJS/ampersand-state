@@ -351,6 +351,29 @@ test('serialize should not include session properties no matter how they\'re def
     t.end();
 });
 
+test('serialize should serialize props/derived/session on request', function (t) {
+    var Foo = State.extend({
+        props: {
+            name: 'string'
+        },
+        derived: {
+            derivedAtrr: {
+                fn: function() {
+                    return 'derived-attr';
+                }
+            }
+        },
+        session: {
+            active: 'boolean'
+        }
+    });
+    var foo = new Foo({name: 'hi', active: true});
+    t.deepEqual(foo.serialize({session: true}), {name: 'hi', active: true}, 'serializes session on request');
+    t.deepEqual(foo.serialize({derived: true}), {name: 'hi', derivedAtrr: 'derived-attr'}, 'serializes derived on request');
+    t.deepEqual(foo.serialize({props: false, session: true}), {active: true}, 'serialize ignores props on request');
+    t.end();
+});
+
 test('should fire events normally for properties defined on the fly', function (t) {
     var foo = new Foo();
     foo.extraProperties = 'allow';
