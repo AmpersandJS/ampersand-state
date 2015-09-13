@@ -68,7 +68,7 @@ If you have defined an `initialize` function for your subclass of State, it will
 
 ```javascript
 var me = new Person({
-    firstName: 'Phil'
+    firstName: 'Phil',
     lastName: 'Roberts'
 });
 
