@@ -722,6 +722,34 @@ var dataTypes = {
     }
 };
 
+var defCats = ['_derived', '_definition', '_collections', '_children'];
+var isStateAttr = function(name, ctx) {
+    return defCats.some(bind(function(cat) {
+        return ctx[cat][name];
+    },this));
+};
+var removeStateAttr = function(name, ctx) {
+    return defCats.forEach(bind(function(cat) {
+        delete ctx[cat][name];
+    }, this));
+};
+/**
+ * Asserts that to-be-defined State-extending attrs (props/session/etc)
+ * are not pre-existings.  If `squash` is provided in the definition,
+ * prior defined attrs are wiped from the prototype to avoid collisions
+ * @throw {Error} on attr collision
+ */
+var assertNoCollision = function(def, name) {
+    if (isStateAttr(name, this)) {
+        if (def.squash) {
+            return removeStateAttr(name, this);
+        }
+        throw new Error('attempted to define `' + name +
+            '`, although attribute already defined in model. ' +
+            'Did you mean to `squash` it? See &-state docs on `squash`');
+    }
+};
+
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.
 function extend(protoProps) {
@@ -770,26 +798,31 @@ function extend(protoProps) {
             }
             if (def.props) {
                 forEach(def.props, function (def, name) {
+                    assertNoCollision.apply(child.prototype, [def, name]);
                     createPropertyDefinition(child.prototype, name, def);
                 });
             }
             if (def.session) {
                 forEach(def.session, function (def, name) {
+                    assertNoCollision.apply(child.prototype, [def, name]);
                     createPropertyDefinition(child.prototype, name, def, true);
                 });
             }
             if (def.derived) {
                 forEach(def.derived, function (def, name) {
+                    assertNoCollision.apply(child.prototype, [def, name]);
                     createDerivedProperty(child.prototype, name, def);
                 });
             }
             if (def.collections) {
                 forEach(def.collections, function (constructor, name) {
+                    assertNoCollision.apply(child.prototype, [constructor, name]);
                     child.prototype._collections[name] = constructor;
                 });
             }
             if (def.children) {
                 forEach(def.children, function (constructor, name) {
+                    assertNoCollision.apply(child.prototype, [def, name]);
                     child.prototype._children[name] = constructor;
                 });
             }

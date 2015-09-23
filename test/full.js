@@ -1679,29 +1679,16 @@ test('throw helpful error if trying to extend with `prop` that already is define
 
 // https://github.com/AmpersandJS/ampersand-view/issues/96
 test('Provide namespace collision error on collection with property already defined', function (t) {
-    var Parent = State.extend({
-        collections: {
-            items: Collection
-        },
-        items: true
-    });
-
-    var Parent2 = State.extend({
-        props: {
-            items: 'boolean'
-        },
-        collections: {
-            items: Collection
-        }
-    });
-
     t.throws(function () {
+        var Parent = State.extend({
+            collections: {
+                items: Collection
+            },
+            items: true
+        });
         var item = new Parent();
     }, Error, 'Throws collision error on property and collections');
 
-    t.throws(function () {
-        var item = new Parent2();
-    }, Error, 'Throws collision error on collections and props');
     t.end();
 });
 
@@ -1709,25 +1696,72 @@ test('Provide namespace collision error on children with property already define
     var Parent = State.extend({
         children: {
             items: State
-        },
-        items: true
+        }
     });
+    t.throws(function () {
+        var Parent2 = State.extend({
+            props: {
+                items: 'boolean'
+            },
+            children: {
+                items: Collection
+            }
+        });
 
-    var Parent2 = State.extend({
+    }, Error, 'Throws collision error on property and children');
+    t.end();
+});
+
+test('Error on namespace collision for any duplicate attr (prop/session/etc)', function (t) {
+    var Parent = State.extend({
         props: {
-            items: 'boolean'
-        },
-        children: {
-            items: Collection
+            a: 'string'
         }
     });
 
-    t.throws(function () {
-        var item = new Parent();
-    }, Error, 'Throws collision error on property and children');
+    var Gparent;
 
     t.throws(function () {
-        var item = new Parent2();
-    }, Error, 'Throws collision error on children and props');
+        Gparent = Parent.extend({
+            props: {
+                a: 'boolean'
+            }
+        });
+
+    }, Error, 'throws collision error on common named attr (prop)');
+
+    t.throws(function () {
+        Gparent = Parent.extend({
+            derived: {
+                a: {
+                    fn: function() {
+                        throw new Error('should never execute');
+                    }
+                }
+            }
+        });
+
+    }, Error, 'throws collision error on common named attr (derived)');
+
+    t.end();
+});
+
+test('Provide namespace collision squashing for duplicate attr (prop/session/etc)', function (t) {
+    var Parent = State.extend({
+        props: {
+            a: 'string'
+        }
+    });
+    var Gparent = Parent.extend({
+        props: {
+            a: {
+                type: 'number',
+                squash: true,
+                default: 100
+            }
+        }
+    });
+    var gp = new Gparent();
+    t.equal(gp.a, 100, 'duplicate attr squashed');
     t.end();
 });
