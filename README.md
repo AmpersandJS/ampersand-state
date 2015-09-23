@@ -296,7 +296,8 @@ Properties can be defined in three different ways:
 
 * As a string with the expected dataType. One of `string`, `number`, `boolean`, `array`, `object`, `date`, or `any`. (Example: `name: 'string'`.) Can also be set to the name of a custom `dataTypes`, if the class defines any.
 * An array of `[dataType, required, default]`
-* An object `{ type: 'string', required: true, default: '' , values: [], allowNull: false, setOnce: false }`
+* An object `{ type: 'string', required: true, default: '' , values: [], allowNull: false, setOnce: false, squash: true }`
+    * `squash: true` permits you to override previously defined props/derived/session attrs.  Note, only one attr name may be exist across props/derived/session/etc namespaces!
 * `default` will be the value that the property will be set to if it is `undefined` (either by not being set during initialization, or by being explicit set to `undefined`).
 * If `required` is `true`, one of two things will happen
     * If the property has a `default`, it will start with that value, and revert to it after a call to `unset(propertyName)`.
