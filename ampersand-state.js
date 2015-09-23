@@ -722,15 +722,15 @@ var dataTypes = {
     }
 };
 
-var defCats = ['_derived', '_definition', '_collections', '_children'];
-var isStateAttr = function(name, ctx) {
-    return defCats.some(bind(function(cat) {
-        return ctx[cat][name];
+var stateDefinitions = ['_derived', '_definition', '_collections', '_children'];
+var isStateAttr = function(name, stateCtx) {
+    return stateDefinitions.some(bind(function(cat) {
+        return stateCtx[cat][name];
     },this));
 };
-var removeStateAttr = function(name, ctx) {
-    return defCats.forEach(bind(function(cat) {
-        delete ctx[cat][name];
+var removeStateAttr = function(name, stateCtx) {
+    return stateDefinitions.forEach(bind(function(cat) {
+        delete stateCtx[cat][name];
     }, this));
 };
 /**
