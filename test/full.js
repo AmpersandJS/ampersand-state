@@ -1718,11 +1718,10 @@ test('Error on namespace collision for any duplicate attr (prop/session/etc)', f
             a: 'string'
         }
     });
-
-    var Gparent;
+    var Child;
 
     t.throws(function () {
-        Gparent = Parent.extend({
+        Child = Parent.extend({
             props: {
                 a: 'boolean'
             }
@@ -1731,7 +1730,7 @@ test('Error on namespace collision for any duplicate attr (prop/session/etc)', f
     }, Error, 'throws collision error on common named attr (prop)');
 
     t.throws(function () {
-        Gparent = Parent.extend({
+        Child = Parent.extend({
             derived: {
                 a: {
                     fn: function() {
@@ -1752,7 +1751,7 @@ test('Provide namespace collision squashing for duplicate attr (prop/session/etc
             a: 'string'
         }
     });
-    var Gparent = Parent.extend({
+    var Child = Parent.extend({
         props: {
             a: {
                 type: 'number',
@@ -1761,7 +1760,7 @@ test('Provide namespace collision squashing for duplicate attr (prop/session/etc
             }
         }
     });
-    var gp = new Gparent();
-    t.equal(gp.a, 100, 'duplicate attr squashed');
+    var child = new Child();
+    t.equal(child.a, 100, 'duplicate attr squashed');
     t.end();
 });
