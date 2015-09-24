@@ -4,7 +4,6 @@ var AmpersandRegistry = require('ampersand-registry');
 var Collection = require('ampersand-collection');
 var definition, Foo, registry;
 
-
 // wrap test so we always run reset first
 var test = function () {
     reset();
@@ -743,7 +742,6 @@ test('Values attribute default works and is called only once', function (t) {
     t.end();
 });
 
-
 test('toggle() works on boolean and values properties.', function (t) {
     var Model = State.extend({
         props: {
@@ -1046,14 +1044,12 @@ test('listens to child events', function (t) {
     first.name = 'new-first-name';
     t.equal(first.name, 'new-first-name');
 
-
     //Change child property
     first.once('change:firstChild.name', function (model, newVal) {
         t.equal(newVal, 'new-first-child-name');
     });
     first.firstChild.name = 'new-first-child-name';
     t.equal(first.firstChild.name, 'new-first-child-name');
-
 
     //Change grand child property
     first.once('change:firstChild.grandChild.name', function (unsure, name) {
@@ -1211,7 +1207,6 @@ test('Issue: #75 `state` property from undefined -> state', function (t) {
 
     t.end();
 });
-
 
 test('`state` properties should invalidate dependent derived properties when changed', function (t) {
     var counter = 0;
@@ -1603,7 +1598,6 @@ test('#118 setOnce can be used with default string', function (t) {
     t.throws(function () {
         tr.timezone = 'new thing';
     }, 'since it has a default, this should throw');
-
 
     var tr2;
 

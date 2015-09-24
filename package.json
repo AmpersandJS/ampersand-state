@@ -4,6 +4,7 @@
   "version": "4.6.0",
   "author": "Henrik Joreteg <henrik@andyet.net>",
   "files": [
+    "libs",
     "ampersand-state.js"
   ],
   "browserify": {
