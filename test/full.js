@@ -1503,9 +1503,13 @@ test("#99 #101 - string dates can be parsed", function(t) {
     t.ok(isDate(model.today));
     t.equal(model.today.toJSON(), isoString, 'date should accept a native date object');
 
+    model.today = 0;
+    t.ok(isDate(model.today));
+    t.equal(model.today.toJSON(), new Date(0).toJSON(), 'date should accept zero');
+
     model.today = '2014-11-13';
     t.ok(isDate(model.today));
-    t.equal(model.today.toJSON(), '2014-11-13T00:00:00.000Z', 'date should accept YYYY-MM-DD');
+    t.equal(model.today.toJSON(), new Date(2014, 10, 13).toJSON(), 'date should accept YYYY-MM-DD');
 
     model.today = '2014-11-13T21:01Z';
     t.ok(isDate(model.today));
