@@ -20,7 +20,6 @@ var has = require('lodash.has');
 var result = require('lodash.result');
 var keys = require('lodash.keys');
 var bind = require('lodash.bind');
-var defaults = require('lodash.defaults');
 var union = require('lodash.union');
 var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
@@ -380,12 +379,11 @@ assign(Base.prototype, Events, {
     },
 
     getAttributes: function (options, raw) {
-        options || (options = {});
-        defaults(options, {
+        assign({
             session: false,
             props: false,
             derived: false
-        });
+        }, options || {});
         var res = {};
         var val, item, def;
         for (item in this._definition) {

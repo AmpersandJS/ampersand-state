@@ -22,7 +22,6 @@
     "lodash.assign": "^3.0.0",
     "lodash.bind": "^3.1.0",
     "lodash.clone": "^3.0.3",
-    "lodash.defaults": "^3.1.2",
     "lodash.escape": "^3.0.0",
     "lodash.foreach": "^3.0.2",
     "lodash.has": "^3.0.0",
