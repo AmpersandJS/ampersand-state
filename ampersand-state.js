@@ -1,3 +1,4 @@
+'use strict';
 /*$AMPERSAND_VERSION*/
 var uniqueId = require('lodash.uniqueid');
 var assign = require('lodash.assign');
@@ -625,16 +626,16 @@ var dataTypes = {
             if (newVal == null) {
                 newType = typeof null;
             } else if (!isDate(newVal)) {
-                try {
-                    var dateVal = new Date(newVal).valueOf();
-                    if (isNaN(dateVal)) {
-                        // If the newVal cant be parsed, then try parseInt first
-                        dateVal = new Date(parseInt(newVal, 10)).valueOf();
-                        if (isNaN(dateVal)) throw TypeError;
-                    }
-                    newVal = dateVal;
-                    newType = 'date';
-                } catch (e) {
+                var err = null;
+                var dateVal = new Date(newVal).valueOf();
+                if (isNaN(dateVal)) {
+                    // If the newVal cant be parsed, then try parseInt first
+                    dateVal = new Date(parseInt(newVal, 10)).valueOf();
+                    if (isNaN(dateVal)) err = true;
+                }
+                newVal = dateVal;
+                newType = 'date';
+                if (err) {
                     newType = typeof newVal;
                 }
             } else {
@@ -725,9 +726,9 @@ var dataTypes = {
 // the extend method used to extend prototypes, maintain inheritance chains for instanceof
 // and allow for additions to the model definitions.
 function extend(protoProps) {
+    /*jshint validthis:true*/
     var parent = this;
     var child;
-    var args = [].slice.call(arguments);
 
     // The constructor function for the new subclass is either defined by you
     // (the "constructor" property in your `extend` definition), or defaulted
@@ -762,7 +763,8 @@ function extend(protoProps) {
         var omitFromExtend = [
             'dataTypes', 'props', 'session', 'derived', 'collections', 'children'
         ];
-        args.forEach(function processArg(def) {
+        for(var i = 0; i < arguments.length; i++) {
+            var def = arguments[i];
             if (def.dataTypes) {
                 forEach(def.dataTypes, function (def, name) {
                     child.prototype._dataTypes[name] = def;
@@ -794,7 +796,7 @@ function extend(protoProps) {
                 });
             }
             assign(child.prototype, omit(def, omitFromExtend));
-        });
+        }
     }
 
     // Set a convenience property in case the parent's prototype is needed
