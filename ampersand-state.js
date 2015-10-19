@@ -726,7 +726,7 @@ var stateDefinitions = ['_derived', '_definition', '_collections', '_children'];
 var isStateAttr = function(name, stateCtx) {
     return stateDefinitions.some(bind(function(cat) {
         return stateCtx[cat][name];
-    },this));
+    }, this));
 };
 var removeStateAttr = function(name, stateCtx) {
     return stateDefinitions.forEach(bind(function(cat) {
@@ -735,7 +735,7 @@ var removeStateAttr = function(name, stateCtx) {
 };
 /**
  * Asserts that to-be-defined State-extending attrs (props/session/etc)
- * are not pre-existings.  If `squash` is provided in the definition,
+ * are not pre-existing.  If `squash` is provided in the attr definition,
  * prior defined attrs are wiped from the prototype to avoid collisions
  * @throw {Error} on attr collision
  */
