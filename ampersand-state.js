@@ -2,19 +2,19 @@
 /*$AMPERSAND_VERSION*/
 var uniqueId = require('lodash.uniqueid');
 var assign = require('lodash.assign');
+var cloneObj = function(obj) { return assign({}, obj); };
 var omit = require('lodash.omit');
 var escape = require('lodash.escape');
-var forEachObject = require('fast.js/object/forEach');
+var forOwn = require('lodash.forown');
 var includes = require('lodash.includes');
 var isString = require('lodash.isstring');
 var isObject = require('lodash.isobject');
 var isDate = require('lodash.isdate');
 var isFunction = require('lodash.isfunction');
-var isEqual = require('lodash.isequal');
-var clone = function(obj) { return assign({}, obj); };
+var _isEqual = require('lodash.isequal'); // to avoid shadowing
 var has = require('lodash.has');
 var result = require('lodash.result');
-var bind = require('fast.js/function/bind');
+var bind = require('lodash.bind'); // because phantomjs doesn't have Function#bind
 var union = require('lodash.union');
 var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
@@ -101,10 +101,10 @@ assign(Base.prototype, Events, {
     serialize: function (options) {
         var attrOpts = assign({props: true}, options);
         var res = this.getAttributes(attrOpts, true);
-        forEachObject(this._children, function (value, key) {
+        forOwn(this._children, function (value, key) {
             res[key] = this[key].serialize();
         }, this);
-        forEachObject(this._collections, function (value, key) {
+        forOwn(this._collections, function (value, key) {
             res[key] = this[key].serialize();
         }, this);
         return res;
@@ -277,7 +277,7 @@ assign(Base.prototype, Events, {
     // Get all of the attributes of the model at the time of the previous
     // `"change"` event.
     previousAttributes: function () {
-        return clone(this._previousAttributes);
+        return cloneObj(this._previousAttributes);
     },
 
     // Determine if the model has changed since the last `"change"` event.
@@ -294,7 +294,7 @@ assign(Base.prototype, Events, {
     // You can also pass an attributes object to diff against the model,
     // determining if there *would be* a change.
     changedAttributes: function (diff) {
-        if (!diff) return this.hasChanged() ? clone(this._changed) : false;
+        if (!diff) return this.hasChanged() ? cloneObj(this._changed) : false;
         var val, changed = false;
         var old = this._changing ? this._previousAttributes : this.attributes;
         var def, isEqual;
@@ -350,7 +350,7 @@ assign(Base.prototype, Events, {
     _getCompareForType: function (type) {
         var dataType = this._dataTypes[type];
         if (dataType && dataType.compare) return bind(dataType.compare, this);
-        return isEqual;
+        return _isEqual; // if no compare function is defined, use _.isEqual
     },
 
     // Run validation against the next complete set of model attributes,
@@ -400,7 +400,7 @@ assign(Base.prototype, Events, {
     _initDerived: function () {
         var self = this;
 
-        forEachObject(this._derived, function (value, name) {
+        forOwn(this._derived, function (value, name) {
             var def = self._derived[name];
             def.deps = def.depList;
 
@@ -761,32 +761,32 @@ function extend(protoProps) {
         for(var i = 0; i < arguments.length; i++) {
             var def = arguments[i];
             if (def.dataTypes) {
-                forEachObject(def.dataTypes, function (def, name) {
+                forOwn(def.dataTypes, function (def, name) {
                     child.prototype._dataTypes[name] = def;
                 });
             }
             if (def.props) {
-                forEachObject(def.props, function (def, name) {
+                forOwn(def.props, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def);
                 });
             }
             if (def.session) {
-                forEachObject(def.session, function (def, name) {
+                forOwn(def.session, function (def, name) {
                     createPropertyDefinition(child.prototype, name, def, true);
                 });
             }
             if (def.derived) {
-                forEachObject(def.derived, function (def, name) {
+                forOwn(def.derived, function (def, name) {
                     createDerivedProperty(child.prototype, name, def);
                 });
             }
             if (def.collections) {
-                forEachObject(def.collections, function (constructor, name) {
+                forOwn(def.collections, function (constructor, name) {
                     child.prototype._collections[name] = constructor;
                 });
             }
             if (def.children) {
-                forEachObject(def.children, function (constructor, name) {
+                forOwn(def.children, function (constructor, name) {
                     child.prototype._children[name] = constructor;
                 });
             }
