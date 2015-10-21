@@ -73,7 +73,7 @@
     "coverage": "rm -rf coverage && istanbul cover -- tape test/index.js --verbose",
     "validate": "npm ls",
     "start": "run-browser test/index.js",
-    "lint": "jshint ampersand-state.js",
+    "lint": "jshint ampersand-state.js ./test/*",
     "benchmark": "node --allow-natives-syntax benchmark/massCreate.js",
     "preversion": "git checkout master && git pull && npm ls",
     "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
