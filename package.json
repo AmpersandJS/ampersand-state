@@ -46,6 +46,8 @@
     "ampersand-collection": "^1.3.2",
     "ampersand-registry": "0.x.x",
     "browserify": "^11.0.1",
+    "coveralls": "^2.11.4",
+    "istanbul": "^0.4.0",
     "jshint": "^2.5.3",
     "phantomjs": "^1.9.7-15",
     "precommit-hook": "^3.0.0",
@@ -68,14 +70,16 @@
   },
   "scripts": {
     "test": "browserify test/index.js | tape-run | tap-spec",
+    "coverage": "rm -rf coverage && istanbul cover -- tape test/index.js --verbose",
     "validate": "npm ls",
     "start": "run-browser test/index.js",
-    "lint": "jshint --exclude benchmark/ .",
+    "lint": "jshint ampersand-state.js",
     "benchmark": "node --allow-natives-syntax benchmark/massCreate.js",
     "preversion": "git checkout master && git pull && npm ls",
     "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
     "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
-    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish"
+    "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "testling": {
     "files": "test/*.js",
