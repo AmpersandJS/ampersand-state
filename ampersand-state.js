@@ -118,7 +118,7 @@ assign(Base.prototype, Events, {
         var self = this;
         var extraProperties = this.extraProperties;
         var changing, changes, newType, newVal, def, cast, err, attr,
-            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual, onSet;
+            attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual, onChange;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
         if (isObject(key) || key === null) {
@@ -172,7 +172,7 @@ assign(Base.prototype, Events, {
             }
 
             isEqual = this._getCompareForType(def.type);
-            onSet = this._getOnSetForType(def.type);
+            onChange = this._getOnChangeForType(def.type);
             dataType = this._dataTypes[def.type];
 
             // check type if we have one
@@ -219,7 +219,7 @@ assign(Base.prototype, Events, {
             if (hasChanged) {
                 changes.push({prev: currentVal, val: newVal, key: attr});
                 self._changed[attr] = newVal;
-                onSet(newVal, currentVal, attr);
+                onChange(newVal, currentVal, attr);
             } else {
                 delete self._changed[attr];
             }
@@ -356,9 +356,9 @@ assign(Base.prototype, Events, {
         return _isEqual; // if no compare function is defined, use _.isEqual
     },
 
-    _getOnSetForType : function(type){
+    _getOnChangeForType : function(type){
         var dataType = this._dataTypes[type];
-        if (dataType && dataType.onSet) return bind(dataType.onSet, this);
+        if (dataType && dataType.onChange) return bind(dataType.onChange, this);
         return noop;
     },
 
@@ -580,7 +580,6 @@ function createPropertyDefinition(object, name, desc, isSession) {
             }
             var value = this._values[name];
             var typeDef = this._dataTypes[def.type];
-            var onSet = this._getOnSetForType(def.type);
             if (typeof value !== 'undefined') {
                 if (typeDef && typeDef.get) {
                     value = typeDef.get(value);
@@ -589,7 +588,10 @@ function createPropertyDefinition(object, name, desc, isSession) {
             }
             var defaultValue = result(def, 'default');
             this._values[name] = defaultValue;
-            onSet(defaultValue, value, name);
+            if (typeof defaultValue !== 'undefined') {
+                var onChange = this._getOnChangeForType(def.type);
+                onChange(defaultValue, value, name);
+            }
             return defaultValue;
         }
     });
@@ -714,12 +716,12 @@ var dataTypes = {
             return currentVal === newVal;
         },
 
-        onSet : function(newVal, currentVal, attributeName){
+        onChange : function(newVal, previousVal, attributeName){
             // if this has changed we want to also handle
             // event propagation
 
-            if (currentVal) {
-                this.stopListening(currentVal);
+            if (previousVal) {
+                this.stopListening(previousVal);
             }
 
             if (newVal != null) {

@@ -1850,7 +1850,7 @@ test("#112 - should not set up events on child state if setOnce check fails", fu
     t.end();
 });
 
-test('#112 - onSet should be called for default values', function (t) {
+test('#112 - onChange should be called for default values', function (t) {
   var Person = State.extend({
     dataTypes: {
       'custom-type': {
@@ -1860,11 +1860,11 @@ test('#112 - onSet should be called for default values', function (t) {
             val: newVal
           };
         },
-        onSet: function (newVal, curVal, name) {
+        onChange: function (newVal, curVal, name) {
           t.equal(newVal.value, 100, 'should get the default value as newVal');
           t.equal(curVal, undefined, 'should get undefined as current value');
           t.equal(name, 'strength', 'should get the attribute name');
-          t.pass('onSet was called');
+          t.pass('onChange was called');
         }
       }
     },
