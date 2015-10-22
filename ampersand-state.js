@@ -177,7 +177,7 @@ assign(Base.prototype, Events, {
 
             // check type if we have one
             if (dataType && dataType.set) {
-                cast = dataType.set.call(this, newVal, options);
+                cast = dataType.set(newVal);
                 newVal = cast.val;
                 newType = cast.type;
             }
