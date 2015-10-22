@@ -580,15 +580,17 @@ function createPropertyDefinition(object, name, desc, isSession) {
             }
             var value = this._values[name];
             var typeDef = this._dataTypes[def.type];
+            var onSet = this._getOnSetForType(def.type);
             if (typeof value !== 'undefined') {
                 if (typeDef && typeDef.get) {
                     value = typeDef.get(value);
                 }
                 return value;
             }
-            value = result(def, 'default');
-            this._values[name] = value;
-            return value;
+            var defaultValue = result(def, 'default');
+            this._values[name] = defaultValue;
+            onSet(defaultValue, value, name);
+            return defaultValue;
         }
     });
 

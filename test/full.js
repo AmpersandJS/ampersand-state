@@ -1849,3 +1849,39 @@ test("#112 - should not set up events on child state if setOnce check fails", fu
 
     t.end();
 });
+
+test('#112 - onSet should be called for default values', function (t) {
+  var Person = State.extend({
+    dataTypes: {
+      'custom-type': {
+        set: function (newVal) {
+          return {
+            type: 'custom-type',
+            val: newVal
+          };
+        },
+        onSet: function (newVal, curVal, name) {
+          t.equal(newVal.value, 100, 'should get the default value as newVal');
+          t.equal(curVal, undefined, 'should get undefined as current value');
+          t.equal(name, 'strength', 'should get the attribute name');
+          t.pass('onSet was called');
+        }
+      }
+    },
+    props: {
+      strength: {
+        type: 'custom-type',
+        default: function () {
+          t.pass('default function should be called');
+          return {
+            value: 100
+          };
+        }
+      }
+    }
+  });
+
+  t.plan(6);
+  var p = new Person();
+  t.equal(p.strength.value, 100);
+});
