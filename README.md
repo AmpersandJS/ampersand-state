@@ -1,5 +1,7 @@
 # ampersand-state
 
+[![Coverage Status](https://coveralls.io/repos/AmpersandJS/ampersand-state/badge.svg?branch=master&service=github)](https://coveralls.io/github/AmpersandJS/ampersand-state?branch=master)
+
 <!-- starthide -->
 Part of the [Ampersand.js toolkit](http://ampersandjs.com) for building clientside applications.
 <!-- endhide -->
