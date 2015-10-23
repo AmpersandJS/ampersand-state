@@ -405,27 +405,44 @@ assign(Base.prototype, Events, {
     _initDerived: function () {
         var self = this;
 
-        forEach(this._derived, function (value, name) {
-            var def = self._derived[name];
+        forEach(this._derived, function (def, name) {
             def.deps = def.depList;
 
-            var update = function (options) {
-                options = options || {};
-
+            var update = function () {
                 var newVal = def.fn.call(self);
 
-                if (self._cache[name] !== newVal || !def.cache) {
+                var isEqual = self._getCompareForType(def.type);
+                var dataType = def.type && self._dataTypes[def.type];
+                var currentVal = self._cache[name];
+                var hasChanged = !isEqual(currentVal, newVal, name);
+
+                if (hasChanged || !def.cache) {
                     if (def.cache) {
-                        self._previousAttributes[name] = self._cache[name];
+                        self._previousAttributes[name] = currentVal;
+                    }
+                    // cast newVal if there is a type set
+                    if (dataType && dataType.set) {
+                        newVal = dataType.set(newVal).val;
                     }
                     self._cache[name] = newVal;
-                    self.trigger('change:' + name, self, self._cache[name]);
+
+                    // check for default or get for the change event value
+                    if (typeof newVal === 'undefined') {
+                        newVal = result(def, 'default');
+                    }
+                    else if (dataType && dataType.get) {
+                        newVal = dataType.get(newVal);
+                    }
+                    self.trigger('change:' + name, self, newVal);
                 }
             };
 
             def.deps.forEach(function (propString) {
                 self._keyTree.add(propString, update);
             });
+
+            // init to set any listeners
+            if (def.init) update();
         });
 
         this.on('all', function (eventName) {
@@ -437,16 +454,17 @@ assign(Base.prototype, Events, {
         }, this);
     },
 
-    _getDerivedProperty: function (name, flushCache) {
+    _getDerivedProperty: function (name) {
+        var def = this._derived[name];
         // is this a derived property that is cached
-        if (this._derived[name].cache) {
-            //set if this is the first time, or flushCache is set
-            if (flushCache || !this._cache.hasOwnProperty(name)) {
-                this._cache[name] = this._derived[name].fn.apply(this);
+        if (def.cache) {
+            // set if this is the first time
+            if (!this._cache.hasOwnProperty(name)) {
+                this._cache[name] = def.fn.apply(this);
             }
             return this._cache[name];
         } else {
-            return this._derived[name].fn.apply(this);
+            return def.fn.apply(this);
         }
     },
 
@@ -595,9 +613,14 @@ function createDerivedProperty(modelProto, name, definition) {
     var def = modelProto._derived[name] = {
         fn: isFunction(definition) ? definition : definition.fn,
         cache: (definition.cache !== false),
+        type: definition.type,
+        init: definition.init,
+        default: definition.default,
         depList: definition.deps || []
     };
 
+    if (def.type && isUndefined(def.default))
+        def.default = modelProto._getDefaultForType(def.type);
     // add to our shared dependency list
     forEach(def.depList, function (dep) {
         modelProto._deps[dep] = union(modelProto._deps[dep] || [], [name]);
@@ -606,7 +629,15 @@ function createDerivedProperty(modelProto, name, definition) {
     // defined a top-level getter for derived names
     Object.defineProperty(modelProto, name, {
         get: function () {
-            return this._getDerivedProperty(name);
+            var value = this._getDerivedProperty(name);
+            var typeDef = this._dataTypes[def.type];
+            if (typeof value !== 'undefined') {
+                if (typeDef && typeDef.get) {
+                    value = typeDef.get(value);
+                }
+                return value;
+            }
+            return result(def, 'default');
         },
         set: function () {
             throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');
