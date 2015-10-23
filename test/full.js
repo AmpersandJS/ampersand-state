@@ -1731,3 +1731,17 @@ test('Provide namespace collision error on children with property already define
     }, Error, 'Throws collision error on children and props');
     t.end();
 });
+
+test('collision in model extend - issue #144', function(t) {
+    var Parent = State.extend({
+        props: {
+            'title': ['string', false, '']
+        }
+    });
+    t.throws(function() {
+        Parent.extend({
+            'title': 'more info',
+        });
+    }, Error, 'throws a collision error on extending a prop');
+    t.end();
+});
