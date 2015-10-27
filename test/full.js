@@ -1745,3 +1745,33 @@ test('collision in model extend - issue #144', function(t) {
     }, Error, 'throws a collision error on extending a prop');
     t.end();
 });
+
+test('toJSON should serialize state props - issue #197', function(t) {
+    var Person = State.extend({
+        props: {
+            child: {
+                type: 'state'
+            }
+        }
+    });
+
+    var Child = State.extend({
+        props: {
+            name: {
+                type: 'string'
+            }
+        }
+    });
+
+    var father = new Person();
+    var child = new Child({ name: 'john' });
+    father.child = child;
+    t.deepEqual(father.toJSON(), { child: { name: 'john' }}, 'should serialize existing state props');
+
+    var mother = new Person();
+    var child2 = new Child();
+    mother.child = child2;
+    t.deepEqual(mother.toJSON(), { child: {}}, 'should serialize non-existent state props');
+
+    t.end();
+});
