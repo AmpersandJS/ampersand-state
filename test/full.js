@@ -1775,3 +1775,42 @@ test('toJSON should serialize state props - issue #197', function(t) {
 
     t.end();
 });
+
+test('toJSON should serialize customType props - issue #197', function(t) {
+    function CustomType(props) {
+        this.props = props;
+        this.serialize = function() {
+            return this.props;
+        };
+    }
+    var Person = State.extend({
+        dataTypes: {
+            customType: {
+                set: function(newVal) {
+                    return {
+                        val: newVal,
+                        type: 'customType'
+                    };
+                },
+                compare: function(currentVal, newVal, attributeName) {
+                    return currentVal === newVal;
+                }
+            },
+            compare : function(currentVal, newVal, attributeName){
+                return currentVal.equals(newVal);
+            }
+        },
+        props: {
+            child: {
+                type: 'customType'
+            }
+        }
+    });
+
+    var father = new Person();
+    var child = new CustomType({ name: 'john'});
+    father.child = child;
+    t.deepEqual(father.toJSON(), { child: { name: 'john' }}, 'should serialize existing state props');
+
+    t.end();
+});

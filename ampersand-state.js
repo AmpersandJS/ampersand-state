@@ -387,7 +387,7 @@ assign(Base.prototype, Events, {
             def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = raw ? this._values[item] : this[item];
-                if (def.type === 'state' && raw && val && val.serialize) val = val.serialize();
+                if (raw && val && isFunction(val.serialize)) val = val.serialize();
                 if (typeof val === 'undefined') val = result(def, 'default');
                 if (typeof val !== 'undefined') res[item] = val;
             }
