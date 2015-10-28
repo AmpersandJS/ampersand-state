@@ -376,7 +376,7 @@ assign(Base.prototype, Events, {
     },
 
     getAttributes: function (options, raw) {
-        assign({
+        options = assign({
             session: false,
             props: false,
             derived: false
@@ -386,7 +386,8 @@ assign(Base.prototype, Events, {
         for (item in this._definition) {
             def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
-                val = (raw) ? this._values[item] : this[item];
+                val = raw ? this._values[item] : this[item];
+                if (raw && val && isFunction(val.serialize)) val = val.serialize();
                 if (typeof val === 'undefined') val = result(def, 'default');
                 if (typeof val !== 'undefined') res[item] = val;
             }
