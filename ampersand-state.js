@@ -371,7 +371,7 @@ assign(Base.prototype, Events, {
     // just makes friendlier errors when trying to define a new model
     // only used when setting up original property definitions
     _ensureValidType: function (type) {
-        return includes(['string', 'number', 'boolean', 'array', 'object', 'date', 'any']
+        return includes(['string', 'number', 'boolean', 'array', 'object', 'date', 'state', 'any']
             .concat(Object.keys(this._dataTypes)), type) ? type : undefined;
     },
 
@@ -529,7 +529,6 @@ function createPropertyDefinition(object, name, desc, isSession) {
         type = object._ensureValidType(desc);
         if (type) def.type = type;
     } else {
-
         //Transform array of ['type', required, default] to object form
         if (Array.isArray(desc)) {
             descArray = desc;
@@ -558,6 +557,11 @@ function createPropertyDefinition(object, name, desc, isSession) {
         def.values = desc.values;
     }
     if (isSession) def.session = true;
+
+    if (!type) {
+        type = isString(desc) ? desc : desc.type;
+        throw new TypeError('Invalid data type of `' + type + '` for `' + name + '` property. Use one of the default types or define your own');
+    }
 
     // define a getter/setter on the prototype
     // but they get/set on the instance
