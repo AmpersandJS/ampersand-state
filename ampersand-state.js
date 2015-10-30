@@ -450,7 +450,7 @@ assign(Base.prototype, Events, {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this._safeSet(coll, new this._collections[coll](null, {parent: this}));
+            this._safeSet(coll, new this._collections[coll](null, {parent: this, parse: true}));
         }
     },
 
@@ -458,7 +458,7 @@ assign(Base.prototype, Events, {
         var child;
         if (!this._children) return;
         for (child in this._children) {
-            this._safeSet(child, new this._children[child]({}, {parent: this}));
+            this._safeSet(child, new this._children[child]({}, {parent: this, parse: true}));
             this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
         }
     },
