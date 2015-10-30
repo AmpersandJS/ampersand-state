@@ -746,6 +746,57 @@ test("`hasChanged` for falsey keys", function (t) {
     t.end();
 });
 
+test('`hasChanged` for derived properties with single dep', function (t) {
+    var Greeter = Person.extend({
+        derived: {
+            greet: {
+                deps: ['name'],
+                fn: function () {
+                    return 'Hello ' + this.name + '!';
+                }
+            }
+        }
+    });
+    var greeter = new Greeter({name: 'Krystian'});
+    greeter.name = 'Kamil';
+    t.ok(greeter.hasChanged('greet'));
+    greeter.name = 'Kamil';
+    t.ok(!greeter.hasChanged('greet'));
+    greeter.name = 'Krystian';
+    t.ok(greeter.hasChanged('greet'));
+    t.end();
+});
+
+test('`hasChanged` for derived properties with multiple deps', function (t) {
+    var Greeter = Person.extend({
+        props: {
+            firstName: 'string',
+            lastName: 'string'
+        },
+        derived: {
+            greet: {
+                deps: ['firstName', 'lastName'],
+                fn: function () {
+                    return 'Hello ' + this.firstName + ' ' + this.lastName + '!';
+                }
+            }
+        }
+    });
+    var greeter = new Greeter({firstName: 'Krystian', lastName: 'Kocur'});
+    greeter.firstName = 'Kamil';
+    t.ok(greeter.hasChanged('greet'));
+    greeter.lastName = 'Ogorek';
+    t.ok(greeter.hasChanged('greet'));
+    greeter.firstName = 'Krystian';
+    greeter.lastName = 'Kocur';
+    t.ok(greeter.hasChanged('greet'));
+    greeter.lastName = 'Kocur';
+    t.ok(!greeter.hasChanged('greet'));
+    greeter.firstName = 'Krystian';
+    t.ok(!greeter.hasChanged('greet'));
+    t.end();
+});
+
 test("`previous` for falsey keys", function (t) {
     var Model = State.extend({
         props: {

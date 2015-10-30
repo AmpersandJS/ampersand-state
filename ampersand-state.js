@@ -284,6 +284,11 @@ assign(Base.prototype, Events, {
     // If you specify an attribute name, determine if that attribute has changed.
     hasChanged: function (attr) {
         if (attr == null) return !!Object.keys(this._changed).length;
+        if (has(this._derived, attr)) {
+            return this._derived[attr].depList.some(function (dep) {
+                return this.hasChanged(dep);
+            }, this);
+        }
         return has(this._changed, attr);
     },
 
