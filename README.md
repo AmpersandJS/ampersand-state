@@ -598,7 +598,10 @@ person.clear()
 
 ### toggle `state.toggle('a')`
 
-Shortcut to toggle boolean properties, or cycle through “ENUM” type properties with a `values` array in their definition. Fires `"change"` events, as you would expect from `set()`.
+Shortcut to toggle boolean properties, or cycle through array of specified property's `values` (see `values` option section and example below).
+When you reach the last available value from given array, `toggle` will go back to the beginning and use first one.
+
+Fires `"change"` events, as you would expect from `set()`.
 
 ```javascript
 var Person = AmpersandState.extend({
