@@ -317,6 +317,7 @@ assign(Base.prototype, Events, {
         attrs = Array.isArray(attrs) ? attrs : [attrs];
         attrs.forEach(function (key) {
             var def = self._definition[key];
+            if (!def) return;
             var val;
             if (def.required) {
                 val = result(def, 'default');
