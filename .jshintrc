@@ -1,12 +1,13 @@
 {
     "asi": false,
-    "expr": true,
-    "loopfunc": true,
     "curly": false,
+    "eqnull": true,
     "evil": true,
-    "white": true,
-    "undef": true,
-    "node": true,
+    "expr": true,
     "indent": 4,
-    "eqnull": true
+    "loopfunc": true,
+    "node": true,
+    "undef": true,
+    "unused": true,
+    "white": true
 }

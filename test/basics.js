@@ -127,12 +127,11 @@ test('cached derived properties fire events if result is different', function (t
         }
     });
     var person = new NewPerson({name: 'henrik'});
-    person.on('change:greeting', function (model, value) {
+    person.on('change:greeting', function () {
         t.ok(false, "shouldn't fire if value if derived value is unchanged");
     });
     person.name = 'henrik';
     t.equal(person.name, 'henrik');
-    t.end();
 });
 
 test('cached && accessed derived properties do not fire events if result has not changed', function (t) {
@@ -152,13 +151,12 @@ test('cached && accessed derived properties do not fire events if result has not
         }
     });
     var num = new SomeNumber({ num: 8 });
-    num.on('change:isEven', function (model, value) {
+    num.on('change:isEven', function () {
         t.ok(false, "shouldn't fire if derived value is unchanged");
     });
     t.equal(num.isEven, true);
     num.num = 10;
     t.equal(num.isEven, true);
-    t.end();
 });
 
 test('uncached & accessed derived properties fire events even if result has not changed', function (t) {
@@ -178,13 +176,12 @@ test('uncached & accessed derived properties fire events even if result has not 
         }
     });
     var num = new SomeNumber({ num: 8 });
-    num.on('change:isEven', function (model, value) {
-        t.equal(num.isEven, true, "should fire even if derived value is unchanged");
+    num.on('change:isEven', function () {
+        t.equal(num.isEven, true, 'should fire even if derived value is unchanged');
     });
     t.equal(num.isEven, true);
     num.num = 10;
     t.equal(num.isEven, true);
-    t.end();
 });
 
 test('uncached derived properties always fire events on dependency change', function (t) {
@@ -202,8 +199,7 @@ test('uncached derived properties always fire events on dependency change', func
     });
     var person = new NewPerson({name: 'henrik'});
     person.on('change:greeting', function (model, value) {
-        t.equal(value, 'hello!', "Fires despite being same value");
-        t.end();
+        t.equal(value, 'hello!', 'Fires despite being same value');
     });
     person.name = 'different';
 });
@@ -324,7 +320,7 @@ test('isValid is a thing', function (t) {
     t.end();
 });
 
-test("isNew", function (t) {
+test('isNew', function (t) {
     var Foo = State.extend({
         props: {
             id: 'number',
@@ -334,18 +330,18 @@ test("isNew", function (t) {
         }
     });
     var a = new Foo({ 'foo': 1, 'bar': 2, 'baz': 3});
-    t.ok(a.isNew(), "it should be new");
+    t.ok(a.isNew(), 'it should be new');
     a = new Foo({ 'foo': 1, 'bar': 2, 'baz': 3, 'id': -5 });
-    t.ok(!a.isNew(), "any defined ID is legal, negative or positive");
+    t.ok(!a.isNew(), 'any defined ID is legal, negative or positive');
     a = new Foo({ 'foo': 1, 'bar': 2, 'baz': 3, 'id': 0 });
-    t.ok(!a.isNew(), "any defined ID is legal, including zero");
-    t.ok(new Foo({}).isNew(), "is true when there is no id");
-    t.ok(!new Foo({'id': 2}).isNew(), "is false for a positive integer");
-    t.ok(!new Foo({'id': -5}).isNew(), "is false for a negative integer");
+    t.ok(!a.isNew(), 'any defined ID is legal, including zero');
+    t.ok(new Foo({}).isNew(), 'is true when there is no id');
+    t.ok(!new Foo({'id': 2}).isNew(), 'is false for a positive integer');
+    t.ok(!new Foo({'id': -5}).isNew(), 'is false for a negative integer');
     t.end();
 });
 
-test("escape", function (t) {
+test('escape', function (t) {
     var Doc = State.extend({
         props: {
             id: 'string',
@@ -357,8 +353,8 @@ test("escape", function (t) {
     });
     var doc = new Doc({
         id: '1-the-tempest',
-        title: "The Tempest",
-        author: "Bill Shakespeare",
+        title: 'The Tempest',
+        author: 'Bill Shakespeare',
         length: 123
     });
 
@@ -372,19 +368,19 @@ test("escape", function (t) {
     t.end();
 });
 
-test("set an empty string", function (t) {
+test('set an empty string', function (t) {
     var Model = State.extend({
         props: {
             name: 'string'
         }
     });
-    var model = new Model({name : "Model"});
+    var model = new Model({name : 'Model'});
     model.set({name : ''});
     t.equal(model.get('name'), '');
     t.end();
 });
 
-test("setting an object", function (t) {
+test('setting an object', function (t) {
     var Model = State.extend({
         props: {
             custom: 'object'
@@ -405,7 +401,7 @@ test("setting an object", function (t) {
     });
 });
 
-test("clear", function (t) {
+test('clear', function (t) {
     var Model = State.extend({
         props: {
             name: 'string',
@@ -414,15 +410,15 @@ test("clear", function (t) {
         }
     });
     var changed;
-    var model = new Model({id: 1, name : "Model", length: 1});
-    model.on("change:name", function () { changed = true; });
+    var model = new Model({id: 1, name : 'Model', length: 1});
+    model.on('change:name', function () { changed = true; });
     model.clear();
     t.equal(changed, true);
     t.equal(model.get('name'), undefined);
     t.end();
 });
 
-test("changedAttributes", function (t) {
+test('changedAttributes', function (t) {
     var Model = State.extend({
         props: {
             a: 'string',
@@ -436,7 +432,7 @@ test("changedAttributes", function (t) {
     t.end();
 });
 
-test("change with options", function (t) {
+test('change with options', function (t) {
     var value;
     var Model = State.extend({
         props: {
@@ -454,7 +450,7 @@ test("change with options", function (t) {
     t.end();
 });
 
-test("change after initialize", function (t) {
+test('change after initialize', function (t) {
     var changed = 0;
     var Model = State.extend({
         props: {
@@ -470,8 +466,7 @@ test("change after initialize", function (t) {
     t.end();
 });
 
-
-test("set triggers changes in the correct order", function (t) {
+test('set triggers changes in the correct order', function (t) {
     var value = null;
     var M = State.extend({});
     var model = new M();
@@ -483,7 +478,7 @@ test("set triggers changes in the correct order", function (t) {
     t.end();
 });
 
-test("multiple unsets", function (t) {
+test('multiple unsets', function (t) {
     var i = 0;
     var counter = function () { i++; };
     var Model = State.extend({
@@ -492,7 +487,7 @@ test("multiple unsets", function (t) {
         }
     });
     var model = new Model({a: 'a'});
-    model.on("change:a", counter);
+    model.on('change:a', counter);
     model.set({a: 'b'});
     model.unset('a');
     model.unset('a');
@@ -500,7 +495,7 @@ test("multiple unsets", function (t) {
     t.end();
 });
 
-test("unset with array", function (t) {
+test('unset with array', function (t) {
     var Model = State.extend({
         props: {
             a: ['string', true, 'first'],
@@ -514,7 +509,7 @@ test("unset with array", function (t) {
     t.end();
 });
 
-test("unset and changedAttributes", function (t) {
+test('unset and changedAttributes', function (t) {
     var Model = State.extend({
         props: {
             a: 'number'
@@ -528,7 +523,7 @@ test("unset and changedAttributes", function (t) {
     model.unset('a');
 });
 
-test("unset undefined prop", function (t) {
+test('unset undefined prop', function (t) {
     var Model = State.extend({
         props: {
             a: 'number'
@@ -541,21 +536,21 @@ test("unset undefined prop", function (t) {
     t.end();
 });
 
-test("change, hasChanged, changedAttributes, previous, previousAttributes", function (t) {
+test('change, hasChanged, changedAttributes, previous, previousAttributes', function (t) {
     var Model = State.extend({
         props: {
             name: 'string',
             age: 'number'
         }
     });
-    var model = new Model({name: "Tim", age: 10});
+    var model = new Model({name: 'Tim', age: 10});
     t.deepEqual(model.changedAttributes(), false);
     model.on('change', function () {
         t.ok(model.hasChanged('name'), 'name changed');
         t.ok(!model.hasChanged('age'), 'age did not');
         t.deepEqual(model.changedAttributes(), {name : 'Rob'}, 'changedAttributes returns the changed attrs');
         t.equal(model.previous('name'), 'Tim');
-        t.deepEqual(model.previousAttributes(), {name : "Tim", age : 10}, 'previousAttributes is correct');
+        t.deepEqual(model.previousAttributes(), {name : 'Tim', age : 10}, 'previousAttributes is correct');
         t.end();
     });
     t.equal(model.hasChanged(), false);
@@ -564,21 +559,21 @@ test("change, hasChanged, changedAttributes, previous, previousAttributes", func
     t.equal(model.get('name'), 'Rob');
 });
 
-test("validate on unset and clear", function (t) {
+test('validate on unset and clear', function (t) {
     var error;
     var Model = State.extend({
         props: {
             name: 'string'
         }
     });
-    var model = new Model({name: "One"});
+    var model = new Model({name: 'One'});
     model.validate = function (attrs) {
         if (!attrs.name) {
             error = true;
-            return "No thanks.";
+            return 'No thanks.';
         }
     };
-    model.set({name: "Two"});
+    model.set({name: 'Two'});
     t.equal(model.get('name'), 'Two');
     t.equal(error, undefined);
     model.unset('name', {validate: true});
@@ -592,9 +587,8 @@ test("validate on unset and clear", function (t) {
     t.end();
 });
 
-
-test("validate with error callback", function (t) {
-    var lastError, boundError;
+test('validate with error callback', function (t) {
+    var boundError;
     var Model = State.extend({
         props: {
             a: 'number',
@@ -605,7 +599,7 @@ test("validate with error callback", function (t) {
     model.validate = function (attrs) {
         if (attrs.admin) return "Can't change admin status.";
     };
-    model.on('invalid', function (model, error) {
+    model.on('invalid', function () {
         boundError = true;
     });
     var result = model.set({a: 100}, {validate: true});
@@ -637,7 +631,7 @@ test("Nested change events don't clobber previous attributes", function (t) {
         .set({state: 'hello'});
 });
 
-test("hasChanged/set should use same comparison", function (t) {
+test('hasChanged/set should use same comparison', function (t) {
     var changed = 0;
     var Model = State.extend({
         props: {
@@ -656,8 +650,7 @@ test("hasChanged/set should use same comparison", function (t) {
     t.end();
 });
 
-
-test("#582, #425, change:attribute callbacks should fire after all changes have occurred", 9, function (t) {
+test('#582, #425, change:attribute callbacks should fire after all changes have occurred', 9, function (t) {
     var Model = State.extend({
         props: {
             a: 'string',
@@ -681,8 +674,7 @@ test("#582, #425, change:attribute callbacks should fire after all changes have 
     t.end();
 });
 
-
-test("set same value does not trigger change", function (t) {
+test('set same value does not trigger change', function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -695,7 +687,7 @@ test("set same value does not trigger change", function (t) {
     t.end();
 });
 
-test("unset does not fire a change for undefined attributes", 0, function (t) {
+test('unset does not fire a change for undefined attributes', 0, function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -707,7 +699,7 @@ test("unset does not fire a change for undefined attributes", 0, function (t) {
     t.end();
 });
 
-test("hasChanged works outside of change events, and true within", 6, function (t) {
+test('hasChanged works outside of change events, and true within', 6, function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -727,7 +719,7 @@ test("hasChanged works outside of change events, and true within", 6, function (
     t.end();
 });
 
-test("hasChanged gets cleared on the following set", function (t) {
+test('hasChanged gets cleared on the following set', function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -745,7 +737,7 @@ test("hasChanged gets cleared on the following set", function (t) {
     t.end();
 });
 
-test("`hasChanged` for falsey keys", function (t) {
+test('`hasChanged` for falsey keys', function (t) {
     var Model = State.extend({
         props: {
             x: 'boolean'
@@ -809,7 +801,7 @@ test('`hasChanged` for derived properties with multiple deps', function (t) {
     t.end();
 });
 
-test("`previous` for falsey keys", function (t) {
+test('`previous` for falsey keys', function (t) {
     var Model = State.extend({
         props: {
             0: 'boolean',
@@ -823,7 +815,7 @@ test("`previous` for falsey keys", function (t) {
     t.end();
 });
 
-test("validate", function (t) {
+test('validate', function (t) {
     var lastError;
     var Model = State.extend({
         props: {
@@ -851,7 +843,7 @@ test("validate", function (t) {
     t.end();
 });
 
-test("set and unset", function (t) {
+test('set and unset', function (t) {
     var Model = State.extend({
         props: {
             id: 'string',
@@ -863,28 +855,28 @@ test("set and unset", function (t) {
     });
     var a = new Model({id: 'id', foo: 1, bar: 2, baz: 3});
     var changeCount = 0;
-    a.on("change:foo", function () { changeCount += 1; });
+    a.on('change:foo', function () { changeCount += 1; });
     a.set({'foo': 2});
-    t.ok(a.get('foo') == 2, "Foo should have changed.");
-    t.ok(changeCount == 1, "Change count should have incremented.");
+    t.ok(a.get('foo') == 2, 'Foo should have changed.');
+    t.ok(changeCount == 1, 'Change count should have incremented.');
     a.set({'foo': 2}); // set with value that is not new shouldn't fire change event
-    t.ok(a.get('foo') == 2, "Foo should NOT have changed, still 2");
-    t.ok(changeCount == 1, "Change count should NOT have incremented.");
+    t.ok(a.get('foo') == 2, 'Foo should NOT have changed, still 2');
+    t.ok(changeCount == 1, 'Change count should NOT have incremented.');
 
     a.validate = function (attrs) {
-        t.equal(attrs.foo, void 0, "validate: true passed while unsetting");
+        t.equal(attrs.foo, void 0, 'validate: true passed while unsetting');
     };
     a.unset('foo', {validate: true});
-    t.equal(a.get('foo'), void 0, "Foo should have changed");
+    t.equal(a.get('foo'), void 0, 'Foo should have changed');
     delete a.validate;
-    t.ok(changeCount == 2, "Change count should have incremented for unset.");
+    t.ok(changeCount == 2, 'Change count should have incremented for unset.');
 
     a.unset('id');
-    t.equal(a.id, undefined, "Unsetting the id should remove the id property.");
+    t.equal(a.id, undefined, 'Unsetting the id should remove the id property.');
     t.end();
 });
 
-test("unset even if value has been specified", function (t) {
+test('unset even if value has been specified', function (t) {
     var Model = State.extend({
         props: {
             foo: 'string'
@@ -924,9 +916,7 @@ test("nested `set` during `'change:attr'`", function (t) {
     t.end();
 });
 
-
-
-test("nested `change` only fires once", function (t) {
+test('nested `change` only fires once', function (t) {
     t.plan(1);
     var model = new (State.extend({props: {x: 'boolean'}}))();
     model.on('change', function () {
@@ -970,8 +960,7 @@ test("nested `set` during `'change'`", function (t) {
     t.end();
 });
 
-
-test("nested `change` with silent", function (t) {
+test('nested `change` with silent', function (t) {
     var count = 0;
     var Model = State.extend({
         props: {
@@ -1004,8 +993,7 @@ test("nested `change` with silent", function (t) {
     t.end();
 });
 
-
-test("nested `change:attr` with silent", function (t) {
+test('nested `change:attr` with silent', function (t) {
     var Model = State.extend({
         props: {
             x: 'boolean',
@@ -1023,7 +1011,7 @@ test("nested `change:attr` with silent", function (t) {
     t.end();
 });
 
-test("multiple nested changes with silent", function (t) {
+test('multiple nested changes with silent', function (t) {
     var Model = State.extend({
         props: {
             x: 'boolean',
@@ -1042,8 +1030,7 @@ test("multiple nested changes with silent", function (t) {
     t.end();
 });
 
-
-test("multiple nested changes with silent", function (t) {
+test('multiple nested changes with silent', function (t) {
     var changes = [];
     var Model = State.extend({
         props: {
@@ -1060,7 +1047,7 @@ test("multiple nested changes with silent", function (t) {
     t.end();
 });
 
-test("basic silent change semantics", function (t) {
+test('basic silent change semantics', function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -1074,7 +1061,7 @@ test("basic silent change semantics", function (t) {
     t.end();
 });
 
-test("nested set multiple times", function (t) {
+test('nested set multiple times', function (t) {
     var Model = State.extend({
         props: {
             a: 'boolean',
@@ -1093,8 +1080,7 @@ test("nested set multiple times", function (t) {
     t.end();
 });
 
-
-test("#1122 - clear does not alter options.", function (t) {
+test('#1122 - clear does not alter options.', function (t) {
     var model = new (State.extend({}))();
     var options = {};
     model.clear(options);
@@ -1102,7 +1088,7 @@ test("#1122 - clear does not alter options.", function (t) {
     t.end();
 });
 
-test("#1122 - unset does not alter options.", function (t) {
+test('#1122 - unset does not alter options.', function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -1133,7 +1119,6 @@ test('#53 - previousAttributes set correctly when it was a default', function (t
     });
     a.test1 = false;
 });
-
 
 test('#74 - ensure default array/object types are mutable', function (t) {
     var MyState = State.extend({
