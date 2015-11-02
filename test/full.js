@@ -626,6 +626,18 @@ test('Should be able to define and use custom data types', function (t) {
     t.end();
 });
 
+test('Throw typeError for invalid data types', function (t) {
+    t.throws(function () {
+        var Foo = State.extend({
+            props: {
+                weight: 'randomType'
+            }
+        });
+    });
+
+    t.end();
+});
+
 test('Uses dataType compare', function (t) {
     var compareRun;
 
@@ -689,6 +701,7 @@ test('Values attribute basic functionality', function (t) {
     var Model = State.extend({
         props: {
             state: {
+                type: 'string',
                 values: ['CA', 'WA', 'NV']
             }
         }
@@ -722,6 +735,7 @@ test('Values attribute default works and is called only once', function (t) {
                 required: true
             },
             state: {
+                type: 'string',
                 values: ['CA', 'WA', 'NV'],
                 default: function(){
                     ran++;
@@ -750,6 +764,7 @@ test('toggle() works on boolean and values properties.', function (t) {
             isAwesome: 'boolean',
             someNumber: 'number',
             state: {
+                type: 'string',
                 values: ['CA', 'WA', 'NV'],
                 default: 'CA'
             }

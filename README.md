@@ -215,7 +215,9 @@ Check if the state is currently valid. It does this by calling the state's `vali
 
 ### dataTypes  `AmpersandState.extend({ datatypes: myCustomTypes })`
 
-ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, `state`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes.  Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).
+ampersand-state defines several built-in datatypes:  `string`, `number`, `boolean`, `array`, `object`, `date`, `state`, or `any`.  Of these, `object`, `array` and `any` allow for a lot of extra flexibility.  However sometimes it may be useful to define your own custom datatypes. Then you can use these types in the `props` below with all their features (like `required`, `default`, etc).
+
+Setting `type` is required and `typeError` will be thrown if it's missing or has not been choosen either from default types or your custom ones.
 
 To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.
 
