@@ -528,6 +528,18 @@ test("unset and changedAttributes", function (t) {
     model.unset('a');
 });
 
+test("unset undefined prop", function (t) {
+    var Model = State.extend({
+        props: {
+            a: 'number'
+        }
+    });
+    var model = new Model({a: 1});
+    t.doesNotThrow(function () {
+        model.unset('b');
+    });
+    t.end();
+});
 
 test("change, hasChanged, changedAttributes, previous, previousAttributes", function (t) {
     var Model = State.extend({
