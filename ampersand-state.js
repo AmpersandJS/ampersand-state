@@ -615,7 +615,7 @@ function createDerivedProperty(modelProto, name, definition) {
             return this._getDerivedProperty(name);
         },
         set: function () {
-            throw new TypeError('"' + name + '" is a derived property, it can\'t be set directly.');
+            throw new TypeError("`" + name + "` is a derived property, it can't be set directly.");
         }
     });
 }

@@ -4,7 +4,6 @@ var AmpersandRegistry = require('ampersand-registry');
 var Collection = require('ampersand-collection');
 var definition, Foo, registry;
 
-
 // wrap test so we always run reset first
 var test = function () {
     reset();
@@ -40,7 +39,7 @@ function reset() {
                 type: 'string',
                 test: function (newVal) {
                     if (newVal !== 'good') {
-                        return "Value not good";
+                        return 'Value not good';
                     }
                 }
             }
@@ -174,7 +173,7 @@ test('Error when setting derived property should be helpful', function (t) {
     var foo = new Foo();
     try { foo.name = 'bob'; }
     catch (err) {
-        t.equal(err.message, "\"name\" is a derived property, it can't be set directly.");
+        t.equal(err.message, '`name` is a derived property, it can\'t be set directly.');
     }
     t.end();
 });
@@ -241,7 +240,6 @@ test('extraProperties = "allow" properties should be defined entirely on the ins
         extraProperties: 'allow'
     });
 
-    var one = new Foo({ a: 'one.a', b: 'one.b' });
     var two = new Foo();
 
     t.deepEqual(two._definition, {});
@@ -628,7 +626,7 @@ test('Should be able to define and use custom data types', function (t) {
 
 test('Throw typeError for invalid data types', function (t) {
     t.throws(function () {
-        var Foo = State.extend({
+        State.extend({
             props: {
                 weight: 'randomType'
             }
@@ -647,7 +645,7 @@ test('Uses dataType compare', function (t) {
         },
         dataTypes: {
             crazyType: {
-                compare: function (oldVal, newVal) {
+                compare: function () {
                     compareRun = true;
                     return false;
                 },
@@ -757,7 +755,6 @@ test('Values attribute default works and is called only once', function (t) {
     t.end();
 });
 
-
 test('toggle() works on boolean and values properties.', function (t) {
     var Model = State.extend({
         props: {
@@ -865,7 +862,7 @@ test('`initialize` should have access to initialized child collections', functio
             myStuff: Collection
         }
     });
-    var thing = new StateObj();
+    new StateObj();
 });
 
 test('parent collection references should be maintained when adding/removing to a collection', function (t) {
@@ -1061,7 +1058,6 @@ test('listens to child events', function (t) {
     first.name = 'new-first-name';
     t.equal(first.name, 'new-first-name');
 
-
     //Change child property
     first.once('change:firstChild.name', function (model, newVal) {
         t.equal(newVal, 'new-first-child-name');
@@ -1069,10 +1065,9 @@ test('listens to child events', function (t) {
     first.firstChild.name = 'new-first-child-name';
     t.equal(first.firstChild.name, 'new-first-child-name');
 
-
     //Change grand child property
     first.once('change:firstChild.grandChild.name', function (unsure, name) {
-        t.equal(name, "Phil");
+        t.equal(name, 'Phil');
     });
     first.firstChild.grandChild.name = 'Phil';
     t.equal(first.firstChild.grandChild.name, 'Phil');
@@ -1191,8 +1186,6 @@ test('`state` properties', function (t) {
     p2.sub = sub2;
 
     sub1.id = 'something different';
-
-    t.end();
 });
 
 test('Issue: #75 `state` property from undefined -> state', function (t) {
@@ -1223,10 +1216,7 @@ test('Issue: #75 `state` property from undefined -> state', function (t) {
     p.sub2 = new SubState({ foo: 'bar' });
 
     sub.foo = 'c';
-
-    t.end();
 });
-
 
 test('`state` properties should invalidate dependent derived properties when changed', function (t) {
     var counter = 0;
@@ -1258,7 +1248,6 @@ test('`state` properties should invalidate dependent derived properties when cha
     });
 
     var sub1 = new SubState({id: '1'});
-    var sub2 = new SubState({id: '2'});
 
     t.equal(p.subId, undefined, 'should be undefined to start');
 
@@ -1277,7 +1266,7 @@ test('`state` properties should invalidate dependent derived properties when cha
     sub1.id = 'newId';
 });
 
-test("#1664 - Changing from one value, silently to another, back to original triggers a change.", function (t) {
+test('#1664 - Changing from one value, silently to another, back to original triggers a change.', function (t) {
     var Model = State.extend({
         props: {
             x: 'number'
@@ -1290,7 +1279,7 @@ test("#1664 - Changing from one value, silently to another, back to original tri
     model.set({x: 1});
 });
 
-test("#1664 - multiple silent changes nested inside a change event", function (t) {
+test('#1664 - multiple silent changes nested inside a change event', function (t) {
     var changes = [];
     var Model = State.extend({
         props: {
@@ -1312,7 +1301,7 @@ test("#1664 - multiple silent changes nested inside a change event", function (t
     t.end();
 });
 
-test("silent changes in last `change` event back to original triggers change", function (t) {
+test('silent changes in last `change` event back to original triggers change', function (t) {
     var changes = [];
     var Model = State.extend({
         props: {
@@ -1331,7 +1320,7 @@ test("silent changes in last `change` event back to original triggers change", f
     t.end();
 });
 
-test("#1943 change calculations should use _.isEqual", function (t) {
+test('#1943 change calculations should use _.isEqual', function (t) {
     var Model = State.extend({
         props: {
             a: 'object'
@@ -1343,7 +1332,7 @@ test("#1943 change calculations should use _.isEqual", function (t) {
     t.end();
 });
 
-test("#1964 - final `change` event is always fired, regardless of interim changes", function (t) {
+test('#1964 - final `change` event is always fired, regardless of interim changes', function (t) {
     var Model = State.extend({
         props: {
             property: 'string'
@@ -1360,7 +1349,7 @@ test("#1964 - final `change` event is always fired, regardless of interim change
     model.set('property', 'foo');
 });
 
-test("isValid", function (t) {
+test('isValid', function (t) {
     var Model = State.extend({
         props: {
             valid: 'boolean'
@@ -1368,7 +1357,7 @@ test("isValid", function (t) {
     });
     var model = new Model({valid: true});
     model.validate = function (attrs) {
-        if (!attrs.valid) return "invalid";
+        if (!attrs.valid) return 'invalid';
     };
     t.equal(model.isValid(), true);
     t.equal(model.set({valid: false}, {validate: true}), false);
@@ -1379,19 +1368,19 @@ test("isValid", function (t) {
     t.end();
 });
 
-test("#1545 - `undefined` can be passed to a model constructor without coercion", function (t) {
+test('#1545 - `undefined` can be passed to a model constructor without coercion', function (t) {
     var Model = State.extend({
         defaults: { one: 1 },
-        initialize : function (attrs, opts) {
+        initialize : function (attrs) {
             t.equal(attrs, undefined);
         }
     });
-    var emptyattrs = new Model();
-    var undefinedattrs = new Model(undefined);
+    new Model();
+    new Model(undefined);
     t.end();
 });
 
-test("#1961 - Creating a model with {validate: true} will call validate and use the error callback", function (t) {
+test('#1961 - Creating a model with {validate: true} will call validate and use the error callback', function (t) {
     var Model = State.extend({
         props: {
             id: 'number'
@@ -1405,7 +1394,7 @@ test("#1961 - Creating a model with {validate: true} will call validate and use 
     t.end();
 });
 
-test("#2034 - nested set with silent only triggers one change", function (t) {
+test('#2034 - nested set with silent only triggers one change', function (t) {
     var Model = State.extend({
         props: {
             a: 'boolean',
@@ -1421,7 +1410,7 @@ test("#2034 - nested set with silent only triggers one change", function (t) {
     model.set({a: true});
 });
 
-test("#2030 - set with failed validate, followed by another set triggers change", function (t) {
+test('#2030 - set with failed validate, followed by another set triggers change', function (t) {
     var attr = 0, main = 0, error = 0;
     var Model = State.extend({
         props: {
@@ -1430,7 +1419,7 @@ test("#2030 - set with failed validate, followed by another set triggers change"
         validate: function (attr) {
             if (attr.x > 1) {
                 error++;
-                return "this is an error";
+                return 'this is an error';
             }
         }
     });
@@ -1443,7 +1432,7 @@ test("#2030 - set with failed validate, followed by another set triggers change"
     t.end();
 });
 
-test("#1179 - isValid returns true in the absence of validate.", function(t) {
+test('#1179 - isValid returns true in the absence of validate.', function(t) {
     var Model = State.extend({
         validate: null
     });
@@ -1452,16 +1441,16 @@ test("#1179 - isValid returns true in the absence of validate.", function(t) {
     t.end();
 });
 
-test("#1791 - `attributes` is available for `parse`", function(t) {
+test('#1791 - `attributes` is available for `parse`', function(t) {
     var Model = State.extend({
         //Backbone test used this.has which was a this.get !== null test
         parse: function() { this.get('a') !== null; } // shouldn't throw an error
     });
-    var model = new Model(null, {parse: true});
+    new Model(null, {parse: true});
     t.end();
 });
 
-test("#96 - changedAttributes includes properties that are not direct model attributes", function(t) {
+test('#96 - changedAttributes includes properties that are not direct model attributes', function(t) {
     var Submodel = State.extend({
         props: {
             b: 'number'
@@ -1489,7 +1478,7 @@ test("#96 - changedAttributes includes properties that are not direct model attr
     t.end();
 });
 
-test("#99 #101 - string dates can be parsed", function(t) {
+test('#99 #101 - string dates can be parsed', function(t) {
     var Today = State.extend({
         props: {
             today: 'date'
@@ -1619,7 +1608,6 @@ test('#118 setOnce can be used with default string', function (t) {
         tr.timezone = 'new thing';
     }, 'since it has a default, this should throw');
 
-
     var tr2;
 
     t.doesNotThrow(function () {
@@ -1680,7 +1668,7 @@ test('throw helpful error if trying to extend with `prop` that already is define
         }
     });
     try {
-        var Item = Parent.extend({
+        Parent.extend({
             model: {}
         });
     } catch (e) {
@@ -1688,8 +1676,6 @@ test('throw helpful error if trying to extend with `prop` that already is define
         t.ok(e.message.indexOf('model') !== -1, 'message should contain name of prop being extended over');
         t.ok(e.message.indexOf('props') !== -1, 'message should say it has been defined in props');
     }
-
-    t.end();
 });
 
 // https://github.com/AmpersandJS/ampersand-view/issues/96
@@ -1711,11 +1697,11 @@ test('Provide namespace collision error on collection with property already defi
     });
 
     t.throws(function () {
-        var item = new Parent();
+        new Parent();
     }, Error, 'Throws collision error on property and collections');
 
     t.throws(function () {
-        var item = new Parent2();
+        new Parent2();
     }, Error, 'Throws collision error on collections and props');
     t.end();
 });
@@ -1738,11 +1724,11 @@ test('Provide namespace collision error on children with property already define
     });
 
     t.throws(function () {
-        var item = new Parent();
+        new Parent();
     }, Error, 'Throws collision error on property and children');
 
     t.throws(function () {
-        var item = new Parent2();
+        new Parent2();
     }, Error, 'Throws collision error on children and props');
     t.end();
 });
@@ -1807,11 +1793,11 @@ test('toJSON should serialize customType props - issue #197', function(t) {
                         type: 'customType'
                     };
                 },
-                compare: function(currentVal, newVal, attributeName) {
+                compare: function(currentVal, newVal) {
                     return currentVal === newVal;
                 }
             },
-            compare : function(currentVal, newVal, attributeName){
+            compare : function(currentVal, newVal){
                 return currentVal.equals(newVal);
             }
         },
