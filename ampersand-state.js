@@ -191,6 +191,7 @@ assign(Base.prototype, Events, {
             // If we are required but undefined, throw error.
             // If we are null and are not allowing null, throw error
             // If we have a defined type and the new type doesn't match, and we are not null, throw error.
+            // If we require specific value and new one is not one of them, throw error (unless it has default value or we're unsetting it with undefined).
 
             if (newVal === undefined && def.required) {
                 throw new TypeError('Required property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
@@ -202,7 +203,12 @@ assign(Base.prototype, Events, {
                 throw new TypeError('Property \'' + attr + '\' must be of type ' + def.type + '. Tried to set ' + newVal);
             }
             if (def.values && !includes(def.values, newVal)) {
-                throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', ') + '. Tried to set ' + newVal);
+                var defaultValue = result(def, 'default');
+                if (unset && defaultValue !== undefined) {
+                    newVal = defaultValue;
+                } else if (!unset || (unset && newVal !== undefined)) {
+                    throw new TypeError('Property \'' + attr + '\' must be one of values: ' + def.values.join(', ') + '. Tried to set ' + newVal);
+                }
             }
 
             hasChanged = !isEqual(currentVal, newVal, attr);

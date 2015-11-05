@@ -1137,3 +1137,58 @@ test('#74 - ensure default array/object types are mutable', function (t) {
     t.equal(s.anObject.foo, 'bar');
     t.end();
 });
+
+test('unset on prop with values array - issue #144', function (t) {
+    var Model = State.extend({
+        props: {
+            stuff: {
+                type: 'string',
+                required: false,
+                values: ['a', 'b', 'c']
+            }
+        }
+    });
+    var model = new Model({ stuff: 'a' });
+    t.doesNotThrow(function () {
+        model.unset('stuff');
+    });
+    t.equal(model.stuff, undefined);
+    t.end();
+});
+
+test('unset on prop with values array and default - issue #144', function (t) {
+    var Model = State.extend({
+        props: {
+            stuff: {
+                type: 'string',
+                required: false,
+                values: ['a', 'b', 'c'],
+                default: 'c'
+            }
+        }
+    });
+    var model = new Model({ stuff: 'a' });
+    t.doesNotThrow(function () {
+        model.unset('stuff');
+    });
+    t.equal(model.stuff, 'c');
+    t.end();
+});
+
+test('clear including prop with values array - issue #144', function (t) {
+    var Model = State.extend({
+        props: {
+            stuff: {
+                type: 'string',
+                required: false,
+                values: ['a', 'b', 'c']
+            }
+        }
+    });
+    var model = new Model({ stuff: 'a' });
+    t.doesNotThrow(function () {
+        model.clear();
+    });
+    t.equal(model.stuff, undefined);
+    t.end();
+});
