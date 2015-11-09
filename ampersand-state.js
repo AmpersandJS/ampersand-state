@@ -572,7 +572,8 @@ function createPropertyDefinition(object, name, desc, isSession) {
 
     if (!type) {
         type = isString(desc) ? desc : desc.type;
-        throw new TypeError('Invalid data type of `' + type + '` for `' + name + '` property. Use one of the default types or define your own');
+        // TODO: start throwing a TypeError in future major versions instead of warning
+        console.warn('Invalid data type of `' + type + '` for `' + name + '` property. Use one of the default types or define your own');
     }
 
     // define a getter/setter on the prototype

@@ -624,7 +624,7 @@ test('Should be able to define and use custom data types', function (t) {
     t.end();
 });
 
-test('Throw typeError for invalid data types', function (t) {
+tape.skip('Throw typeError for invalid data types', function (t) {
     t.throws(function () {
         State.extend({
             props: {
