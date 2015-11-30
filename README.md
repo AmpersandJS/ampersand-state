@@ -309,6 +309,7 @@ Properties can be defined in three different ways:
 * If `setOnce` is `true`, then you'll be able to set property only once.
     * If the property has a `default`, and you don't set the value initially, the property will be permanently set to the default value.
     * If the property doesn't have a `default`, and you don't set the value initially, it can be set later, but only once.
+* If `test` function is passed, then a negative validation test will be executed every time this property is about to be set. If the validation passes, the function must return `false` to tell **State** to go ahead and set the value. Otherwise, it should return a `string` with the error message describing the validation failure. In this case **State** will throw a `TypeError` with `"Property '<property>' failed validation with error: <errorMessage>"`.
 
 Trying to set a property to an invalid type will throw an error.
 
@@ -323,7 +324,16 @@ var Person = AmpersandState.extend({
         type: {
             type: 'string',
             values: ['regular-hero', 'super-hero', 'mega-hero']
-        }
+        },
+        numberOfChildren: {
+            type: 'number',
+            test: function(value){
+                if (value < 0) {
+                    return "Must be a positive number";
+                }
+                return false;
+            }
+        },
     }
 });
 ```
