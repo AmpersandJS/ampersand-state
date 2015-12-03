@@ -382,13 +382,23 @@ var Person = AmpersandState.extend({
 
 ### derived `AmpersandState.extend({ derived: { derivedProperties }})`
 
-Derived properties (also known as computed properties) are properties of the state object that depend on other properties (from `props`, `session`,  or even `derived`) to determine their value. Best demonstrated with an example:
+Derived properties (also known as computed properties) are properties of the state object that depend on other properties (from `props`, `session`,  or even `derived` or the same from state props or children) to determine their value. Best demonstrated with an example:
 
 ```javascript
+var Address = AmpersandState.extend({
+  props: {
+    'street': 'string',
+    'city': 'string',
+    'region': 'string',
+    'postcode': 'string'
+  }
+});
+
 var Person = AmpersandState.extend({
     props: {
         firstName: 'string',
-        lastName: 'string'
+        lastName: 'string',
+        address: 'state'
     },
     derived: {
         fullName: {
@@ -396,16 +406,43 @@ var Person = AmpersandState.extend({
             fn: function () {
                 return this.firstName + ' ' + this.lastName;
             }
+        },
+        mailingAddress: {
+            deps: ['address.street', 'address.city', 'address.region', 'address.postcode'],
+            fn: function () {
+                var self = this;
+                return ['street','city','region','postcode'].map(function (prop) {
+                    var val = self.address[prop];
+                    if (!val) return val;
+                    return (prop === 'street' || prop === 'city') ? val + ',' : val;
+                }).filter(function (val) {
+                    return !!val;
+                }).join(' ');
+            }
         }
     }
 });
 
-var person = new Person({ firstName: 'Phil', lastName: 'Roberts' });
+var person = new Person({
+    firstName: 'Phil',
+    lastName: 'Roberts',
+    address: new Address({
+        street: '123 Main St',
+        city: 'Anyplace',
+        region: 'BC',
+        postcode: 'V6A 2S5'
+    })
+});
 console.log(person.fullName) //=> "Phil Roberts"
+console.log(person.mailingAddress) //=> "123 Main St, Anyplace, BC V6A 2S5"
 
 person.firstName = 'Bob';
+person.address.street = '321 St. Charles Pl'
 console.log(person.fullName) //=> "Bob Roberts"
+console.log(person.mailingAddress) //=> "321 St. Charles Pl, Anyplace, BC V6A 2S5"
 ```
+
+See working example at [RequireBin](http://requirebin.com/?gist=c496f0d33f32527fe1ca)
 
 Each derived property is defined as an object with the following properties:
 
