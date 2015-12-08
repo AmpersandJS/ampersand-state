@@ -17,6 +17,7 @@
   "dependencies": {
     "ampersand-events": "^1.1.1",
     "ampersand-version": "^1.0.0",
+    "amp-is-object-equal": "^1.0.2",
     "array-next": "~0.0.1",
     "key-tree-store": "^1.3.0",
     "lodash.assign": "^3.2.0",

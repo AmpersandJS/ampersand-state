@@ -20,6 +20,7 @@ var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
 var changeRE = /^change:/;
+var isObjectEqual = require('amp-is-object-equal');
 
 function Base(attrs, options) {
     options || (options = {});
@@ -420,9 +421,11 @@ assign(Base.prototype, Events, {
             var update = function (options) {
                 options = options || {};
 
+
+
                 var newVal = def.fn.call(self);
 
-                if (self._cache[name] !== newVal || !def.cache) {
+                if (!isObjectEqual(self._cache[name], newVal) || !def.cache) {
                     if (def.cache) {
                         self._previousAttributes[name] = self._cache[name];
                     }
