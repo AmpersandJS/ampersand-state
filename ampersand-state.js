@@ -157,7 +157,11 @@ assign(Base.prototype, Events, {
             if (!def) {
                 // if this is a child model or collection
                 if (this._children[attr] || this._collections[attr]) {
-                    this[attr].set(newVal, options);
+                    if (this._collections[attr] && options.reset) {
+                        this[attr].reset(newVal);
+                    } else {
+                        this[attr].set(newVal, options);
+                    }
                     continue;
                 } else if (extraProperties === 'ignore') {
                     continue;
