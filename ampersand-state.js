@@ -155,8 +155,16 @@ assign(Base.prototype, Events, {
             def = this._definition[attr];
 
             if (!def) {
-                // if this is a child model or collection
-                if (this._children[attr] || this._collections[attr]) {
+                // if this is a child model
+                if (this._children[attr]) {
+                    if (newVal instanceof this._children[attr]) {
+                        // Get the raw attributes including the session values.
+                        newVal = newVal.getAttributes({ props: true, session: true }, true);
+                    }
+                    this[attr].set(newVal, options);
+                    continue;
+                // if this is a collection
+                } else if (this._collections[attr]) {
                     this[attr].set(newVal, options);
                     continue;
                 } else if (extraProperties === 'ignore') {

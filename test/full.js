@@ -1079,6 +1079,46 @@ test('listens to child events', function (t) {
     first.firstChild.grandChild.name = 'Bob';
 });
 
+test('instantiated children can be set', function (t) {
+    var Child = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        }
+    });
+
+    var Parent = State.extend({
+        props: {
+            id: 'string',
+            name: 'string'
+        },
+        children: {
+            firstChild: Child,
+            secondChild: Child
+        }
+    });
+
+    var child = new Child({
+        id: 'first-child',
+        name: 'first-child-name'
+    });
+
+    var parent = new Parent({
+        id: 'child',
+        name: 'first-name',
+        firstChild: child,
+        secondChild: {
+            id: 'second-child',
+            name: 'second-child-name'
+        }
+    });
+
+    t.plan(2);
+    
+    t.equal(parent.firstChild.name, 'first-child-name', 'instantiated child should be directly accessible');   
+    t.equal(parent.secondChild.name, 'second-child-name', 'regular child should be directly accessible');   
+});
+
 test('Should be able to declare derived properties that have nested deps', function (t) {
     var GrandChild = State.extend({
         props: {
