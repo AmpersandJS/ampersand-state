@@ -117,7 +117,7 @@ assign(Base.prototype, Events, {
     set: function (key, value, options) {
         var self = this;
         var extraProperties = this.extraProperties;
-        var changing, changes, newType, newVal, def, cast, err, attr,
+        var wasChanging, changeEvents, newType, newVal, def, cast, err, attr,
             attrs, dataType, silent, unset, currentVal, initial, hasChanged, isEqual, onChange;
 
         // Handle both `"key", value` and `{key: value}` -style arguments.
@@ -138,18 +138,22 @@ assign(Base.prototype, Events, {
         silent = options.silent;
         initial = options.initial;
 
-        changes = [];
-        changing = this._changing;
+        // Initialize change tracking.
+        wasChanging = this._changing;
         this._changing = true;
+        changeEvents = [];
 
         // if not already changing, store previous
-        if (!changing) {
+        if (initial) {
+            this._previousAttributes = {};
+        } else if (!wasChanging) {
             this._previousAttributes = this.attributes;
             this._changed = {};
         }
 
         // For each `set` attribute...
-        for (attr in attrs) {
+        for (var i = 0, keys = Object.keys(attrs), len = keys.length; i < len; i++) {
+            attr = keys[i];
             newVal = attrs[attr];
             newType = typeof newVal;
             currentVal = this._values[attr];
@@ -213,49 +217,58 @@ assign(Base.prototype, Events, {
                 }
             }
 
-            hasChanged = !isEqual(currentVal, newVal, attr);
+            // We know this has 'changed' if it's the initial set, so skip a potentially expensive isEqual check.
+            hasChanged = initial || !isEqual(currentVal, newVal, attr);
 
             // enforce `setOnce` for properties if set
-            if (def.setOnce && currentVal !== undefined && hasChanged && !initial) {
+            if (def.setOnce && currentVal !== undefined && hasChanged) {
                 throw new TypeError('Property \'' + attr + '\' can only be set once.');
             }
 
-            // keep track of changed attributes
-            // and push to changes array
+            // set/unset attributes.
+            // If this is not the initial set, keep track of changed attributes
+            // and push to changeEvents array so we can fire events.
             if (hasChanged) {
-                changes.push({prev: currentVal, val: newVal, key: attr});
-                self._changed[attr] = newVal;
+
+                // This fires no matter what, even on initial set.
                 onChange(newVal, currentVal, attr);
+
+                // If this is a change (not an initial set), mark the change.
+                // Note it's impossible to unset on the initial set (it will already be unset),
+                // so we only include that logic here.
+                if (!initial) {
+                    this._changed[attr] = newVal;
+                    this._previousAttributes[attr] = currentVal;
+                    if (unset) {
+                        // FIXME delete is very slow. Can we get away with setting to undefined?
+                        delete this._values[attr];
+                    }
+                    if (!silent) {
+                        changeEvents.push({prev: currentVal, val: newVal, key: attr});
+                    }
+                }
+                if (!unset) {
+                    this._values[attr] = newVal;
+                }
             } else {
-                delete self._changed[attr];
+                // Not changed
+                // FIXME delete is very slow. Can we get away with setting to undefined?
+                delete this._changed[attr];
             }
         }
 
-        // actually update our values
-        changes.forEach(function (change) {
-            self._previousAttributes[change.key] = change.prev;
-            if (unset) {
-                delete self._values[change.key];
-            } else {
-                self._values[change.key] = change.val;
-            }
+        // Fire events. This array is not populated if we are told to be silent.
+        if (changeEvents.length) this._pending = true;
+        changeEvents.forEach(function (change) {
+            self.trigger('change:' + change.key, self, change.val, options);
         });
-
-        if (!silent && changes.length) self._pending = true;
-        if (!silent) {
-            changes.forEach(function (change) {
-                self.trigger('change:' + change.key, self, change.val, options);
-            });
-        }
 
         // You might be wondering why there's a `while` loop here. Changes can
         // be recursively nested within `"change"` events.
-        if (changing) return this;
-        if (!silent) {
-            while (this._pending) {
-                this._pending = false;
-                this.trigger('change', this, options);
-            }
+        if (wasChanging) return this;
+        while (this._pending) {
+            this._pending = false;
+            this.trigger('change', this, options);
         }
         this._pending = false;
         this._changing = false;
@@ -403,8 +416,8 @@ assign(Base.prototype, Events, {
             derived: false
         }, options || {});
         var res = {};
-        var val, item, def;
-        for (item in this._definition) {
+        var val, def;
+        for (var item in this._definition) {
             def = this._definition[item];
             if ((options.session && def.session) || (options.props && !def.session)) {
                 val = raw ? this._values[item] : this[item];
@@ -414,7 +427,7 @@ assign(Base.prototype, Events, {
             }
         }
         if (options.derived) {
-            for (item in this._derived) res[item] = this[item];
+            for (var derivedItem in this._derived) res[derivedItem] = this[derivedItem];
         }
         return res;
     },
@@ -605,6 +618,8 @@ function createPropertyDefinition(object, name, desc, isSession) {
             }
             var defaultValue = result(def, 'default');
             this._values[name] = defaultValue;
+            // If we've set a defaultValue, fire a change handler effectively marking
+            // its change from undefined to the default value.
             if (typeof defaultValue !== 'undefined') {
                 var onChange = this._getOnChangeForType(def.type);
                 onChange(defaultValue, value, name);
@@ -736,7 +751,6 @@ var dataTypes = {
         onChange : function(newVal, previousVal, attributeName){
             // if this has changed we want to also handle
             // event propagation
-
             if (previousVal) {
                 this.stopListening(previousVal);
             }
