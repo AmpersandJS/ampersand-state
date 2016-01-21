@@ -66,7 +66,7 @@
     "coverage": "rm -rf coverage && istanbul cover -- tape test/index.js --verbose",
     "validate": "npm ls",
     "lint": "jshint ampersand-state.js ./test/*",
-    "benchmark": "node --allow-natives-syntax benchmark/massCreate.js",
+    "benchmark": "for f in benchmark/*.js; do node --allow-natives-syntax --trace-deopt $f; done",
     "preversion": "git checkout master && git pull && npm ls",
     "publish-patch": "npm run preversion && npm version patch && git push origin master --tags && npm publish",
     "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
