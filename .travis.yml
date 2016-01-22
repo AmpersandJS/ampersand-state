@@ -13,7 +13,10 @@ notifications:
     on_failure: always
     on_start: false
   email: false
-script: npm run test-ci
+script:
+- npm run test-ci
+- npm run coverage
+after_script: npm run coveralls
 addons:
   sauce_connect: true
 env:
