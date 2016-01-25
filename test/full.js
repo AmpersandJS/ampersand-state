@@ -664,9 +664,8 @@ test('Uses dataType compare', function (t) {
 
     compareRun = false;
     var foo = new Foo({ silliness: 'you' });
-    t.assert(compareRun);
+    t.notOk(compareRun);
 
-    compareRun = false;
     foo.silliness = 'they';
     t.assert(compareRun);
     t.end();
