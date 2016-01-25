@@ -39,16 +39,13 @@
   "devDependencies": {
     "ampersand-collection": "^1.3.2",
     "ampersand-registry": "0.x.x",
-    "browserify": "^11.0.1",
     "coveralls": "^2.11.4",
     "istanbul": "^0.4.0",
     "jshint": "^2.5.3",
-    "phantomjs": "^1.9.7-15",
+    "phantomjs": "^1.9.19",
     "precommit-hook": "^3.0.0",
-    "run-browser": "^2.0.2",
-    "tap-spec": "^4.0.2",
     "tape": "^4.0.3",
-    "tape-run": "^1.1.0"
+    "zuul": "^3.9.0"
   },
   "homepage": "https://github.com/ampersandjs/ampersand-state",
   "keywords": [
@@ -63,10 +60,11 @@
     "url": "git://github.com/ampersandjs/ampersand-state"
   },
   "scripts": {
-    "test": "browserify test/index.js | tape-run | tap-spec",
+    "start": "zuul --local -- test/index.js",
+    "test": "zuul --phantom -- test/index.js",
+    "test-ci": "zuul -- test/index.js",
     "coverage": "rm -rf coverage && istanbul cover -- tape test/index.js --verbose",
     "validate": "npm ls",
-    "start": "run-browser test/index.js",
     "lint": "jshint ampersand-state.js ./test/*",
     "benchmark": "node --allow-natives-syntax benchmark/massCreate.js",
     "preversion": "git checkout master && git pull && npm ls",
@@ -74,22 +72,6 @@
     "publish-minor": "npm run preversion && npm version minor && git push origin master --tags && npm publish",
     "publish-major": "npm run preversion && npm version major && git push origin master --tags && npm publish",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
-  },
-  "testling": {
-    "files": "test/*.js",
-    "browsers": [
-      "ie/9..latest",
-      "firefox/17..latest",
-      "firefox/nightly",
-      "chrome/22..latest",
-      "chrome/canary",
-      "opera/12..latest",
-      "opera/next",
-      "safari/5.1..latest",
-      "ipad/6.0..latest",
-      "iphone/6.0..latest",
-      "android-browser/4.2..latest"
-    ]
   },
   "pre-commit": [
     "lint",
