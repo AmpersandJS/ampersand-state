@@ -223,6 +223,7 @@ To define a type, you generally will provide an object with 4 member functions (
 
 * `set : function(newVal){};  returns {type : type, val : newVal};`:  Called on every set. Should return an object with two members: `val` and `type`.  If the `type` value does not equal the name of the dataType you defined, a `TypeError` should be thrown.
 * `compare : function(currentVal, newVal, attributeName){}; returns boolean`:  Called on every `set`. Should return `true` if `oldVal` and `newVal` are equal.  Non-equal values will eventually trigger `change` events, unless the state's `set` (not the dataTypes's!) is called with the option `{silent : true}`.
+* `onChange : function (value, previousValue, attributeName){};`: Called after the value changes. Useful for automatically setting up or tearing down listeners on properties.
 * `get : function(val){} returns val;`:  Overrides the default getter of this type.  Useful if you want to make defensive copies.  For example, the `date` dataType returns a clone of the internally saved `date` to keep the internal state consistent.
 * `default : function(){} returns val;`:  Returns the default value for this type.
 

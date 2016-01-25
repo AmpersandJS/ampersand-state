@@ -1815,3 +1815,74 @@ test('toJSON should serialize customType props - issue #197', function(t) {
 
     t.end();
 });
+
+test("#112 - should not set up events on child state if setOnce check fails", function(t){
+    var Person = State.extend({
+        props : {
+            birthday : {
+                type : 'state',
+                setOnce : true
+            }
+        }
+    });
+    var Birthday = State.extend({
+        props : {
+            day : 'date'
+        }
+    });
+
+    var p = new Person();
+    var bday = new Birthday({day : new Date()});
+    p.once('change:birthday', function() {
+        t.pass('birthday can change once');
+    });
+    p.birthday = bday;
+    var newBday = new Birthday({day : new Date()});
+    t.throws(function() {
+        p.birthday = newBday;
+    }, TypeError, 'Throws error on change of setOnce');
+
+    p.on('change:birthday.day', function() {
+        t.fail('should not trigger change event on old one');
+    });
+
+    newBday.day = new Date(1);
+
+    t.end();
+});
+
+test('#112 - onChange should be called for default values', function (t) {
+  var Person = State.extend({
+    dataTypes: {
+      'custom-type': {
+        set: function (newVal) {
+          return {
+            type: 'custom-type',
+            val: newVal
+          };
+        },
+        onChange: function (newVal, curVal, name) {
+          t.equal(newVal.value, 100, 'should get the default value as newVal');
+          t.equal(curVal, undefined, 'should get undefined as current value');
+          t.equal(name, 'strength', 'should get the attribute name');
+          t.pass('onChange was called');
+        }
+      }
+    },
+    props: {
+      strength: {
+        type: 'custom-type',
+        default: function () {
+          t.pass('default function should be called');
+          return {
+            value: 100
+          };
+        }
+      }
+    }
+  });
+
+  t.plan(6);
+  var p = new Person();
+  t.equal(p.strength.value, 100);
+});
