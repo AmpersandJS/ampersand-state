@@ -971,6 +971,11 @@ test('children and collections should be instantiated', function (t) {
     t.equal(first.firstChild.id, 'firstChild', 'change should have been applied');
     t.equal(first.firstChild.grandChild.nicknames.length, 3, 'collection should have been updated');
 
+    // it should be ok to pass `null` as the child
+    first.set("firstChild", null);
+    first.set({"firstChild": undefined});
+    t.equal(first.firstChild.id, "firstChild");
+
     t.end();
 });
 
