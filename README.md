@@ -622,7 +622,7 @@ Possible options (when using `state.set()`):
 * `silent` {Boolean} - prevents triggering of any change events as a result of the set operation.
 * `unset` {Boolean} - `unset` the attributes keyed in the attributes object instead of setting them.
 
-_Note: when passing an object as the `attributes` argument, only that object's own enumerable properties (i.e. those that can be accessed with `Object.keys(object)` are read and set. This behavious is new as of v5.0.0, as prior version relied on `for...in` to access an object's properties, both owned by that object and those inherited through the prototypal chain._
+_Note: when passing an object as the `attributes` argument, only that object's own enumerable properties (i.e. those that can be accessed with `Object.keys(object)` are read and set. This behaviour is new as of v5.0.0, as prior version relied on `for...in` to access an object's properties, both owned by that object and those inherited through the prototypal chain._
 
 ### unset `state.unset(attribute|attributes[], [options])`
 
