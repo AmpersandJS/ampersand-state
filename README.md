@@ -539,7 +539,7 @@ var WidgetCollection = Collection.extend({
     model: Widget
 });
 
-var Person = AmpersandState.extend({
+var Person = State.extend({
     props: {
         name: 'string'
     },
