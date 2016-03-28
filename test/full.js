@@ -1890,3 +1890,26 @@ test('#112 - onChange should be called for default values', function (t) {
   var p = new Person();
   t.equal(p.strength.value, 100);
 });
+
+test('keeps event listeners when changing property of type state', function (t) {
+  var Organization = State.extend({});
+  var Person = State.extend({
+    props: {
+      organization: { type: 'state' }
+    },
+    initialize: function() {
+      this.listenTo(this.organization, 'customEvent', function() {
+        t.pass('customEvent handler was called');
+      });
+    },
+  });
+
+  t.plan(1);
+  var orgA = new Organization();
+  var orgB = new Organization();
+  var p = new Person({ organization: orgA });
+  p.organization = orgB;
+  orgA.trigger('customEvent');
+  t.end();
+});
+
