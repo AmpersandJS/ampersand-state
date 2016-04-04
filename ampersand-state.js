@@ -1,21 +1,20 @@
 'use strict';
 /*$AMPERSAND_VERSION*/
-var uniqueId = require('lodash.uniqueid');
-var assign = require('lodash.assign');
+var uniqueId = require('lodash/uniqueid');
+var assign = require('lodash/assign');
 var cloneObj = function(obj) { return assign({}, obj); };
-var omit = require('lodash.omit');
-var escape = require('lodash.escape');
-var forOwn = require('lodash.forown');
-var includes = require('lodash.includes');
-var isString = require('lodash.isstring');
-var isObject = require('lodash.isobject');
-var isDate = require('lodash.isdate');
-var isFunction = require('lodash.isfunction');
-var _isEqual = require('lodash.isequal'); // to avoid shadowing
-var has = require('lodash.has');
-var result = require('lodash.result');
-var bind = require('lodash.bind'); // because phantomjs doesn't have Function#bind
-var union = require('lodash.union');
+var omit = require('lodash/omit');
+var escape = require('lodash/escape');
+var forOwn = require('lodash/forown');
+var includes = require('lodash/includes');
+var isString = require('lodash/isstring');
+var isObject = require('lodash/isobject');
+var isDate = require('lodash/isdate');
+var isFunction = require('lodash/isfunction');
+var _isEqual = require('lodash/isequal'); // to avoid shadowing
+var has = require('lodash/has');
+var result = require('lodash/result');
+var union = require('lodash/union');
 var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
@@ -102,12 +101,13 @@ assign(Base.prototype, Events, {
     serialize: function (options) {
         var attrOpts = assign({props: true}, options);
         var res = this.getAttributes(attrOpts, true);
-        forOwn(this._children, function (value, key) {
-            res[key] = this[key].serialize();
-        }, this);
-        forOwn(this._collections, function (value, key) {
-            res[key] = this[key].serialize();
-        }, this);
+        
+        var setFromSerializedValue = function (value, key) {
+	        res[key] = this[key].serialize();
+        }.bind(this);
+        
+        forOwn(this._children, setFromSerializedValue);
+        forOwn(this._collections, setFromSerializedValue);
         return res;
     },
 
@@ -381,13 +381,13 @@ assign(Base.prototype, Events, {
     // Determine which comparison algorithm to use for comparing a property
     _getCompareForType: function (type) {
         var dataType = this._dataTypes[type];
-        if (dataType && dataType.compare) return bind(dataType.compare, this);
+        if (dataType && dataType.compare) return dataType.compare.bind(this);
         return _isEqual; // if no compare function is defined, use _.isEqual
     },
 
     _getOnChangeForType : function(type){
         var dataType = this._dataTypes[type];
-        if (dataType && dataType.onChange) return bind(dataType.onChange, this);
+        if (dataType && dataType.onChange) return dataType.onChange.bind(this);
         return noop;
     },
 
@@ -504,13 +504,13 @@ assign(Base.prototype, Events, {
     // Returns a bound handler for doing event bubbling while
     // adding a name to the change string.
     _getEventBubblingHandler: function (propertyName) {
-        return bind(function (name, model, newValue) {
+        return function (name, model, newValue) {
             if (changeRE.test(name)) {
                 this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
             } else if (name === 'change') {
                 this.trigger('change', this);
             }
-        }, this);
+        }.bind(this);
     },
 
     // Check that all required attributes are present
