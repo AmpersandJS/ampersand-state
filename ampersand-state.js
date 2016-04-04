@@ -1,6 +1,6 @@
 'use strict';
 /*$AMPERSAND_VERSION*/
-var uniqueId = require('lodash/uniqueid');
+var uniqueId = require('lodash/uniqueId');
 var assign = require('lodash/assign');
 var cloneObj = function(obj) { return assign({}, obj); };
 var omit = require('lodash/omit');
