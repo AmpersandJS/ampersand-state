@@ -27,6 +27,7 @@ function Base(attrs, options) {
     this.cid || (this.cid = uniqueId('state'));
     this._events = {};
     this._values = {};
+    this._eventBubblingHandlerCache = {};
     this._definition = Object.create(this._definition);
     if (options.parse) attrs = this.parse(attrs, options);
     this.parent = options.parent;
@@ -497,20 +498,23 @@ assign(Base.prototype, Events, {
         if (!this._children) return;
         for (child in this._children) {
             this._safeSet(child, new this._children[child]({}, {parent: this}));
-            this.listenTo(this[child], 'all', this._getEventBubblingHandler(child));
+            this.listenTo(this[child], 'all', this._getCachedEventBubblingHandler(child));
         }
     },
 
     // Returns a bound handler for doing event bubbling while
     // adding a name to the change string.
-    _getEventBubblingHandler: function (propertyName) {
-        return bind(function (name, model, newValue) {
-            if (changeRE.test(name)) {
-                this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
-            } else if (name === 'change') {
-                this.trigger('change', this);
-            }
-        }, this);
+    _getCachedEventBubblingHandler: function (propertyName) {
+        if (!this._eventBubblingHandlerCache[propertyName]) {
+            this._eventBubblingHandlerCache[propertyName] = bind(function (name, model, newValue) {
+                if (changeRE.test(name)) {
+                    this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
+                } else if (name === 'change') {
+                    this.trigger('change', this);
+                }
+            }, this);
+        }
+        return this._eventBubblingHandlerCache[propertyName];
     },
 
     // Check that all required attributes are present
@@ -756,11 +760,11 @@ var dataTypes = {
             // if this has changed we want to also handle
             // event propagation
             if (previousVal) {
-                this.stopListening(previousVal);
+                this.stopListening(previousVal, 'all', this._getCachedEventBubblingHandler(attributeName));
             }
 
             if (newVal != null) {
-                this.listenTo(newVal, 'all', this._getEventBubblingHandler(attributeName));
+                this.listenTo(newVal, 'all', this._getCachedEventBubblingHandler(attributeName));
             }
         }
     }
