@@ -1,11 +1,11 @@
 'use strict';
 /*$AMPERSAND_VERSION*/
-var uniqueId = require('lodash/uniqueid');
+var uniqueId = require('lodash/uniqueId');
 var assign = require('lodash/assign');
 var cloneObj = function(obj) { return assign({}, obj); };
 var omit = require('lodash/omit');
 var escape = require('lodash/escape');
-var forOwn = require('lodash/forown');
+var forOwn = require('lodash/forOwn');
 var includes = require('lodash/includes');
 var isString = require('lodash/isString');
 var isObject = require('lodash/isObject');
