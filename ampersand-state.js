@@ -103,12 +103,13 @@ assign(Base.prototype, Events, {
     serialize: function (options) {
         var attrOpts = assign({props: true}, options);
         var res = this.getAttributes(attrOpts, true);
+        var me = this;
         forOwn(this._children, function (value, key) {
-            res[key] = this[key].serialize();
-        }, this);
+            res[key] = me[key].serialize();
+        });
         forOwn(this._collections, function (value, key) {
-            res[key] = this[key].serialize();
-        }, this);
+            res[key] = me[key].serialize();
+        });
         return res;
     },
 
