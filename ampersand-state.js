@@ -1,21 +1,21 @@
 'use strict';
 /*$AMPERSAND_VERSION*/
-var uniqueId = require('lodash.uniqueid');
-var assign = require('lodash.assign');
+var uniqueId = require('lodash/uniqueid');
+var assign = require('lodash/assign');
 var cloneObj = function(obj) { return assign({}, obj); };
-var omit = require('lodash.omit');
-var escape = require('lodash.escape');
-var forOwn = require('lodash.forown');
-var includes = require('lodash.includes');
-var isString = require('lodash.isstring');
-var isObject = require('lodash.isobject');
-var isDate = require('lodash.isdate');
-var isFunction = require('lodash.isfunction');
-var _isEqual = require('lodash.isequal'); // to avoid shadowing
-var has = require('lodash.has');
-var result = require('lodash.result');
-var bind = require('lodash.bind'); // because phantomjs doesn't have Function#bind
-var union = require('lodash.union');
+var omit = require('lodash/omit');
+var escape = require('lodash/escape');
+var forOwn = require('lodash/forown');
+var includes = require('lodash/includes');
+var isString = require('lodash/isstring');
+var isObject = require('lodash/isobject');
+var isDate = require('lodash/isdate');
+var isFunction = require('lodash/isfunction');
+var _isEqual = require('lodash/isequal'); // to avoid shadowing
+var has = require('lodash/has');
+var result = require('lodash/result');
+var bind = require('lodash/bind'); // because phantomjs doesn't have Function#bind
+var union = require('lodash/union');
 var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
