@@ -1,21 +1,21 @@
 'use strict';
 /*$AMPERSAND_VERSION*/
-var uniqueId = require('lodash.uniqueid');
-var assign = require('lodash.assign');
+var uniqueId = require('lodash/uniqueId');
+var assign = require('lodash/assign');
 var cloneObj = function(obj) { return assign({}, obj); };
-var omit = require('lodash.omit');
-var escape = require('lodash.escape');
-var forOwn = require('lodash.forown');
-var includes = require('lodash.includes');
-var isString = require('lodash.isstring');
-var isObject = require('lodash.isobject');
-var isDate = require('lodash.isdate');
-var isFunction = require('lodash.isfunction');
-var _isEqual = require('lodash.isequal'); // to avoid shadowing
-var has = require('lodash.has');
-var result = require('lodash.result');
-var bind = require('lodash.bind'); // because phantomjs doesn't have Function#bind
-var union = require('lodash.union');
+var omit = require('lodash/omit');
+var escape = require('lodash/escape');
+var forOwn = require('lodash/forOwn');
+var includes = require('lodash/includes');
+var isString = require('lodash/isString');
+var isObject = require('lodash/isObject');
+var isDate = require('lodash/isDate');
+var isFunction = require('lodash/isFunction');
+var _isEqual = require('lodash/isEqual'); // to avoid shadowing
+var has = require('lodash/has');
+var result = require('lodash/result');
+var bind = require('lodash/bind'); // because phantomjs doesn't have Function#bind
+var union = require('lodash/union');
 var Events = require('ampersand-events');
 var KeyTree = require('key-tree-store');
 var arrayNext = require('array-next');
@@ -103,12 +103,13 @@ assign(Base.prototype, Events, {
     serialize: function (options) {
         var attrOpts = assign({props: true}, options);
         var res = this.getAttributes(attrOpts, true);
+        var me = this;
         forOwn(this._children, function (value, key) {
-            res[key] = this[key].serialize();
-        }, this);
+            res[key] = me[key].serialize();
+        });
         forOwn(this._collections, function (value, key) {
-            res[key] = this[key].serialize();
-        }, this);
+            res[key] = me[key].serialize();
+        });
         return res;
     },
 
