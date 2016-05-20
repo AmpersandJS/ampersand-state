@@ -1,5 +1,7 @@
 # ampersand-state
 
+Lead Maintainer: [Philip Roberts](https://github.com/latentflip)
+
 [![Coverage Status](https://coveralls.io/repos/AmpersandJS/ampersand-state/badge.svg?branch=master&service=github)](https://coveralls.io/github/AmpersandJS/ampersand-state?branch=master)
 
 <!-- starthide -->
@@ -762,3 +764,7 @@ me.getAttributes({
 
 MIT
 <!-- endhide -->
+
+## changelog
+
+- 5.0.2 - use lodash/xzy pkg requires (@samhashemi)
