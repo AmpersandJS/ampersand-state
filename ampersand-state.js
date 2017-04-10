@@ -506,11 +506,13 @@ assign(Base.prototype, Events, {
     // adding a name to the change string.
     _getCachedEventBubblingHandler: function (propertyName) {
         if (!this._eventBubblingHandlerCache[propertyName]) {
-            this._eventBubblingHandlerCache[propertyName] = bind(function (name, model, newValue) {
+            this._eventBubblingHandlerCache[propertyName] = bind(function (name, model, newValue, options) {
                 if (changeRE.test(name)) {
-                    this.trigger('change:' + propertyName + '.' + name.split(':')[1], model, newValue);
+                    var parentName = 'change:' + propertyName + '.' + name.split(':')[1];
+                    this.trigger(parentName, model, newValue, options);
                 } else if (name === 'change') {
-                    this.trigger('change', this);
+                    options = newValue;
+                    this.trigger('change', this, options);
                 }
             }, this);
         }

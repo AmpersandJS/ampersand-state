@@ -1053,7 +1053,7 @@ test('listens to child events', function (t) {
         }
     });
 
-    t.plan(7);
+    t.plan(9);
 
     //Change property
     first.once('change:name', function (model, newVal) {
@@ -1070,17 +1070,19 @@ test('listens to child events', function (t) {
     t.equal(first.firstChild.name, 'new-first-child-name');
 
     //Change grand child property
-    first.once('change:firstChild.grandChild.name', function (unsure, name) {
+    first.once('change:firstChild.grandChild.name', function (unsure, name, options) {
         t.equal(name, 'Phil');
+        t.ok(options.passesOptions, 'Options are passed');
     });
-    first.firstChild.grandChild.name = 'Phil';
+    first.firstChild.grandChild.set({name: 'Phil'}, {passesOptions: true});
     t.equal(first.firstChild.grandChild.name, 'Phil');
 
     //Propagates change events from children too
-    first.once('change', function (model) {
+    first.once('change', function (model, options) {
         t.equal(model, first);
+        t.ok(options.passesOptions, 'Options are passed');
     });
-    first.firstChild.grandChild.name = 'Bob';
+    first.firstChild.grandChild.set({name: 'Bob'}, {passesOptions: true});
 });
 
 test('Should be able to declare derived properties that have nested deps', function (t) {
