@@ -472,6 +472,18 @@ assign(Base.prototype, Events, {
                             });
                         }
                     }
+                } else if (propString.indexOf(':') > -1) {
+                    var collection = propString.split(':')[0];
+                    if (self[collection] && self[collection].isCollection) {
+                        if (!self._collectionEvents[propString]) {
+                            self._collectionEvents[propString] = true;
+                            self[collection].on(propString.split(':')[1], function () {
+                                self._keyTree.get(propString).forEach(function (fn) {
+                                    fn();
+                                });
+                            });
+                        }
+                    }
                 }
             });
         });
