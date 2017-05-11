@@ -36,6 +36,7 @@ function Base(attrs, options) {
     this._initCollections();
     this._initChildren();
     this._cache = {};
+    this._collectionEvents = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
     this._changed = {};
