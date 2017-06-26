@@ -444,9 +444,7 @@ assign(Base.prototype, Events, {
             var def = self._derived[name];
             def.deps = def.depList;
 
-            var update = function (options) {
-                options = options || {};
-
+            var update = function () {
                 var newVal = def.fn.call(self);
 
                 if (self._cache[name] !== newVal || !def.cache) {
