@@ -102,11 +102,11 @@ assign(Base.prototype, Events, {
     serialize: function (options) {
         var attrOpts = assign({props: true}, options);
         var res = this.getAttributes(attrOpts, true);
-        
+
         var setFromSerializedValue = function (value, key) {
 	        res[key] = this[key].serialize();
         }.bind(this);
-        
+
         forOwn(this._children, setFromSerializedValue);
         forOwn(this._collections, setFromSerializedValue);
         return res;
@@ -163,7 +163,7 @@ assign(Base.prototype, Events, {
             if (!def) {
                 // if this is a child model or collection
                 if (this._children[attr] || this._collections[attr]) {
-                    if (!isObject(newVal)) {
+                    if (this._children[attr] && !isObject(newVal)) {
                         newVal = {};
                     }
 

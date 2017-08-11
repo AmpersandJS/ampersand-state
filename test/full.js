@@ -1913,3 +1913,20 @@ test('keeps event listeners when changing property of type state', function (t) 
   t.end();
 });
 
+test('#254 - Fix inconsistent handling of collections when child of state object', function (t) {
+    var States = Collection.extend({});
+    var Country = State.extend({
+        collections: {
+            states: States,
+        },
+    });
+
+    var country = new Country({
+        states: null,
+    });
+
+    t.equal(country.states.length, 0);
+    t.equal(country.states.models.length, 0);
+
+    t.end();
+});
