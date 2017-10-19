@@ -233,7 +233,7 @@ Of these, `object`, `array`, and `any` allow for a lot of extra flexibility.
 
 However, sometimes it's useful to define your own custom datatypes. Doing so allows you to use them in the `props` below, along with all their features (like `required`, `default`, etc).
 
-Setting `type` is required. A `typeError` will be thrown if it's missing or has not been choosen (either from default types or your custom ones).
+Setting `type` is required. A `typeError` will be thrown if it's missing or has not been chosen (either from default types or your custom ones).
 
 To define a type, you generally will provide an object with 4 member functions (though only 2 are usually necessary)  `get`, `set`, `default`, and `compare`.
 
@@ -478,13 +478,13 @@ Each derived property is defined as an object with the following properties:
 
 * `deps` {Array} - An array of property names which the derived property depends on.
 * `fn` {Function} - A function which returns the value of the computed property. It is called in the context of the current object, so that `this` is set correctly.
-* `cache` {Boolean} - Whether to cache the property. Uncached properties are computed everytime they are accessed. Useful if it depends on the current time for example. _Defaults to `true`_.
+* `cache` {Boolean} - Whether to cache the property. Uncached properties are computed every time they are accessed. Useful if it depends on the current time for example. _Defaults to `true`_.
 
 Derived properties are retrieved and fire `change` events just like any other property. However, they cannot be set directly. Caching ensures that the `fn` function is only run when any of the dependencies change, and `change` events are only fired if the result of calling `fn()` has actually changed.
 
 ### children `AmpersandState.extend({ children: { profile: Profile } })`
 
-Define child state objects to attach to the object. Attributes passed to the constructor or to `set()` will be proxied to the `children`/`collection`. Childen's `change` events are proxied to the parent.
+Define child state objects to attach to the object. Attributes passed to the constructor or to `set()` will be proxied to the `children`/`collection`. Children's `change` events are proxied to the parent.
 
 ```javascript
 var AmpersandState = require('ampersand-state');
