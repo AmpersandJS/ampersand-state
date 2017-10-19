@@ -8,18 +8,20 @@ branches:
   except: /^v\d+\.\d+\.\d+$/
 notifications:
   webhooks:
-    urls: https://webhooks.gitter.im/e/df4440290bd89d941fb4
+    urls: 'https://webhooks.gitter.im/e/df4440290bd89d941fb4'
     on_success: change
     on_failure: always
     on_start: false
   email: false
 script:
-- npm run test-ci
-- npm run coverage
+  - npm run test-ci
+  - npm run coverage
 after_script: npm run coveralls
 addons:
   sauce_connect: true
 env:
   global:
-  - secure: btzFDYkFe1soKzbALGL+lxG4E7j6iRj7iPsP/8SQd2m4o5afKmJB58RhSk/13slcaVWdytvI92iaFma+QVCnzYIEi+CYDKpaDXceKLYDcSVOXjIi1t9G368Mvz6Jh4ixdS9aRhKe9abLqbLXiBM/o3gv2V+jzmXxYAd3jS2im0g=
-  - secure: TDdIOcf3qGvXhQT4sTIKUEGJNqmPI/tMvmd1GlzuQDkblfgD5WuwKGZADu4RsdfFq2HzwrGDMqgDXOz7oqywo8ImpczWpWFx9wt4I/CtSAG2qNJ3tTAsdCRYvvPfw3aSrwW0ksyrIoIbdLPGWTwHJubKixpBM2ZpqaozfYk75g4=
+    - secure: >-
+        EbCyqg2Ibu3yME280SE4mmFXUP6RV6DQ4NKXL/FZiGmAWUGx/0i2UNEt6leBCJYH0/zBx1ZNapr9LoslSqQL8ZxZvxIiNGDevUAtPtpNzYog97LlvR+IuhnRenCGYhtHw4Wiw5x0JLhIAz6m778R43Z5FYNWo9vVL5k402ODQ/U=
+    - secure: >-
+        Z15yXp0ycSmHyj0kacx+g/vML3HbFrGvbAvpsWL3eBEN7xlx+y8w06cwxZxotVnha/SgbCbXGJYvViZxLVjYywUTuS5oUNSd/WB76+e8UOBYVakO/QB/K7zV1wKPAFgwOUcdzwu+/3k8xbNdOqlnAQJ/fmMH6nR2CgnUNVAlz8Q=
