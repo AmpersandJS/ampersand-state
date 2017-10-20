@@ -1913,3 +1913,29 @@ test('keeps event listeners when changing property of type state', function (t) 
   t.end();
 });
 
+test('passing null to set method should not create a new collection with one dummy element', function (t) {
+  var Friends = Collection.extend({
+    model: Person
+  });
+  
+  var Person = State.extend({
+    props: {
+      name: 'string'
+    },
+    collections: {
+      friends: Friends
+    }
+  });
+
+  t.plan(1);  
+  var p = new Person({ name : 'Joe' });
+  
+  p.set("friends", null);
+  p.set({"friends": undefined});
+  
+  console.log(p.friends.models.length);
+  
+  t.equal(p.friends.models.length, 0);
+
+  t.end();
+});
