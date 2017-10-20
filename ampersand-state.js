@@ -33,7 +33,7 @@ function Base(attrs, options) {
     this.collection = options.collection;
     this._keyTree = new KeyTree();
     this._initCollections();
-    this._initChildren();
+    this._initChildren(attrs, options);
     this._cache = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
