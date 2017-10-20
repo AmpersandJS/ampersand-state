@@ -35,6 +35,7 @@ function Base(attrs, options) {
     this._initCollections();
     this._initChildren();
     this._cache = {};
+    this._collectionEvents = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
     this._changed = {};
@@ -458,6 +459,31 @@ assign(Base.prototype, Events, {
 
             def.deps.forEach(function (propString) {
                 self._keyTree.add(propString, update);
+                if (propString.indexOf('.') > -1) {
+                    var collection = propString.split('.')[0];
+                    if (self[collection] && self[collection].isCollection) {
+                        if (!self._collectionEvents[propString]) {
+                            self._collectionEvents[propString] = true;
+                            self[collection].on('change:' + propString.split('.')[1], function () {
+                                self._keyTree.get(propString).forEach(function (fn) {
+                                    fn();
+                                });
+                            });
+                        }
+                    }
+                } else if (propString.indexOf(':') > -1) {
+                    var collection = propString.split(':')[0];
+                    if (self[collection] && self[collection].isCollection) {
+                        if (!self._collectionEvents[propString]) {
+                            self._collectionEvents[propString] = true;
+                            self[collection].on(propString.split(':')[1], function () {
+                                self._keyTree.get(propString).forEach(function (fn) {
+                                    fn();
+                                });
+                            });
+                        }
+                    }
+                }
             });
         });
 
