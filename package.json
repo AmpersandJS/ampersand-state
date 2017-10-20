@@ -24,7 +24,7 @@
   "devDependencies": {
     "ampersand-collection": "^2.0.0",
     "ampersand-registry": "0.x.x",
-    "coveralls": "^2.11.9",
+    "coveralls": "^3.0.0",
     "istanbul": "^0.4.3",
     "jshint": "^2.9.2",
     "phantomjs-prebuilt": "^2.1.7",
