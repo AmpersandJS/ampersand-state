@@ -432,6 +432,23 @@ test('changedAttributes', function (t) {
     t.end();
 });
 
+test('set with parse', function(t) {
+    var Model = State.extend({
+        props: {
+            a: 'string',
+            parsed: 'boolean',
+        },
+        parse: function(props) {
+            props.parsed = true;
+            return props;
+        }
+    });
+    var model = new Model();
+    model.set({a: 'a'}, {parse: true});
+    t.equal(model.get('parsed'), true);
+    t.end();
+});
+
 test('change with options', function (t) {
     var value;
     var Model = State.extend({
