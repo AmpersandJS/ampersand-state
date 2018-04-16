@@ -1,7 +1,7 @@
 {
   "name": "ampersand-state",
   "description": "An observable, extensible state object with derived watchable properties.",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "author": "Henrik Joreteg <henrik@andyet.net>",
   "files": [
     "ampersand-state.js"
