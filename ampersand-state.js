@@ -32,9 +32,9 @@ function Base(attrs, options) {
     this.parent = options.parent;
     this.collection = options.collection;
     this._keyTree = new KeyTree();
-    this._initCollections(options);
-    this._initChildren(options);
     this.initializeBeforeSet(options);
+    this._initCollections();
+    this._initChildren();
     this._cache = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
@@ -492,19 +492,19 @@ assign(Base.prototype, Events, {
         }
     },
 
-    _initCollections: function (options) {
+    _initCollections: function () {
         var coll;
         if (!this._collections) return;
         for (coll in this._collections) {
-            this._safeSet(coll, new this._collections[coll](null, assign({}, options, {parent: this})));
+            this._safeSet(coll, new this._collections[coll](null, {parent: this}));
         }
     },
 
-    _initChildren: function (options) {
+    _initChildren: function () {
         var child;
         if (!this._children) return;
         for (child in this._children) {
-            this._safeSet(child, new this._children[child]({}, assign({}, options, {parent: this})));
+            this._safeSet(child, new this._children[child]({}, {parent: this}));
             this.listenTo(this[child], 'all', this._getCachedEventBubblingHandler(child));
         }
     },
