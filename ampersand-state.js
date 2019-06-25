@@ -32,9 +32,9 @@ function Base(attrs, options) {
     this.parent = options.parent;
     this.collection = options.collection;
     this._keyTree = new KeyTree();
-    this.initializeBeforeSet(options);
     this._initCollections();
     this._initChildren();
+    this.initializeBeforeSet(options);
     this._cache = {};
     this._previousAttributes = {};
     if (attrs) this.set(attrs, assign({silent: true, initial: true}, options));
